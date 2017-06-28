@@ -1,38 +1,56 @@
 
 import lejos.hardware.Button;
+import lejos.hardware.Sound;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.utility.Delay;
 
 /*
  * GetTachocount oder System.nanoTime() oder beides?
  * 
  */
 
-
 public class BarcodeScanner
 {
-	
 	float caliGrenze; //Pauschal: 0 schwarz, 1 weiß
-	float sample[];
-	float aktWert;
-	long timeBlock; //Wie lange braucht Robi für einen Block
+	float sample[] = new float[1]; 
 	Object[] rueckgabe = new Object[2]; //Evtl nur fürs Debugging gebraucht
+	EV3ColorSensor light;
+	
+	class Rueckgabe
+	{
+		float aktWert;  //TODO: SChmittigenauigkeit: privat?
+		long timeBlock; //Wie lange braucht Robi für einen Block
+		   
+		public Rueckgabe(float aktWert, long timeBlock)
+		{
+			this.aktWert=aktWert;
+			this.timeBlock=timeBlock;
+		}
+	}
+	
+	BarcodeScanner()
+	{
+		Motor.A.setSpeed(1000);
+		Motor.D.setSpeed(1000);
+		light = new EV3ColorSensor(SensorPort.S4);
+		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
+	}
 	
 	public static void main(String[] args)
 	{
-		Motor.A.setSpeed(250);
-		Motor.D.setSpeed(250);
-		EV3ColorSensor light = new EV3ColorSensor(SensorPort.S4);
-		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
+				
 		//Motor.A.getT
 		BarcodeScanner myLineReader = new BarcodeScanner();
         myLineReader.calibrate();
         while (Button.ESCAPE.isUp()); //TODO KILLME
         LCD.clear();        
-               
+        myLineReader.fahre();       
         myLineReader.erkenneStart();
+        LCD.drawString("Fertig",0,5);
+        myLineReader.stoppe();
         while (Button.ENTER.isUp()); //TODO KILLME
         LCD.clear();        
     }
@@ -42,6 +60,11 @@ public class BarcodeScanner
 		Motor.A.backward();
         Motor.D.backward();
 	}
+	public void stoppe()
+	{
+	    Motor.A.stop();
+	    Motor.D.stop();
+	}
 	
 	/**
      * Lichtsensor pro Abfrage einen Wert
@@ -49,6 +72,7 @@ public class BarcodeScanner
      */
 	public float scanne()
 	{
+		light.fetchSample(sample, 0);
 		while (sample[0]==0)
     	{
     		light.fetchSample(sample, 0);
@@ -60,35 +84,46 @@ public class BarcodeScanner
      * FIXME evtl macht es sinn diese Methode zu implementieren
      */
 	//public float erkenneSchwarz()
-	public Object[] erkenneSchwarz()
+	public Rueckgabe erkenneSchwarz()
 	{
-		timeBlock= -System.nanoTime();
-		while(aktWert < caliGrenze) //schwarz
+		LCD.clear();
+		long timeBlock= -System.nanoTime();
+		float aktWert = this.scanne();
+		while(aktWert < caliGrenze && Button.ENTER.isUp()) //schwarz
 		{
 			aktWert = this.scanne();
-			this.fahre();
+			//this.fahre();
+			LCD.drawString("erkenneSchwarz",0,0);	
+			LCD.drawString("AktWert: "+aktWert,0,1);
 		}
+		//Sound.beep();
+		//Sound.beep();
 		timeBlock += System.nanoTime();
 		//Object[] rueckgabe = { aktWert, timeBlock};
 		//return rueckgabe;
-		return new Object[]{aktWert, timeBlock};
+		return new Rueckgabe(aktWert, timeBlock);
 	}
 	/**
      * FIXME evtl macht es sinn diese Methode zu implementieren
      */
 	//public float erkenneWeiß() old
-	public Object[] erkenneWeiß()
+	public Rueckgabe erkenneWeiß()
 	{
-		timeBlock= -System.nanoTime();
-		while(aktWert > caliGrenze) //weiß
+		LCD.clear();
+		long timeBlock= -System.nanoTime();
+		float aktWert = this.scanne();
+		while(aktWert > caliGrenze && Button.ENTER.isUp()) //weiß
 		{
 			aktWert = this.scanne();
-			this.fahre();
-		}		
+			//this.fahre();
+			LCD.drawString("erkenneWeiss",0,0);	
+			LCD.drawString("AktWert: "+aktWert,0,1);
+		}	
+		//Sound.beep();
 		timeBlock += System.nanoTime();
 		//Object[] rueckgabe = { aktWert, timeBlock};
 		//return rueckgabe;
-		return new Object[]{aktWert, timeBlock};
+		return new Rueckgabe(aktWert, timeBlock);
 	}
 	
 	/**
@@ -97,13 +132,9 @@ public class BarcodeScanner
      */
 	public void erkenneStart() 
     {
-		aktWert = this.scanne();
-		//this.erkenneWeiß(); TODO Implement ME
-		
-		//TODO Start KILLME!
-		aktWert = this.erkenneWeiß();
-		LCD.drawString("AktWert: "+aktWert,0,1);
-		while (Button.ENTER.isDown());
+		float aktWert = this.scanne();
+		this.erkenneWeiß();
+		//while (Button.ENTER.isUp());
 		//TODO END KILLME!
 		
 		//Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier
@@ -112,19 +143,20 @@ public class BarcodeScanner
 		
 		//TODO Start KILLME!
 		//aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider nicht
-		
-		
-				LCD.drawString("AktWert: "+aktWert,0,2);
-				while (Button.ENTER.isDown());
+		Rueckgabe ergebnis1 = this.erkenneSchwarz();				
+		LCD.drawString("AktWert: "+ergebnis1.aktWert,0,1);
+		LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
+			//	while (Button.ENTER.isUp());
 		//TODO END KILLME!
 		
 		//Der 2. Block des Starts (weiß) beginnt hoffentlich hier		
 		//this.erkenneWeiß(); TODO Implement ME
 		
 		//TODO Start KILLME!
-		aktWert = this.erkenneWeiß();
-		LCD.drawString("AktWert: "+aktWert,0,3);
-		while (Button.ENTER.isDown());
+		Rueckgabe ergebnis2 = this.erkenneWeiß();				
+		LCD.drawString("AktWert: "+ergebnis2.aktWert,0,1);
+		LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
+		//while (Button.ENTER.isUp());
 		//TODO END KILLME!
 		
 		//Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
@@ -132,19 +164,21 @@ public class BarcodeScanner
 		//this.erkenneSchwarz(); TODO Implement ME
 				
 		//TODO Start KILLME!
-		aktWert = this.erkenneSchwarz();
-		LCD.drawString("AktWert: "+aktWert,0,4);
-		while (Button.ENTER.isDown());
+		Rueckgabe ergebnis3 = this.erkenneSchwarz();				
+		LCD.drawString("AktWert: "+ergebnis3.aktWert,0,1);
+		LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
+		//while (Button.ENTER.isUp());
 		//TODO END KILLME!
 		
-		//Der 4. Block des Starts (schwarz) beginnt hoffentlich hier
+		//Der 4. Block des Starts (weiß) beginnt hoffentlich hier
 		
 		//this.erkenneSchwarz(); TODO Implement ME
 						
 		//TODO Start KILLME!
-		aktWert = this.erkenneSchwarz();
-		LCD.drawString("AktWert: "+aktWert,0,5);
-		while (Button.ENTER.isDown());
+		Rueckgabe ergebnis4 = this.erkenneWeiß();				
+		LCD.drawString("AktWert: "+ergebnis4.aktWert,0,1);
+		LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
+		//while (Button.ENTER.isUp());
 		//TODO END KILLME!		
     }
 	/**
@@ -192,7 +226,7 @@ public class BarcodeScanner
      	LCD.clear();
      	LCD.drawString("Hell: "+caliHell,0,0);
      	LCD.drawString("Dunkel: "+caliDunkel,0,1);
-     	caliGrenze=caliDunkel+(caliHell-caliDunkel/2);
+     	caliGrenze=caliDunkel+((caliHell-caliDunkel)/2); //Achtung, beachtet nicht Punkt vor Strich Rechnung!
      	LCD.drawString("Grenze: "+caliGrenze,0,2);
     }
 
