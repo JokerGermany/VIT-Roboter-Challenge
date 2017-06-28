@@ -18,12 +18,14 @@ public class BarcodeScanner
 	float sample[] = new float[1]; 
 	Object[] rueckgabe = new Object[2]; //Evtl nur fürs Debugging gebraucht
 	EV3ColorSensor light;
+	int degreeBlock;
+	int toleranzBlock;
 	
-	class Rueckgabe
-	{
-		float aktWert;  //TODO: SChmittigenauigkeit: privat?
+	//class Rueckgabe
+	//{
+		//float aktWert;  //TODO: SChmittigenauigkeit: privat?
 		//long timeBlock; //Wie lange braucht Robi für einen Block - durchgetTachocount ersetzt
-		int degreeBlock;
+		
 		
 		/*
 		 * nicht mehr gebraucht, da die Blöcke in der Methode erkenneStart gemesssen werden.
@@ -33,15 +35,14 @@ public class BarcodeScanner
 			this.timeBlock=timeBlock;
 		}
 		*/
-	}
+	//}
 	
 	BarcodeScanner()
 	{
 		Motor.A.setSpeed(2000);
 		Motor.D.setSpeed(2000);
 		light = new EV3ColorSensor(SensorPort.S4);
-		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
-		
+		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
 	}
 	
 	public static void main(String[] args)
@@ -88,9 +89,10 @@ public class BarcodeScanner
 	/**
      * FIXME evtl macht es sinn diese Methode zu implementieren
      */
-	public float erkenneFarbe(boolean dunkel)
+	public int erkenneFarbe(boolean dunkel)
 	{
-		LCD.clear();
+		int aktDegreeBlock = -Motor.A.getTachoCount();
+		//LCD.clear();
 		//long timeBlock= -System.nanoTime();
 		float aktWert = this.scanne();
 		if(dunkel==true)
@@ -115,7 +117,7 @@ public class BarcodeScanner
 		}
 		//timeBlock += System.nanoTime(); // Wird in der Methode erkenne start gemacht
 		//return new Rueckgabe(aktWert, timeBlock);	
-		return aktWert;		
+		return aktDegreeBlock + Motor.A.getTachoCount();
 	}
 	/*ersetzt durch erkenne Fabre
 	 * 
@@ -179,8 +181,9 @@ public class BarcodeScanner
 		
 		//TODO Start KILLME!
 		//aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider nicht
-		//Rueckgabe ergebnis1 = this.erkenneFarbe(true);				
-		LCD.drawString("AktWert: "+this.erkenneFarbe(true),0,1);
+		//Rueckgabe ergebnis1 = this.erkenneFarbe(true);
+		degreeBlock = -Motor.A.getTachoCount();
+		LCD.drawString("Strecke: "+this.erkenneFarbe(true),0,1);
 		//LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
 			//	while (Button.ENTER.isUp());
 		//TODO END KILLME!
@@ -190,7 +193,7 @@ public class BarcodeScanner
 		
 		//TODO Start KILLME!
 		//Rueckgabe ergebnis2 = this.erkenneFarbe(false);				
-		LCD.drawString("AktWert: "+this.erkenneFarbe(false),0,1);
+		LCD.drawString("Strecke: "+this.erkenneFarbe(false),0,1);
 		//LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
 		//while (Button.ENTER.isUp());
 		//TODO END KILLME!
@@ -201,7 +204,18 @@ public class BarcodeScanner
 				
 		//TODO Start KILLME!
 		//Rueckgabe ergebnis3 = this.erkenneFarbe(true);				
-		LCD.drawString("AktWert: "+this.erkenneFarbe(true),0,1);
+		LCD.drawString("Strecke: "+this.erkenneFarbe(true),0,1);
+		int Streckenanfang = degreeBlock;
+		degreeBlock = (degreeBlock + Motor.A.getTachoCount())/3; //TODO ist Integer gut? denk dran nachkommastellen werden abgeschnitten
+		LCD.drawString("Block:"+degreeBlock,0,4);
+		LCD.drawString("GesamtStr:"+(Motor.A.getTachoCount()-Streckenanfang),0,6);
+		//Toleranz von einem 1/4.
+		toleranzBlock = (degreeBlock/4);
+		LCD.drawString("Toleranz:"+toleranzBlock,0,3);
+		LCD.drawString("Toleranz:"+toleranzBlock,0,2);
+		
+		
+		
 		//LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
 		//while (Button.ENTER.isUp());
 		//TODO END KILLME!
