@@ -22,6 +22,7 @@ public class BarcodeScanner
 	//int degreeBlock;
 	long block; // long falls zeit ausgewählt wird
 	boolean zeit;
+	boolean debug;
 	int zeile=0;
 	
 
@@ -38,19 +39,21 @@ public class BarcodeScanner
 	 */
 	// }
 
-	BarcodeScanner(boolean zeit)
+	BarcodeScanner(boolean zeit, boolean debug)
 	{
 		Motor.A.setSpeed(2000);
 		Motor.D.setSpeed(2000);
 		light = new EV3ColorSensor(SensorPort.S4);
 		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
 		this.zeit=zeit;
+		this.debug=debug;
 		
 	}
 	public static void main(String[] args)
-	{		
+	{	
+		boolean debug = false;
 		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
-		BarcodeScanner myLineReader = new BarcodeScanner(zeit); 
+		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
 		myLineReader.calibrate();		
 		//LCD.clear();
 		myLineReader.fahre();
@@ -148,7 +151,10 @@ public class BarcodeScanner
 		 * wert2) //aktWert < caliGrenze - schwarz //caliGrenze < aktWert - weiß
 		 * { aktWert = this.scanne(); LCD.drawString("AktWert: "+aktWert,0,1); }
 		 */
-		this.drawString("AktWert: " + aktWert);
+		if(debug)
+		{
+			this.drawString("AktWert: " + aktWert);
+		}
 		// timeBlock += System.nanoTime(); // Wird in der Methode erkenne start
 		// gemacht
 		// return new Rueckgabe(aktWert, timeBlock);
@@ -189,15 +195,6 @@ public class BarcodeScanner
 		this.erkenneFarbe(false);
 		// while (Button.ENTER.isUp());
 		// TODO END KILLME!
-
-		// Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier
-
-		// this.erkenneFarbe(true); TODO Implement ME
-
-		// TODO Start KILLME!
-		// aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider
-		// nicht
-		// Rueckgabe ergebnis1 = this.erkenneFarbe(true);
 		if(this.zeit)
 		{
 			block = -System.currentTimeMillis();
@@ -205,29 +202,32 @@ public class BarcodeScanner
 		else
 		{	
 			block = -this.getTachoCount();
-		}	
-		this.drawString("Strecke: " + this.erkenneFarbe(true));
-		// LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
-		// while (Button.ENTER.isUp());
-		// TODO END KILLME!
-
-		// Der 2. Block des Starts (weiß) beginnt hoffentlich hier
-		// this.erkenneFarbe(false); TODO Implement ME
-
-		// TODO Start KILLME!
-		// Rueckgabe ergebnis2 = this.erkenneFarbe(false);
-		this.drawString("Strecke: " + this.erkenneFarbe(false));
-		// LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
-		// while (Button.ENTER.isUp());
-		// TODO END KILLME!
-
-		// Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
-
-		// this.erkenneFarbe(true); TODO Implement ME
-
-		// TODO Start KILLME!
-		// Rueckgabe ergebnis3 = this.erkenneFarbe(true);
-		this.drawString("Strecke: " + this.erkenneFarbe(true));
+		}			
+		if(debug)
+		{
+// Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier			
+			this.drawString("Strecke: " + this.erkenneFarbe(true));
+			// aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider
+			// LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
+			// while (Button.ENTER.isUp());
+// Der 2. Block des Starts (weiß) beginnt hoffentlich hier
+			// Rueckgabe ergebnis2 = this.erkenneFarbe(false);
+			this.drawString("Strecke: " + this.erkenneFarbe(false));
+			// LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
+			// while (Button.ENTER.isUp());
+// Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
+			// Rueckgabe ergebnis3 = this.erkenneFarbe(true);
+			this.drawString("Strecke: " + this.erkenneFarbe(true));
+		}
+		else
+		{
+// Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier	
+			this.erkenneFarbe(true);
+// Der 2. Block des Starts (weiß) beginnt hoffentlich hier
+			this.erkenneFarbe(false);
+// Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
+			this.erkenneFarbe(true);
+		}
 		long Streckenanfang = block;
 		if(this.zeit)
 		{
@@ -238,36 +238,38 @@ public class BarcodeScanner
 			block = (block + this.getTachoCount()) / 3; 
 		}	
 // TODO ist Integer/long gut? denk dran Nachkommastellen werden abgeschnitten
-		this.drawString("Block:" + block);
-		if(this.zeit)
+		if(debug)
 		{
-			this.drawString("GesamtStr:" + (System.currentTimeMillis() - Streckenanfang));
-		}
-		else
-		{	
-			this.drawString("GesamtStr:" + (this.getTachoCount() - Streckenanfang));
-		}
+			this.drawString("Block:" + block);
+			if(this.zeit)
+			{
+				this.drawString("GesamtStr:" + (System.currentTimeMillis() - Streckenanfang));
+			}
+			else
+			{	
+				this.drawString("GesamtStr:" + (this.getTachoCount() - Streckenanfang));
+			}
+		}	
 		// Toleranz von einem 1/4.
 		toleranzBlock = (block / 4);
-		this.drawString("Toleranz:" + toleranzBlock);
-		this.drawString("Toleranz:" + toleranzBlock);
-
-		// LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
-		// while (Button.ENTER.isUp());
-		// TODO END KILLME!
-
-		// Der 4. Block des Starts (weiß) beginnt hoffentlich hier
-
-		// this.erkenneFarbe(true); TODO Implement ME
-
-		// TODO Start KILLME!
-		// Rueckgabe ergebnis4 = this.erkenneFarbe(false);
-		this.drawString("AktWert: " + this.erkenneFarbe(false));
-		// LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
-		// while (Button.ENTER.isUp());
-		// TODO END KILLME!
+		if(debug)
+		{
+			this.drawString("Toleranz:" + toleranzBlock);
+			// LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
+			// while (Button.ENTER.isUp());
+// Der 4. Block des Starts (weiß) beginnt hoffentlich hier
+			// Rueckgabe ergebnis4 = this.erkenneFarbe(false);
+			this.drawString("AktWert: " + this.erkenneFarbe(false));
+			// LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
+			// while (Button.ENTER.isUp());
+		}
+		else
+		{
+// Der 4. Block des Starts (weiß) beginnt hoffentlich hier
+			this.erkenneFarbe(false);
+		}		
 	}
-
+	
 	/**
 	 * Calibriert "Hell" und "Dunkel" TODO Kontrollieren
 	 */
@@ -333,7 +335,9 @@ public class BarcodeScanner
 		this.drawString("druecken sie ENTER",1);
 		while (Button.ENTER.isUp());
 		LCD.clear();
-		Delay.msDelay(300); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
+		this.drawString("Starte in 5 Sekunden",3);
+		Delay.msDelay(500); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
+		LCD.clear();
 	}
 
 }
