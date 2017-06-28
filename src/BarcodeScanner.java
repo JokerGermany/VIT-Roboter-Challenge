@@ -95,26 +95,53 @@ public class BarcodeScanner
 		//LCD.clear();
 		//long timeBlock= -System.nanoTime();
 		float aktWert = this.scanne();
+		
 		if(dunkel==true)
 		{
+			//wert1 = aktWert;
+			//wert2 = caliGrenze;
 			while(aktWert < caliGrenze && Button.ENTER.isUp())
 			{
 				aktWert = this.scanne();
 				//this.fahre();
-				LCD.drawString("erkenneSchwarz",0,0);	
-				LCD.drawString("AktWert: "+aktWert,0,1);
 			}
+			LCD.drawString("erkenneSchwarz",0,0);
 		}
 		else
 		{
+			//wert1 = caliGrenze;
+			//wert2 = aktWert;
 			while(aktWert > caliGrenze && Button.ENTER.isUp()) //weiß
 			{
 				aktWert = this.scanne();
 				//this.fahre();
-				LCD.drawString("erkenneWeiss",0,0);	
-				LCD.drawString("AktWert: "+aktWert,0,1);
 			}
+			LCD.drawString("erkenneWeiss",0,0);	
 		}
+		/* Crazy Schleife welche aus 2 Schleifen eine Schleife machen würde, aber relativ kompliziert ist.
+		 * float wert1;
+		 * float wert2;
+		 * if(dunkel==true)
+		 * {
+		 * 	wert1 = aktWert;
+		 * 	wert2 = caliGrenze;
+		 *  LCD.drawString("erkenneSchwarz",0,0); 
+		 * }
+		 * else
+		 * {
+		 * 	wert1 = caliGrenze;
+		 * 	wert2 = aktWert;
+		 * LCD.drawString("erkenneWeiß",0,0); 
+		 * }
+		 * while(wert1 < wert2)
+		 * //aktWert < caliGrenze - schwarz
+		 * //caliGrenze < aktWert - weiß 
+		 * {
+		 * 		aktWert = this.scanne();
+		 * 		LCD.drawString("AktWert: "+aktWert,0,1);
+		 * 	}
+		 */
+		LCD.drawString("AktWert: "+aktWert,0,1);
 		//timeBlock += System.nanoTime(); // Wird in der Methode erkenne start gemacht
 		//return new Rueckgabe(aktWert, timeBlock);	
 		return aktDegreeBlock + Motor.A.getTachoCount();
