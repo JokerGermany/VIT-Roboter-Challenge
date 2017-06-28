@@ -5,29 +5,43 @@ import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 
+/*
+ * GetTachocount oder System.nanoTime() oder beides?
+ * 
+ */
+
+
 public class BarcodeScanner
 {
-	EV3ColorSensor light = new EV3ColorSensor(SensorPort.S4);
+	
 	float caliGrenze; //Pauschal: 0 schwarz, 1 weiß
 	float sample[];
 	float aktWert;
+	long timeBlock; //Wie lange braucht Robi für einen Block
+	Object[] rueckgabe = new Object[2]; //Evtl nur fürs Debugging gebraucht
 	
 	public static void main(String[] args)
 	{
-		
+		Motor.A.setSpeed(250);
+		Motor.D.setSpeed(250);
+		EV3ColorSensor light = new EV3ColorSensor(SensorPort.S4);
+		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
+		//Motor.A.getT
 		BarcodeScanner myLineReader = new BarcodeScanner();
         myLineReader.calibrate();
         while (Button.ESCAPE.isUp()); //TODO KILLME
-        LCD.clear();
-        Motor.A.setSpeed(250);
-        Motor.D.setSpeed(250);
-        Motor.A.backward();
-        Motor.D.backward();
-        
+        LCD.clear();        
+               
         myLineReader.erkenneStart();
         while (Button.ENTER.isUp()); //TODO KILLME
         LCD.clear();        
     }
+	
+	public void fahre()
+	{
+		Motor.A.backward();
+        Motor.D.backward();
+	}
 	
 	/**
      * Lichtsensor pro Abfrage einen Wert
@@ -45,24 +59,36 @@ public class BarcodeScanner
 	/**
      * FIXME evtl macht es sinn diese Methode zu implementieren
      */
-	public float erkenneSchwarz()
+	//public float erkenneSchwarz()
+	public Object[] erkenneSchwarz()
 	{
+		timeBlock= -System.nanoTime();
 		while(aktWert < caliGrenze) //schwarz
 		{
 			aktWert = this.scanne();
+			this.fahre();
 		}
-		return aktWert;
+		timeBlock += System.nanoTime();
+		//Object[] rueckgabe = { aktWert, timeBlock};
+		//return rueckgabe;
+		return new Object[]{aktWert, timeBlock};
 	}
 	/**
      * FIXME evtl macht es sinn diese Methode zu implementieren
      */
-	public float erkenneWeiß()
+	//public float erkenneWeiß() old
+	public Object[] erkenneWeiß()
 	{
+		timeBlock= -System.nanoTime();
 		while(aktWert > caliGrenze) //weiß
 		{
 			aktWert = this.scanne();
-		}
-		return aktWert;
+			this.fahre();
+		}		
+		timeBlock += System.nanoTime();
+		//Object[] rueckgabe = { aktWert, timeBlock};
+		//return rueckgabe;
+		return new Object[]{aktWert, timeBlock};
 	}
 	
 	/**
@@ -85,7 +111,9 @@ public class BarcodeScanner
 		//this.erkenneSchwarz(); TODO Implement ME
 		
 		//TODO Start KILLME!
-				aktWert = this.erkenneSchwarz();
+		//aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider nicht
+		
+		
 				LCD.drawString("AktWert: "+aktWert,0,2);
 				while (Button.ENTER.isDown());
 		//TODO END KILLME!
@@ -128,7 +156,6 @@ public class BarcodeScanner
     	float sample[] = new float[light.sampleSize()]; //wird in dieser Methode mehrfach verwendet
     	float caliHell=2; //Da der Wert eigentliche Wert nur zwischen 0-1 sein kann, 2 als initialsierung genommen
     	float caliDunkel=2; //Da der Wert eigentliche Wert nur zwischen 0-1 sein kann, 2 als initialsierung genommen
-    	light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
     	//Ab hier wird losgemessen
     	LCD.drawString("Helle Fleche stellen",0,0); 
     	LCD.drawString("druecken sie ENTER",0,1);        
