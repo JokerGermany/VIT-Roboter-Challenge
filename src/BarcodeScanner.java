@@ -44,9 +44,7 @@ public class BarcodeScanner
 	public static void main(String[] args)
 	{
 		BarcodeScanner myLineReader = new BarcodeScanner();
-		myLineReader.calibrate();
-		while (Button.ESCAPE.isUp())
-			; // TODO KILLME
+		myLineReader.calibrate();		
 		LCD.clear();
 		myLineReader.fahre();
 		myLineReader.erkenneStart();
@@ -91,7 +89,7 @@ public class BarcodeScanner
 	}
 
 	/**
-	 * FIXME evtl macht es sinn diese Methode zu implementieren
+	 *
 	 */
 	public int erkenneFarbe(boolean dunkel)
 	{
@@ -115,6 +113,7 @@ public class BarcodeScanner
 				// this.fahre();
 			}
 			LCD.drawString("erkenneWeiss", 0, 0);
+			//Sound.beep();
 		}
 		/*
 		 * Crazy Schleife welche aus 2 Schleifen eine Schleife machen würde,
@@ -259,8 +258,7 @@ public class BarcodeScanner
 		// }
 		LCD.drawString("HelleFläche: " + caliHell, 0, 2);
 		// Delay.msDelay(5000); //TODO KILLME
-		while (Button.ENTER.isDown())
-			; // verhindert das Hell und Dunkel gleichzeitig gesetzt werden
+		while (Button.ENTER.isDown()); // verhindert das Hell und Dunkel gleichzeitig gesetzt werden
 		LCD.clear();
 		// TODO Wenn nicht zufrieden ESC drücken und Methode neu aufrufen, sonst
 		// ENTER
@@ -290,6 +288,10 @@ public class BarcodeScanner
 																	// Strich
 																	// Rechnung!
 		LCD.drawString("Grenze: " + caliGrenze, 0, 2);
+		while (Button.ENTER.isDown()); // verhindert das die Kalibrierung versehentlich zu früh beendet wird.
+		LCD.drawString("Bitte an den Start stellen", 0, 5);
+		LCD.drawString("druecken sie ENTER", 0, 6);
+		while (Button.ENTER.isUp());
 	}
 
 }
