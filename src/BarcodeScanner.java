@@ -49,7 +49,7 @@ public class BarcodeScanner
 	}
 	public static void main(String[] args)
 	{		
-		boolean zeit = true; //Zeit wird zur Messung verwendet
+		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit); 
 		myLineReader.calibrate();		
 		//LCD.clear();
@@ -306,8 +306,7 @@ public class BarcodeScanner
 		this.zeile=0; //ganz nach oben schreiben
 		this.drawString("Dunkle Fleche stellen");
 		this.drawString("druecken sie ENTER");
-		while (Button.ENTER.isUp())
-			;
+		while (Button.ENTER.isUp());
 		caliDunkel = this.scanne();
 		/*
 		 * While schleife wird durch die Methode scannen ersetzt
@@ -334,6 +333,7 @@ public class BarcodeScanner
 		this.drawString("druecken sie ENTER",1);
 		while (Button.ENTER.isUp());
 		LCD.clear();
+		Delay.msDelay(300); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
 	}
 
 }
