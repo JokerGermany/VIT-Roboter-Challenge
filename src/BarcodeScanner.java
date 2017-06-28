@@ -18,8 +18,12 @@ public class BarcodeScanner
 	float sample[] = new float[1];
 	Object[] rueckgabe = new Object[2]; // Evtl nur fürs Debugging gebraucht
 	EV3ColorSensor light;
-	int degreeBlock;
-	int toleranzBlock;
+	long toleranzBlock;
+	//int degreeBlock;
+	long block; // long falls zeit ausgewählt wird
+	boolean zeit;
+	int zeile=0;
+	
 
 	// class Rueckgabe
 	// {
@@ -34,25 +38,27 @@ public class BarcodeScanner
 	 */
 	// }
 
-	BarcodeScanner()
+	BarcodeScanner(boolean zeit)
 	{
 		Motor.A.setSpeed(2000);
 		Motor.D.setSpeed(2000);
 		light = new EV3ColorSensor(SensorPort.S4);
-		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
+		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
+		this.zeit=zeit;
+		
 	}
 	public static void main(String[] args)
-	{
-		BarcodeScanner myLineReader = new BarcodeScanner();
+	{		
+		boolean zeit = true; //Zeit wird zur Messung verwendet
+		BarcodeScanner myLineReader = new BarcodeScanner(zeit); 
 		myLineReader.calibrate();		
-		LCD.clear();
+		//LCD.clear();
 		myLineReader.fahre();
 		myLineReader.erkenneStart();
-		LCD.drawString("Fertig", 0, 5);
+		myLineReader.drawString("Fertig");
 		myLineReader.stoppe();
-		while (Button.ENTER.isUp())
-			; // TODO KILLME
-		LCD.clear();
+		while (Button.ENTER.isUp()); // TODO KILLME
+		//LCD.clear();
 	}
 
 	public void fahre()
@@ -74,6 +80,24 @@ public class BarcodeScanner
 	{
 		return (Motor.A.getTachoCount()*-1); 
 	}
+	public void drawString(String str, int y)
+	{
+		LCD.drawString(str, 0, y);
+	}
+	
+	public void drawString(String str)
+	{
+		if(this.zeile > 7)
+		{
+			LCD.scroll();
+			LCD.drawString(str, 0, 6);
+		}
+		else
+		{
+			LCD.drawString(str, 0, this.zeile);
+		}		
+		this.zeile++;
+	}
 
 	/**
 	 * Lichtsensor pro Abfrage einen Wert FIXME funktioniere!!!
@@ -94,7 +118,7 @@ public class BarcodeScanner
 	public int erkenneFarbe(boolean dunkel)
 	{
 		int aktDegreeBlock = -this.getTachoCount();
-		// LCD.clear();
+		// //LCD.clear();
 		// long timeBlock= -System.nanoTime();
 		float aktWert = this.scanne();
 		if (dunkel == true)
@@ -104,7 +128,7 @@ public class BarcodeScanner
 				aktWert = this.scanne();
 				// this.fahre();
 			}
-			LCD.drawString("erkenneSchwarz", 0, 0);
+			this.drawString("erkenneSchwarz");
 		} else
 		{
 			while (aktWert > caliGrenze && Button.ENTER.isUp()) // weiß
@@ -112,7 +136,7 @@ public class BarcodeScanner
 				aktWert = this.scanne();
 				// this.fahre();
 			}
-			LCD.drawString("erkenneWeiss", 0, 0);
+			this.drawString("erkenneWeiss");
 			//Sound.beep();
 		}
 		/*
@@ -124,7 +148,7 @@ public class BarcodeScanner
 		 * wert2) //aktWert < caliGrenze - schwarz //caliGrenze < aktWert - weiß
 		 * { aktWert = this.scanne(); LCD.drawString("AktWert: "+aktWert,0,1); }
 		 */
-		LCD.drawString("AktWert: " + aktWert, 0, 1);
+		this.drawString("AktWert: " + aktWert);
 		// timeBlock += System.nanoTime(); // Wird in der Methode erkenne start
 		// gemacht
 		// return new Rueckgabe(aktWert, timeBlock);
@@ -135,7 +159,7 @@ public class BarcodeScanner
 	 * ersetzt durch erkenneFarbe
 	 * 
 	 * 
-	 * public Rueckgabe erkenneSchwarz() { LCD.clear(); long timeBlock=
+	 * public Rueckgabe erkenneSchwarz() { //LCD.clear(); long timeBlock=
 	 * -System.nanoTime(); float aktWert = this.scanne(); while(aktWert <
 	 * caliGrenze && Button.ENTER.isUp()) //schwarz { aktWert = this.scanne();
 	 * //this.fahre(); LCD.drawString("erkenneSchwarz",0,0);
@@ -146,7 +170,7 @@ public class BarcodeScanner
 	 * 
 	 * 
 	 * //public float erkenneWeiß() old public Rueckgabe erkenneWeiß() {
-	 * LCD.clear(); long timeBlock= -System.nanoTime(); float aktWert =
+	 * //LCD.clear(); long timeBlock= -System.nanoTime(); float aktWert =
 	 * this.scanne(); while(aktWert > caliGrenze && Button.ENTER.isUp()) //weiß
 	 * { aktWert = this.scanne(); //this.fahre();
 	 * LCD.drawString("erkenneWeiss",0,0);
@@ -174,8 +198,15 @@ public class BarcodeScanner
 		// aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider
 		// nicht
 		// Rueckgabe ergebnis1 = this.erkenneFarbe(true);
-		degreeBlock = -this.getTachoCount();
-		LCD.drawString("Strecke: " + this.erkenneFarbe(true), 0, 1);
+		if(this.zeit)
+		{
+			block = -System.currentTimeMillis();
+		}
+		else
+		{	
+			block = -this.getTachoCount();
+		}	
+		this.drawString("Strecke: " + this.erkenneFarbe(true));
 		// LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
 		// while (Button.ENTER.isUp());
 		// TODO END KILLME!
@@ -185,7 +216,7 @@ public class BarcodeScanner
 
 		// TODO Start KILLME!
 		// Rueckgabe ergebnis2 = this.erkenneFarbe(false);
-		LCD.drawString("Strecke: " + this.erkenneFarbe(false), 0, 1);
+		this.drawString("Strecke: " + this.erkenneFarbe(false));
 		// LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
 		// while (Button.ENTER.isUp());
 		// TODO END KILLME!
@@ -196,21 +227,30 @@ public class BarcodeScanner
 
 		// TODO Start KILLME!
 		// Rueckgabe ergebnis3 = this.erkenneFarbe(true);
-		LCD.drawString("Strecke: " + this.erkenneFarbe(true), 0, 1);
-		int Streckenanfang = degreeBlock;
-		degreeBlock = (degreeBlock + this.getTachoCount()) / 3; // TODO ist
-																	// Integer
-																	// gut? denk
-																	// dran
-																	// nachkommastellen
-																	// werden
-																	// abgeschnitten
-		LCD.drawString("Block:" + degreeBlock, 0, 4);
-		LCD.drawString("GesamtStr:" + (this.getTachoCount() - Streckenanfang), 0, 6);
+		this.drawString("Strecke: " + this.erkenneFarbe(true));
+		long Streckenanfang = block;
+		if(this.zeit)
+		{
+			block = (block + System.currentTimeMillis())/3;
+		}
+		else
+		{	
+			block = (block + this.getTachoCount()) / 3; 
+		}	
+// TODO ist Integer/long gut? denk dran Nachkommastellen werden abgeschnitten
+		this.drawString("Block:" + block);
+		if(this.zeit)
+		{
+			this.drawString("GesamtStr:" + (System.currentTimeMillis() - Streckenanfang));
+		}
+		else
+		{	
+			this.drawString("GesamtStr:" + (this.getTachoCount() - Streckenanfang));
+		}
 		// Toleranz von einem 1/4.
-		toleranzBlock = (degreeBlock / 4);
-		LCD.drawString("Toleranz:" + toleranzBlock, 0, 3);
-		LCD.drawString("Toleranz:" + toleranzBlock, 0, 2);
+		toleranzBlock = (block / 4);
+		this.drawString("Toleranz:" + toleranzBlock);
+		this.drawString("Toleranz:" + toleranzBlock);
 
 		// LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
 		// while (Button.ENTER.isUp());
@@ -222,7 +262,7 @@ public class BarcodeScanner
 
 		// TODO Start KILLME!
 		// Rueckgabe ergebnis4 = this.erkenneFarbe(false);
-		LCD.drawString("AktWert: " + this.erkenneFarbe(false), 0, 1);
+		this.drawString("AktWert: " + this.erkenneFarbe(false));
 		// LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
 		// while (Button.ENTER.isUp());
 		// TODO END KILLME!
@@ -241,8 +281,8 @@ public class BarcodeScanner
 		float caliDunkel = 2; // Da der Wert eigentliche Wert nur zwischen 0-1
 								// sein kann, 2 als initialsierung genommen
 		// Ab hier wird losgemessen
-		LCD.drawString("Helle Fleche stellen", 0, 0);
-		LCD.drawString("druecken sie ENTER", 0, 1);
+		this.drawString("Helle Fleche stellen");
+		this.drawString("druecken sie ENTER");
 		while (Button.ENTER.isUp())
 			;
 		caliHell = this.scanne();
@@ -256,15 +296,16 @@ public class BarcodeScanner
 		// caliHell = sample[0];
 		// //Delay.msDelay(5000);
 		// }
-		LCD.drawString("HelleFläche: " + caliHell, 0, 2);
+		this.drawString("HelleFläche: " + caliHell);
 		// Delay.msDelay(5000); //TODO KILLME
 		while (Button.ENTER.isDown()); // verhindert das Hell und Dunkel gleichzeitig gesetzt werden
 		LCD.clear();
 		// TODO Wenn nicht zufrieden ESC drücken und Methode neu aufrufen, sonst
 		// ENTER
 		// Delay.msDelay(5000); //TODO KILLME
-		LCD.drawString("Dunkle Fleche stellen", 0, 0);
-		LCD.drawString("druecken sie ENTER", 0, 1);
+		this.zeile=0; //ganz nach oben schreiben
+		this.drawString("Dunkle Fleche stellen");
+		this.drawString("druecken sie ENTER");
 		while (Button.ENTER.isUp())
 			;
 		caliDunkel = this.scanne();
@@ -278,20 +319,21 @@ public class BarcodeScanner
 		// caliDunkel = sample[0];
 		// //Delay.msDelay(5000);
 		// }
-		LCD.clear();
-		LCD.drawString("Hell: " + caliHell, 0, 0);
-		LCD.drawString("Dunkel: " + caliDunkel, 0, 1);
+		//LCD.clear();
+		this.drawString("Hell: " + caliHell);
+		this.drawString("Dunkel: " + caliDunkel);
 		caliGrenze = caliDunkel + ((caliHell - caliDunkel) / 2); // Achtung,
 																	// beachtet
 																	// nicht
 																	// Punkt vor
 																	// Strich
 																	// Rechnung!
-		LCD.drawString("Grenze: " + caliGrenze, 0, 2);
+		this.drawString("Grenze: " + caliGrenze);
 		while (Button.ENTER.isDown()); // verhindert das die Kalibrierung versehentlich zu früh beendet wird.
-		LCD.drawString("Bitte an den Start stellen", 0, 5);
-		LCD.drawString("druecken sie ENTER", 0, 6);
+		this.drawString("Bitte an den Start stellen",0);
+		this.drawString("druecken sie ENTER",1);
 		while (Button.ENTER.isUp());
+		LCD.clear();
 	}
 
 }
