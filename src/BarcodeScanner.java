@@ -1,28 +1,130 @@
 
 import lejos.hardware.Button;
 import lejos.hardware.lcd.LCD;
+import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
-import lejos.utility.Delay;
 
 public class BarcodeScanner
 {
-	float caliGrenze;
+	EV3ColorSensor light = new EV3ColorSensor(SensorPort.S4);
+	float caliGrenze; //Pauschal: 0 schwarz, 1 weiß
+	float sample[];
+	float aktWert;
 	
 	public static void main(String[] args)
 	{
+		
 		BarcodeScanner myLineReader = new BarcodeScanner();
         myLineReader.calibrate();
         while (Button.ESCAPE.isUp()); //TODO KILLME
+        LCD.clear();
+        Motor.A.setSpeed(250);
+        Motor.D.setSpeed(250);
+        Motor.A.backward();
+        Motor.D.backward();
+        
+        myLineReader.erkenneStart();
+        while (Button.ENTER.isUp()); //TODO KILLME
+        LCD.clear();        
     }
 	
+	/**
+     * Lichtsensor pro Abfrage einen Wert
+     * FIXME funktioniere!!!
+     */
+	public float scanne()
+	{
+		while (sample[0]==0)
+    	{
+    		light.fetchSample(sample, 0);
+    	}
+		return sample[0];
+	}
+	
+	/**
+     * FIXME evtl macht es sinn diese Methode zu implementieren
+     */
+	public float erkenneSchwarz()
+	{
+		while(aktWert < caliGrenze) //schwarz
+		{
+			aktWert = this.scanne();
+		}
+		return aktWert;
+	}
+	/**
+     * FIXME evtl macht es sinn diese Methode zu implementieren
+     */
+	public float erkenneWeiß()
+	{
+		while(aktWert > caliGrenze) //weiß
+		{
+			aktWert = this.scanne();
+		}
+		return aktWert;
+	}
+	
+	/**
+     * Soll den Start erkennen und die Abstände eines Blockes calibrieren. Probleme hierbei könnte die Startlinie machen
+     * FIXME funktioniere!!! Die Entferungsberechnung fehlt noch
+     */
+	public void erkenneStart() 
+    {
+		aktWert = this.scanne();
+		//this.erkenneWeiß(); TODO Implement ME
+		
+		//TODO Start KILLME!
+		aktWert = this.erkenneWeiß();
+		LCD.drawString("AktWert: "+aktWert,0,1);
+		while (Button.ENTER.isDown());
+		//TODO END KILLME!
+		
+		//Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier
+		
+		//this.erkenneSchwarz(); TODO Implement ME
+		
+		//TODO Start KILLME!
+				aktWert = this.erkenneSchwarz();
+				LCD.drawString("AktWert: "+aktWert,0,2);
+				while (Button.ENTER.isDown());
+		//TODO END KILLME!
+		
+		//Der 2. Block des Starts (weiß) beginnt hoffentlich hier		
+		//this.erkenneWeiß(); TODO Implement ME
+		
+		//TODO Start KILLME!
+		aktWert = this.erkenneWeiß();
+		LCD.drawString("AktWert: "+aktWert,0,3);
+		while (Button.ENTER.isDown());
+		//TODO END KILLME!
+		
+		//Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
+		
+		//this.erkenneSchwarz(); TODO Implement ME
+				
+		//TODO Start KILLME!
+		aktWert = this.erkenneSchwarz();
+		LCD.drawString("AktWert: "+aktWert,0,4);
+		while (Button.ENTER.isDown());
+		//TODO END KILLME!
+		
+		//Der 4. Block des Starts (schwarz) beginnt hoffentlich hier
+		
+		//this.erkenneSchwarz(); TODO Implement ME
+						
+		//TODO Start KILLME!
+		aktWert = this.erkenneSchwarz();
+		LCD.drawString("AktWert: "+aktWert,0,5);
+		while (Button.ENTER.isDown());
+		//TODO END KILLME!		
+    }
 	/**
      * Calibriert "Hell" und "Dunkel"
      * TODO Kontrollieren
      */
     public void calibrate() 
     {
-    	EV3ColorSensor light = new EV3ColorSensor(SensorPort.S4);
     	float sample[] = new float[light.sampleSize()]; //wird in dieser Methode mehrfach verwendet
     	float caliHell=2; //Da der Wert eigentliche Wert nur zwischen 0-1 sein kann, 2 als initialsierung genommen
     	float caliDunkel=2; //Da der Wert eigentliche Wert nur zwischen 0-1 sein kann, 2 als initialsierung genommen
@@ -31,12 +133,16 @@ public class BarcodeScanner
     	LCD.drawString("Helle Fleche stellen",0,0); 
     	LCD.drawString("druecken sie ENTER",0,1);        
         while (Button.ENTER.isUp());       	
-    	while (sample[0]==0 || caliHell==2) //TODO: Nice to have: abfangen wenn Hell abgefragt aber auf dunkel gestellt
-    	{
-    		light.fetchSample(sample, 0);
-    		caliHell = sample[0];
-    		//Delay.msDelay(5000);
-    	}
+    	caliHell = this.scanne();
+        /*
+         * While schleife wird durch die Methode scannen ersetzt
+         */
+//        while (sample[0]==0 || caliHell==2) //TODO: Nice to have: abfangen wenn Hell abgefragt aber auf dunkel gestellt
+//    	{
+//    		light.fetchSample(sample, 0);
+//    		caliHell = sample[0];
+//    		//Delay.msDelay(5000);
+//    	}
     	LCD.drawString("HelleFläche: "+caliHell,0,2);
     	// Delay.msDelay(5000); //TODO KILLME
     	while (Button.ENTER.isDown()); //verhindert das Hell und Dunkel gleichzeitig gesetzt werden
@@ -46,43 +152,21 @@ public class BarcodeScanner
 		LCD.drawString("Dunkle Fleche stellen",0,0); 
     	LCD.drawString("druecken sie ENTER",0,1);
     	while (Button.ENTER.isUp());
-     	while (sample[0]==0 || caliDunkel==2) //TODO: Nice to have: abfangen wenn Dunkel abgefragt aber auf hell gestellt
-     	{
-     		light.fetchSample(sample, 0);
-     		caliDunkel = sample[0];
-     		//Delay.msDelay(5000);
-     	}
+    	caliDunkel=this.scanne();
+    	 /*
+         * While schleife wird durch die Methode scannen ersetzt
+         */
+//     	while (sample[0]==0 || caliDunkel==2) //TODO: Nice to have: abfangen wenn Dunkel abgefragt aber auf hell gestellt
+//     	{
+//     		light.fetchSample(sample, 0);
+//     		caliDunkel = sample[0];
+//     		//Delay.msDelay(5000);
+//     	}
      	LCD.clear();
      	LCD.drawString("Hell: "+caliHell,0,0);
      	LCD.drawString("Dunkel: "+caliDunkel,0,1);
      	caliGrenze=caliDunkel+(caliHell-caliDunkel/2);
      	LCD.drawString("Grenze: "+caliGrenze,0,2);
-//			
-//		LCD.clear();
-//
-//        // wait for unpressed ENTER-Key and measure threhold
-//        while (Button.ENTER.isDown());
-//        do { 
-//            //threshold = light.getRedMode();
-//        	light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
-//    		float sample[] = new float[light.sampleSize()];
-//    		while (sample[0]==0) {
-//    			light.fetchSample(sample, 0);
-//    			threshold = sample[0];
-//    			System.out.println(sample[0]);
-//    			//Delay.msDelay(5000);
-//    		}
-//            LCD.drawString("threshold="+threshold,0,0);
-//            LCD.refresh();
-//        } while (!Button.ENTER.isPressed());
-//
-//        // wait for unpressed ENTER-Key and return
-//        while (Button.ENTER.isPressed());
-//
-//        LCD.drawString("press ENTER!",0,1);
-//        LCD.refresh();
-//
-//        while (!Button.ENTER.isPressed());
     }
 
 	
