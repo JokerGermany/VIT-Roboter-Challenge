@@ -33,8 +33,8 @@ public class BarcodeScanner
 	
 	BarcodeScanner()
 	{
-		Motor.A.setSpeed(1000);
-		Motor.D.setSpeed(1000);
+		Motor.A.setSpeed(2000);
+		Motor.D.setSpeed(2000);
 		light = new EV3ColorSensor(SensorPort.S4);
 		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
 	}
@@ -84,6 +84,37 @@ public class BarcodeScanner
      * FIXME evtl macht es sinn diese Methode zu implementieren
      */
 	//public float erkenneSchwarz()
+	public Rueckgabe erkenneFarbe(boolean dunkel)
+	{
+		LCD.clear();
+		long timeBlock= -System.nanoTime();
+		float aktWert = this.scanne();
+		if(dunkel==true)
+		{
+			while(aktWert < caliGrenze && Button.ENTER.isUp())
+			{
+				aktWert = this.scanne();
+				//this.fahre();
+				LCD.drawString("erkenneSchwarz",0,0);	
+				LCD.drawString("AktWert: "+aktWert,0,1);
+			}
+		}
+		else
+		{
+			while(aktWert > caliGrenze && Button.ENTER.isUp()) //weiß
+			{
+				aktWert = this.scanne();
+				//this.fahre();
+				LCD.drawString("erkenneWeiss",0,0);	
+				LCD.drawString("AktWert: "+aktWert,0,1);
+			}
+		}
+		timeBlock += System.nanoTime();
+		return new Rueckgabe(aktWert, timeBlock);		
+	}
+	/*ersetzt durch erkenne Fabre
+	 * 
+	 
 	public Rueckgabe erkenneSchwarz()
 	{
 		LCD.clear();
@@ -104,8 +135,8 @@ public class BarcodeScanner
 		return new Rueckgabe(aktWert, timeBlock);
 	}
 	/**
-     * FIXME evtl macht es sinn diese Methode zu implementieren
-     */
+     
+     
 	//public float erkenneWeiß() old
 	public Rueckgabe erkenneWeiß()
 	{
@@ -125,7 +156,7 @@ public class BarcodeScanner
 		//return rueckgabe;
 		return new Rueckgabe(aktWert, timeBlock);
 	}
-	
+	*/
 	/**
      * Soll den Start erkennen und die Abstände eines Blockes calibrieren. Probleme hierbei könnte die Startlinie machen
      * FIXME funktioniere!!! Die Entferungsberechnung fehlt noch
@@ -133,27 +164,27 @@ public class BarcodeScanner
 	public void erkenneStart() 
     {
 		float aktWert = this.scanne();
-		this.erkenneWeiß();
+		this.erkenneFarbe(false);
 		//while (Button.ENTER.isUp());
 		//TODO END KILLME!
 		
 		//Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier
 		
-		//this.erkenneSchwarz(); TODO Implement ME
+		//this.erkenneFarbe(true); TODO Implement ME
 		
 		//TODO Start KILLME!
 		//aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider nicht
-		Rueckgabe ergebnis1 = this.erkenneSchwarz();				
+		Rueckgabe ergebnis1 = this.erkenneFarbe(true);				
 		LCD.drawString("AktWert: "+ergebnis1.aktWert,0,1);
 		LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
 			//	while (Button.ENTER.isUp());
 		//TODO END KILLME!
 		
 		//Der 2. Block des Starts (weiß) beginnt hoffentlich hier		
-		//this.erkenneWeiß(); TODO Implement ME
+		//this.erkenneFarbe(false); TODO Implement ME
 		
 		//TODO Start KILLME!
-		Rueckgabe ergebnis2 = this.erkenneWeiß();				
+		Rueckgabe ergebnis2 = this.erkenneFarbe(false);				
 		LCD.drawString("AktWert: "+ergebnis2.aktWert,0,1);
 		LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
 		//while (Button.ENTER.isUp());
@@ -161,10 +192,10 @@ public class BarcodeScanner
 		
 		//Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
 		
-		//this.erkenneSchwarz(); TODO Implement ME
+		//this.erkenneFarbe(true); TODO Implement ME
 				
 		//TODO Start KILLME!
-		Rueckgabe ergebnis3 = this.erkenneSchwarz();				
+		Rueckgabe ergebnis3 = this.erkenneFarbe(true);				
 		LCD.drawString("AktWert: "+ergebnis3.aktWert,0,1);
 		LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
 		//while (Button.ENTER.isUp());
@@ -172,10 +203,10 @@ public class BarcodeScanner
 		
 		//Der 4. Block des Starts (weiß) beginnt hoffentlich hier
 		
-		//this.erkenneSchwarz(); TODO Implement ME
+		//this.erkenneFarbe(true); TODO Implement ME
 						
 		//TODO Start KILLME!
-		Rueckgabe ergebnis4 = this.erkenneWeiß();				
+		Rueckgabe ergebnis4 = this.erkenneFarbe(false);				
 		LCD.drawString("AktWert: "+ergebnis4.aktWert,0,1);
 		LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
 		//while (Button.ENTER.isUp());
