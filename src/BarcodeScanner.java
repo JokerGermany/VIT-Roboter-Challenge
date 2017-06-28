@@ -22,13 +22,17 @@ public class BarcodeScanner
 	class Rueckgabe
 	{
 		float aktWert;  //TODO: SChmittigenauigkeit: privat?
-		long timeBlock; //Wie lange braucht Robi für einen Block
-		   
+		//long timeBlock; //Wie lange braucht Robi für einen Block - durchgetTachocount ersetzt
+		int degreeBlock;
+		
+		/*
+		 * nicht mehr gebraucht, da die Blöcke in der Methode erkenneStart gemesssen werden.
 		public Rueckgabe(float aktWert, long timeBlock)
 		{
 			this.aktWert=aktWert;
 			this.timeBlock=timeBlock;
 		}
+		*/
 	}
 	
 	BarcodeScanner()
@@ -37,6 +41,7 @@ public class BarcodeScanner
 		Motor.D.setSpeed(2000);
 		light = new EV3ColorSensor(SensorPort.S4);
 		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
+		
 	}
 	
 	public static void main(String[] args)
@@ -83,11 +88,10 @@ public class BarcodeScanner
 	/**
      * FIXME evtl macht es sinn diese Methode zu implementieren
      */
-	//public float erkenneSchwarz()
-	public Rueckgabe erkenneFarbe(boolean dunkel)
+	public float erkenneFarbe(boolean dunkel)
 	{
 		LCD.clear();
-		long timeBlock= -System.nanoTime();
+		//long timeBlock= -System.nanoTime();
 		float aktWert = this.scanne();
 		if(dunkel==true)
 		{
@@ -109,8 +113,9 @@ public class BarcodeScanner
 				LCD.drawString("AktWert: "+aktWert,0,1);
 			}
 		}
-		timeBlock += System.nanoTime();
-		return new Rueckgabe(aktWert, timeBlock);		
+		//timeBlock += System.nanoTime(); // Wird in der Methode erkenne start gemacht
+		//return new Rueckgabe(aktWert, timeBlock);	
+		return aktWert;		
 	}
 	/*ersetzt durch erkenne Fabre
 	 * 
@@ -174,9 +179,9 @@ public class BarcodeScanner
 		
 		//TODO Start KILLME!
 		//aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider nicht
-		Rueckgabe ergebnis1 = this.erkenneFarbe(true);				
-		LCD.drawString("AktWert: "+ergebnis1.aktWert,0,1);
-		LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
+		//Rueckgabe ergebnis1 = this.erkenneFarbe(true);				
+		LCD.drawString("AktWert: "+this.erkenneFarbe(true),0,1);
+		//LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
 			//	while (Button.ENTER.isUp());
 		//TODO END KILLME!
 		
@@ -184,9 +189,9 @@ public class BarcodeScanner
 		//this.erkenneFarbe(false); TODO Implement ME
 		
 		//TODO Start KILLME!
-		Rueckgabe ergebnis2 = this.erkenneFarbe(false);				
-		LCD.drawString("AktWert: "+ergebnis2.aktWert,0,1);
-		LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
+		//Rueckgabe ergebnis2 = this.erkenneFarbe(false);				
+		LCD.drawString("AktWert: "+this.erkenneFarbe(false),0,1);
+		//LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
 		//while (Button.ENTER.isUp());
 		//TODO END KILLME!
 		
@@ -195,9 +200,9 @@ public class BarcodeScanner
 		//this.erkenneFarbe(true); TODO Implement ME
 				
 		//TODO Start KILLME!
-		Rueckgabe ergebnis3 = this.erkenneFarbe(true);				
-		LCD.drawString("AktWert: "+ergebnis3.aktWert,0,1);
-		LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
+		//Rueckgabe ergebnis3 = this.erkenneFarbe(true);				
+		LCD.drawString("AktWert: "+this.erkenneFarbe(true),0,1);
+		//LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
 		//while (Button.ENTER.isUp());
 		//TODO END KILLME!
 		
@@ -206,9 +211,9 @@ public class BarcodeScanner
 		//this.erkenneFarbe(true); TODO Implement ME
 						
 		//TODO Start KILLME!
-		Rueckgabe ergebnis4 = this.erkenneFarbe(false);				
-		LCD.drawString("AktWert: "+ergebnis4.aktWert,0,1);
-		LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
+		//Rueckgabe ergebnis4 = this.erkenneFarbe(false);				
+		LCD.drawString("AktWert: "+this.erkenneFarbe(false),0,1);
+		//LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
 		//while (Button.ENTER.isUp());
 		//TODO END KILLME!		
     }
