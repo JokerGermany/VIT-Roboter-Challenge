@@ -95,11 +95,8 @@ public class BarcodeScanner
 		//LCD.clear();
 		//long timeBlock= -System.nanoTime();
 		float aktWert = this.scanne();
-		
 		if(dunkel==true)
 		{
-			//wert1 = aktWert;
-			//wert2 = caliGrenze;
 			while(aktWert < caliGrenze && Button.ENTER.isUp())
 			{
 				aktWert = this.scanne();
@@ -109,8 +106,6 @@ public class BarcodeScanner
 		}
 		else
 		{
-			//wert1 = caliGrenze;
-			//wert2 = aktWert;
 			while(aktWert > caliGrenze && Button.ENTER.isUp()) //weiß
 			{
 				aktWert = this.scanne();
