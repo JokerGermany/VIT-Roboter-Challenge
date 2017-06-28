@@ -54,7 +54,8 @@ public class BarcodeScanner
 		boolean debug = false;
 		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
-		myLineReader.calibrate();		
+		//myLineReader.calibrate();		
+		myLineReader.caliGrenze = 0.4f;
 		//LCD.clear();
 		myLineReader.fahre();
 		myLineReader.erkenneStart();
@@ -98,8 +99,8 @@ public class BarcodeScanner
 		else
 		{
 			LCD.drawString(str, 0, this.zeile);
-		}		
-		this.zeile++;
+			this.zeile++;
+		}				
 	}
 
 	/**
@@ -224,7 +225,9 @@ public class BarcodeScanner
 // Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier	
 			this.erkenneFarbe(true);
 // Der 2. Block des Starts (weiß) beginnt hoffentlich hier
+			//this.drawString(""); //FIXME Ohne das hier keine erkenneWeiß auf dem Display oO
 			this.erkenneFarbe(false);
+			
 // Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
 			this.erkenneFarbe(true);
 		}
