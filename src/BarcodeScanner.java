@@ -159,7 +159,11 @@ public class BarcodeScanner
 		}
 		else
 		{
-			this.drawString("Verzeihe mir Meister"); //Fehler - TODO fahre zurück zum Start...
+			//Fehler - TODO fahre zurück zum Start...
+			this.drawString("Verzeihe mir Meister"); 
+			this.stoppe();
+			while (Button.ESCAPE.isUp());
+			System.exit(1);
 		}
 	}
 	
