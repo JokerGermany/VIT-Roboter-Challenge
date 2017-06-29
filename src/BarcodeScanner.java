@@ -2,7 +2,9 @@
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
 import lejos.hardware.lcd.LCD;
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.motor.Motor;
+import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.utility.Delay;
@@ -18,6 +20,8 @@ public class BarcodeScanner
 	float samples[] = new float[1];
 	//Object[] rueckgabe = new Object[2]; // Evtl nur fürs Debugging gebraucht
 	EV3ColorSensor light;
+	EV3LargeRegulatedMotor linkerMotor = new EV3LargeRegulatedMotor(MotorPort.A);
+	EV3LargeRegulatedMotor rechterMotor = new EV3LargeRegulatedMotor(MotorPort.D);
 	long toleranzBlock;
 	//int degreeBlock;
 	long block; // long falls zeit ausgewählt wird
@@ -41,11 +45,32 @@ public class BarcodeScanner
 	 * this.aktWert=aktWert; this.timeBlock=timeBlock; }
 	 */
 	// }
+	
+	public void warte(int sekunden)
+	{
+		this.clearLCD();
+		this.drawString("Starte in "+sekunden+" Sekunden",3);
+		Delay.msDelay(sekunden*1000); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
+		this.clearLCD();		
+	}
+	
+	public void pruefeBeginnWeißSteht()
+	{
+		float a = this.ersterScan(); 
+		if (a < (caliGrenze-(caliGrenze/2)))
+		{
+			this.drawString("Bitte auf Weiß stellen");
+			this.drawString("und ENTER drücken");
+			while (Button.ENTER.isUp());
+			this.warte(3);
+			pruefeBeginnWeißSteht();
+		}//LENNI: Einfach schwarz erkennen; fährt bis weiß und los gehts.
+	}
 
 	BarcodeScanner(boolean zeit, boolean debug)
 	{
-		Motor.A.setSpeed(50);
-		Motor.D.setSpeed(50);
+		//Motor.A.setSpeed(50);
+		//Motor.D.setSpeed(50);
 		light = new EV3ColorSensor(SensorPort.S4);
 		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
 		this.zeit=false;
@@ -58,7 +83,7 @@ public class BarcodeScanner
 		boolean zeit = true; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
 		myLineReader.calibrate();		
-		//myLineReader.caliGrenze = 0.4f;
+		//myLineReader.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
 		//LCD.clear();
 		myLineReader.erkenneStart();//ohne den 4.Block
 		
@@ -78,6 +103,26 @@ public class BarcodeScanner
 	
 	public void berechneBlockgroeße()
 	{
+		/*Fahr zu Anfang weiß
+Strecke entspricht x
+finde n, für das gilt:
+nBlockgröße < x < nBlockgröße + Toleranz
+Sag wie viele Blöcke dieselbe Farbe hatten
+Miss den nächsten Block (andere Farbe) genau so
+Finde Ende*/
+		/*long aktStrecke = this.erkenneFarbe(false);
+		
+		float anzahlBloecke = aktStrecke/this.block;
+		if
+		
+		float resst = aktStrecke % this.block;
+		
+		
+		
+		else if()
+		*/
+		
+		
 		/* TODO Start Methode entwickeln
 		 */
 		 if(debug)
@@ -100,14 +145,27 @@ public class BarcodeScanner
 	
 	public void fahre()
 	{
-		Motor.A.backward();
-		Motor.D.backward();
+		int geschwindigkeit = 50;	//	Festsetzen der Geschwindigkeit in "Grad/Sekunde"
+		int beschleunigung = 500;	//	Verzögerung von 500 ms bis Geschwindigkeit
+		linkerMotor.resetTachoCount();					//	Tacho-Reset
+		linkerMotor.setSpeed(geschwindigkeit);			//	setzen der Geschwindigkeit
+		linkerMotor.setAcceleration(beschleunigung);	//	setzen der Beschleunigung
+		rechterMotor.resetTachoCount();					//	Tacho-Reset
+		rechterMotor.setSpeed(geschwindigkeit);			//	setzen der Geschwindigkeit
+		rechterMotor.setAcceleration(beschleunigung);	//	setzen der Beschleunigung
+				
+		linkerMotor.backward();
+		rechterMotor.backward();
+		//Motor.A.backward();
+		//Motor.D.backward();
 	}
 
 	public void stoppe()
 	{
-		Motor.A.stop();
-		Motor.D.stop();
+		linkerMotor.stop();
+		rechterMotor.stop();
+		//Motor.A.stop();
+		//Motor.D.stop();
 	}
 	
 	/*
@@ -115,7 +173,8 @@ public class BarcodeScanner
 	 */
 	public int getTachoCount()
 	{
-		return (Motor.A.getTachoCount()*-1); 
+		return (linkerMotor.getTachoCount()*-1); 
+		//return (Motor.A.getTachoCount()*-1); 
 	}
 	
 	public void clearLCD()
@@ -199,7 +258,8 @@ public class BarcodeScanner
 				// this.fahre();
 			}
 			//this.drawString("erkenneSchwarz");
-		} else
+		} 
+		else
 		{
 			//Grenze für weiß erhöht, da sonst zu schnell schwarz erkannt wird
 			while (aktWert > (caliGrenze-(caliGrenze/2)) && Button.ENTER.isUp()) // weiß
@@ -267,7 +327,7 @@ public class BarcodeScanner
 	 */
 	public void erkenneStart()
 	{
-		float aktWert = this.ersterScan(); //TODO abfangen wenn nicht weiß
+		this.pruefeBeginnWeißSteht();
 		this.fahre();
 		this.erkenneFarbe(false);
 		// while (Button.ENTER.isUp());
@@ -360,6 +420,7 @@ public class BarcodeScanner
 			this.drawString("Helle Fleche stellen");
 			this.drawString("druecken sie ENTER");
 			while (Button.ENTER.isUp());
+			Delay.msDelay(1000);
 			caliHell = this.ersterScan();
 			/*
 			 * While schleife wird durch die Methode scannen ersetzt
@@ -381,6 +442,7 @@ public class BarcodeScanner
 			this.drawString("Dunkle Fleche stellen");
 			this.drawString("druecken sie ENTER");
 			while (Button.ENTER.isUp());
+			Delay.msDelay(1000);
 			caliDunkel = this.ersterScan();
 			/*
 			 * While schleife wird durch die Methode scannen ersetzt
@@ -409,10 +471,7 @@ public class BarcodeScanner
 			this.drawString("oder ESC");
 			while (Button.ENTER.isUp() && Button.ESCAPE.isUp());
 		}
-		this.clearLCD();
-		this.drawString("Starte in 3 Sekunden",3);
-		Delay.msDelay(3000); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
-		this.clearLCD();		
+			this.warte(3);
 	
 	}
 
