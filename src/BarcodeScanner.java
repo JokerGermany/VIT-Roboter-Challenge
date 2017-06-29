@@ -57,8 +57,8 @@ public class BarcodeScanner
 		boolean debug = true;
 		boolean zeit = true; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
-		//myLineReader.calibrate();		
-		myLineReader.caliGrenze = 0.4f;
+		myLineReader.calibrate();		
+		//myLineReader.caliGrenze = 0.4f;
 		//LCD.clear();
 		myLineReader.erkenneStart();//ohne den 4.Block
 		
@@ -353,59 +353,67 @@ public class BarcodeScanner
 		float caliDunkel = 2; // Da der Wert eigentliche Wert nur zwischen 0-1
 								// sein kann, 2 als initialsierung genommen
 		// Ab hier wird losgemessen
-		this.drawString("Helle Fleche stellen");
-		this.drawString("druecken sie ENTER");
-		while (Button.ENTER.isUp());
-		caliHell = this.ersterScan();
-		/*
-		 * While schleife wird durch die Methode scannen ersetzt
-		 */
-		// while (sample[0]==0 || caliHell==2) //TODO: Nice to have: abfangen
-		// wenn Hell abgefragt aber auf dunkel gestellt
-		// {
-		// light.fetchSample(sample, 0);
-		// caliHell = sample[0];
-		// //Delay.msDelay(5000);
-		// }
-		this.drawString("HelleFläche: " + caliHell);
-		// Delay.msDelay(5000); //TODO KILLME
-		while (Button.ENTER.isDown()); // verhindert das Hell und Dunkel gleichzeitig gesetzt werden
-		this.clearLCD();
-		// TODO Wenn nicht zufrieden ESC drücken und Methode neu aufrufen, sonst
-		// ENTER
-		// Delay.msDelay(5000); //TODO KILLME
-		this.drawString("Dunkle Fleche stellen");
-		this.drawString("druecken sie ENTER");
-		while (Button.ENTER.isUp());
-		caliDunkel = this.ersterScan();
-		/*
-		 * While schleife wird durch die Methode scannen ersetzt
-		 */
-		// while (sample[0]==0 || caliDunkel==2) //TODO: Nice to have: abfangen
-		// wenn Dunkel abgefragt aber auf hell gestellt
-		// {
-		// light.fetchSample(sample, 0);
-		// caliDunkel = sample[0];
-		// //Delay.msDelay(5000);
-		// }
-		//LCD.clear();
-		this.drawString("Hell: " + caliHell);
-		this.drawString("Dunkel: " + caliDunkel);
-		caliGrenze = caliDunkel + ((caliHell - caliDunkel) / 2); // Achtung,
-																	// beachtet
-																	// nicht
-																	// Punkt vor
-																	// Strich
-																	// Rechnung!
-		this.drawString("Grenze: " + caliGrenze);
-		while (Button.ENTER.isDown()); // verhindert das die Kalibrierung versehentlich zu früh beendet wird.
-		this.drawString("Bitte an den Start stellen",0);
-		this.drawString("druecken sie ENTER",1);
-		while (Button.ENTER.isUp());
+		
+		while (Button.ENTER.isUp()) 
+		{
+			this.clearLCD();
+			this.drawString("Helle Fleche stellen");
+			this.drawString("druecken sie ENTER");
+			while (Button.ENTER.isUp());
+			caliHell = this.ersterScan();
+			/*
+			 * While schleife wird durch die Methode scannen ersetzt
+			 */
+			// while (sample[0]==0 || caliHell==2) //TODO: Nice to have: abfangen
+			// wenn Hell abgefragt aber auf dunkel gestellt
+			// {
+			// light.fetchSample(sample, 0);
+			// caliHell = sample[0];
+			// //Delay.msDelay(5000);
+			// }
+			this.drawString("HelleFläche: " + caliHell);
+			// Delay.msDelay(5000); //TODO KILLME
+			while (Button.ENTER.isDown()); // verhindert das Hell und Dunkel gleichzeitig gesetzt werden
+			this.clearLCD();
+			// TODO Wenn nicht zufrieden ESC drücken und Methode neu aufrufen, sonst
+			// ENTER
+			// Delay.msDelay(5000); //TODO KILLME
+			this.drawString("Dunkle Fleche stellen");
+			this.drawString("druecken sie ENTER");
+			while (Button.ENTER.isUp());
+			caliDunkel = this.ersterScan();
+			/*
+			 * While schleife wird durch die Methode scannen ersetzt
+			 */
+			// while (sample[0]==0 || caliDunkel==2) //TODO: Nice to have: abfangen
+			// wenn Dunkel abgefragt aber auf hell gestellt
+			// {
+			// light.fetchSample(sample, 0);
+			// caliDunkel = sample[0];
+			// //Delay.msDelay(5000);
+			// }
+			//LCD.clear();
+			this.drawString("Hell: " + caliHell);
+			this.drawString("Dunkel: " + caliDunkel);
+			caliGrenze = caliDunkel + ((caliHell - caliDunkel) / 2); // Achtung,
+																		// beachtet
+																		// nicht
+																		// Punkt vor
+																		// Strich
+																		// Rechnung!
+			this.drawString("Grenze: " + caliGrenze);
+			while (Button.ENTER.isDown()); // verhindert das die Kalibrierung versehentlich zu früh beendet wird.
+			this.drawString("");
+			this.drawString("Bitte an den Start stellen");
+			this.drawString("druecken sie ENTER");
+			this.drawString("oder ESC");
+			while (Button.ENTER.isUp() && Button.ESCAPE.isUp());
+		}
 		this.clearLCD();
 		this.drawString("Starte in 3 Sekunden",3);
 		Delay.msDelay(3000); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
-		this.clearLCD();
+		this.clearLCD();		
+	
 	}
 
 }
