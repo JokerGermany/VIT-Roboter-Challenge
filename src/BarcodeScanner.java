@@ -28,6 +28,9 @@ public class BarcodeScanner
 	boolean zeit;
 	boolean debug;
 	int zeile=0;
+	boolean start;
+	String dunkele=""; 
+	String strichcode="";  
 	
 	//640 32
 	//499 25
@@ -75,6 +78,7 @@ public class BarcodeScanner
 		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
 		this.zeit=false;
 		this.debug=debug;
+		start = false;
 		
 	}
 	public static void main(String[] args)
@@ -86,7 +90,7 @@ public class BarcodeScanner
 		//myLineReader.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
 		//LCD.clear();
 		myLineReader.erkenneStart();//ohne den 4.Block
-		myLineReader.berechneStartBlockgroesse();
+		myLineReader.berechneBlockgroesse("0");
 		
 		//34
 		//35
@@ -101,22 +105,110 @@ public class BarcodeScanner
 		while (Button.ENTER.isUp()); // TODO KILLME
 		//LCD.clear();
 	}
-	public void berechneStartBlockgroesse()
+	/*public void berechneStartBlockgroesse()
 	{
 		int anzahlBloecke=this.berechneBlockgroesse(false);
 		if(anzahlBloecke==1)
 		{
-			//berechneBlockgroesse(true);
+			//berechneBlockgroesse(true); //TODO Nach Test einkommentieren
 			this.drawString("Weiss nur Start");
 		}
 		else
 		{
 			this.drawString(+(anzahlBloecke-1)+" Bloecke weiss");
+			if((anzahlBloecke-1) > 3)
+			{
+				//0
+			}
+		}	
+		this.start=false;
+	}*/
+	public int dunkeleAuswerten(String volldunkele)
+	{	
+	 final String[] Muster = {
+	            "0000", "1000", "0100", "0010", "0001", //Zahlen 0-4
+	            "1100", "0110", "0011", //Zahlen 5-7 
+	            "1001", "1011", //Zahlen 8-9
+	            "0101" // Ziel  (10)
+	        };
+
+	        for (int i=0; i<Muster.length; i++)
+	        {	
+	            if (volldunkele.equals(Muster))
+	            {	
+	                return i;
+	            }
+	        }
+	        return 110; //Fehler - TODO fahre zurück zum Start...
+	}   
+	
+	public void dunkeleUebertragen(String volldunkele)
+	{
+		int strichcodeZahl = dunkeleAuswerten(volldunkele);
+		if( strichcodeZahl < 10 )
+		{
+			strichcode += strichcodeZahl;
 		}
+		else if (strichcodeZahl == 10)
+		{
+			Sound.beep();
+			this.stoppe();
+			this.drawString("Die Zahl lautet", 3);
+			this.drawString(strichcode, 4);
+			Sound.beep();
+		}
+		else
+		{
+			this.drawString("Verzeihe mir Meister"); //Fehler - TODO fahre zurück zum Start...
+		}
+	}
+	
+	public void dunkeleLeer(String dunkel, int anzahl)
+	{
+		if (anzahl>3) // Mindestens 4 boolean Werte welche nur hell (dunkel=false) sein können
+		{
+			strichcode+="0";
+			if((anzahl -= 4) != 0)
+			{
+				this.convertiereStrichcode(dunkel, anzahl);
+			}				
+		}
+		else
+		{	
+			for(int i=0; i < anzahl;i++)
+			{
+				dunkele+=dunkel;
+			}
+		}
+	}
+	
+	public void convertiereStrichcode(String dunkel, int anzahl)
+	{
+		
+		if(dunkele.isEmpty()) // Wenn strichcode leer ist
+		{
+			dunkeleLeer(dunkel, anzahl);	
+		}
+		else
+		{
+			while((anzahl > 0) && (dunkele.length() < 4))
+			{		
+				dunkele+=dunkel;
+				anzahl--;
+			}	
+			if(dunkele.length() == 4)
+			{
+				dunkeleUebertragen(dunkele);
+			}
+			if(anzahl > 0)
+			{
+				convertiereStrichcode(dunkel, anzahl);
+			}
+		}			
 	}
 			
 	
-	public int berechneBlockgroesse(boolean dunkel)
+	public void berechneBlockgroesse(String dunkel)
 	{	
 		/*Fahr zu Anfang weiß
 Strecke entspricht x
@@ -146,8 +238,39 @@ Finde Ende*/
 				this.drawString("Innerhalb Tolleranz");
 			}
 		}	
-		return anzahlBloecke;
-		//berechneBlockgroesse(!dunkel);
+		if(this.start)
+		{
+			if(anzahlBloecke!=1)
+			{
+				if(this.debug)
+				{
+					this.drawString((anzahlBloecke-1)+" mehr als Start");
+				}	
+				anzahlBloecke--;	
+				convertiereStrichcode("0", (anzahlBloecke-1));//"Overhead" weißer Blöcke weitergeben 
+			}	
+			else
+			{
+				if(this.debug)
+				{
+					this.drawString("Weiss nur Start");
+				}				
+			}
+			this.start=false;
+			berechneBlockgroesse("1"); //Nach Startweiß muss schwarz kommen
+		}
+		else
+		{
+			convertiereStrichcode(dunkel, anzahlBloecke);
+			if(dunkel.equals("1"))
+			{
+				berechneBlockgroesse("0");
+			}
+			else
+			{
+				berechneBlockgroesse("1");
+			}
+		}
 	}	
 		
 		/* TODO Müll entfernen wenn sicher ist, dass es müll ist
@@ -263,7 +386,7 @@ Finde Ende*/
 	/**
 	 *
 	 */
-	public long erkenneFarbe(boolean dunkel)
+	public long erkenneFarbe(String dunkel)
 	{
 		long aktBlock;
 		if(this.zeit)
@@ -277,7 +400,7 @@ Finde Ende*/
 		// //LCD.clear();
 		// long timeBlock= -System.nanoTime();
 		float aktWert = this.ersterScan();
-		if (dunkel == true)
+		if (dunkel.equals("1"))
 		{
 			while (aktWert < (caliGrenze) && Button.ENTER.isUp())
 			{
@@ -352,11 +475,11 @@ Finde Ende*/
 	 * Probleme hierbei könnte die Startlinie machen FIXME funktioniere!!! Die
 	 * Entferungsberechnung fehlt noch
 	 */
-	public void erkenneStart()
+	public void erkenneStart() //TODO Extrapunkte: Lasse den Start beliebig sein
 	{
 		this.pruefeBeginnWeißSteht();
 		this.fahre();
-		this.erkenneFarbe(false);
+		this.erkenneFarbe("0");
 		// while (Button.ENTER.isUp());
 		// TODO END KILLME!
 		if(this.zeit)
@@ -370,28 +493,28 @@ Finde Ende*/
 		if(debug)
 		{
 // Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier			
-			this.drawString("Strecke: " + this.erkenneFarbe(true));
+			this.drawString("Strecke: " + this.erkenneFarbe("1"));
 			// aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider
 			// LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
 			// while (Button.ENTER.isUp());
 // Der 2. Block des Starts (weiß) beginnt hoffentlich hier
 			// Rueckgabe ergebnis2 = this.erkenneFarbe(false);
-			this.drawString("Strecke: " + this.erkenneFarbe(false));
+			this.drawString("Strecke: " + this.erkenneFarbe("0"));
 			// LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
 			// while (Button.ENTER.isUp());
 // Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
 			// Rueckgabe ergebnis3 = this.erkenneFarbe(true);
-			this.drawString("Strecke: " + this.erkenneFarbe(true));
+			this.drawString("Strecke: " + this.erkenneFarbe("1"));
 		}
 		else
 		{
 // Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier	
-			this.erkenneFarbe(true);
+			this.erkenneFarbe("1");
 // Der 2. Block des Starts (weiß) beginnt hoffentlich hier
 			//this.drawString(""); //FIXME Ohne das hier keine erkenneWeiß auf dem Display oO
-			this.erkenneFarbe(false);			
+			this.erkenneFarbe("0");			
 // Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
-			this.erkenneFarbe(true);
+			this.erkenneFarbe("1");
 		}
 		long Streckenanfang = block;
 		if(this.zeit)
