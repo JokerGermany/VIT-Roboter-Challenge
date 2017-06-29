@@ -15,8 +15,8 @@ import lejos.utility.Delay;
 public class BarcodeScanner
 {
 	float caliGrenze; // Pauschal: 0 schwarz, 1 weiß
-	float sample[] = new float[1];
-	Object[] rueckgabe = new Object[2]; // Evtl nur fürs Debugging gebraucht
+	float samples[] = new float[1];
+	//Object[] rueckgabe = new Object[2]; // Evtl nur fürs Debugging gebraucht
 	EV3ColorSensor light;
 	long toleranzBlock;
 	//int degreeBlock;
@@ -60,7 +60,6 @@ public class BarcodeScanner
 		//myLineReader.calibrate();		
 		myLineReader.caliGrenze = 0.4f;
 		//LCD.clear();
-		myLineReader.fahre();
 		myLineReader.erkenneStart();//ohne den 4.Block
 		
 		//34
@@ -76,7 +75,7 @@ public class BarcodeScanner
 		while (Button.ENTER.isUp()); // TODO KILLME
 		//LCD.clear();
 	}
-
+	
 	public void berechneBlockgroeße()
 	{
 		/* TODO Start Methode entwickeln
@@ -85,14 +84,14 @@ public class BarcodeScanner
 		{
 // Der 4. Block des Starts (weiß) beginnt hoffentlich hier
 			// Rueckgabe ergebnis4 = this.erkenneFarbe(false);
-			myLineReader.drawString("AktWert: " + myLineReader.erkenneFarbe(false));
+			this.drawString("AktWert: " + this.erkenneFarbe(false));
 			// LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
 			// while (Button.ENTER.isUp());
 		}
 		else
 		{
 // Der 4. Block des Starts (weiß) beginnt hoffentlich hier
-			myLineReader.erkenneFarbe(false);
+			this.erkenneFarbe(false);
 		}
 		/*
 		 * TODO Ende Methode entwickeln
@@ -147,15 +146,33 @@ public class BarcodeScanner
 	/**
 	 * TODO Kann hier noch optimiert werden?
 	 */
-	public float scanne()
+	public float scanne(float letzterWert)
 	{
-		light.fetchSample(sample, 0);
-		while (sample[0] == 0)
-		{
-			light.fetchSample(sample, 0);
-		}
-		return sample[0];
+		return (this.ersterScan()+letzterWert)/2;
 	}
+	public float ersterScan()
+	{
+		light.fetchSample(samples, 0);
+		while (samples[0] == 0)
+		{
+			light.fetchSample(samples, 0);
+		}
+		return samples[0];
+	}
+	/*
+	 * light.fetchSample(samples, 0);
+		float rueckgabeWert=0;
+		//for(float sample: samples)
+		for(int i = 0; i < samples.length; i++)
+		{	
+			while (samples[i] == 0)
+			{
+				light.fetchSample(samples, i);
+			}
+			rueckgabeWert += samples[i];
+		}	
+		return rueckgabeWert / samples.length;
+		*/
 
 	/**
 	 *
@@ -173,12 +190,12 @@ public class BarcodeScanner
 		}
 		// //LCD.clear();
 		// long timeBlock= -System.nanoTime();
-		float aktWert = this.scanne();
+		float aktWert = this.ersterScan();
 		if (dunkel == true)
 		{
 			while (aktWert < (caliGrenze) && Button.ENTER.isUp())
 			{
-				aktWert = this.scanne();
+				aktWert = this.scanne(aktWert);
 				// this.fahre();
 			}
 			//this.drawString("erkenneSchwarz");
@@ -187,7 +204,7 @@ public class BarcodeScanner
 			//Grenze für weiß erhöht, da sonst zu schnell schwarz erkannt wird
 			while (aktWert > (caliGrenze-(caliGrenze/2)) && Button.ENTER.isUp()) // weiß
 			{
-				aktWert = this.scanne();
+				aktWert = this.scanne(aktWert);
 				// this.fahre();
 			}
 			//this.drawString("erkenneWeiss");
@@ -250,7 +267,8 @@ public class BarcodeScanner
 	 */
 	public void erkenneStart()
 	{
-		float aktWert = this.scanne();
+		float aktWert = this.ersterScan(); //TODO abfangen wenn nicht weiß
+		this.fahre();
 		this.erkenneFarbe(false);
 		// while (Button.ENTER.isUp());
 		// TODO END KILLME!
@@ -327,7 +345,7 @@ public class BarcodeScanner
 	 */
 	public void calibrate()
 	{
-		float sample[] = new float[light.sampleSize()]; // wird in dieser
+		float samples[] = new float[light.sampleSize()]; // wird in dieser
 														// Methode mehrfach
 														// verwendet
 		float caliHell = 2; // Da der Wert eigentliche Wert nur zwischen 0-1
@@ -338,7 +356,7 @@ public class BarcodeScanner
 		this.drawString("Helle Fleche stellen");
 		this.drawString("druecken sie ENTER");
 		while (Button.ENTER.isUp());
-		caliHell = this.scanne();
+		caliHell = this.ersterScan();
 		/*
 		 * While schleife wird durch die Methode scannen ersetzt
 		 */
@@ -359,7 +377,7 @@ public class BarcodeScanner
 		this.drawString("Dunkle Fleche stellen");
 		this.drawString("druecken sie ENTER");
 		while (Button.ENTER.isUp());
-		caliDunkel = this.scanne();
+		caliDunkel = this.ersterScan();
 		/*
 		 * While schleife wird durch die Methode scannen ersetzt
 		 */
