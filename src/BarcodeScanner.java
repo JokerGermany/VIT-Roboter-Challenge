@@ -129,19 +129,23 @@ Finde Ende*/
 		
 		int anzahlBloecke = (int) (aktStrecke/this.block);
 		//float rest = aktStrecke % this.block;
-		if(this.debug)
+		
+		if(aktStrecke % this.block>=(anzahlBloecke*toleranzBlock))
 		{
-			if(aktStrecke % this.block>=(anzahlBloecke*toleranzBlock))
+			if(this.debug)
 			{
 				this.drawString("Tolleranz überschritten");
-				anzahlBloecke++;
 			}
-			//else if(aktStrecke % this.block<=(anzahlBloecke*toleranzBlock))
-			else
+			anzahlBloecke++;			
+		}
+		//else if(aktStrecke % this.block<=(anzahlBloecke*toleranzBlock))
+		else
+		{
+			if(this.debug)
 			{
 				this.drawString("Innerhalb Tolleranz");
 			}
-		}
+		}	
 		return anzahlBloecke;
 		//berechneBlockgroesse(!dunkel);
 	}	
