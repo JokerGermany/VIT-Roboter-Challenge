@@ -9,7 +9,7 @@ import lejos.utility.Delay;
 
 /*
  * GetTachocount oder System.nanoTime() oder beides?
- * 
+ * 0,0527777777778 cm/°
  */
 
 public class BarcodeScanner
@@ -25,7 +25,10 @@ public class BarcodeScanner
 	boolean debug;
 	int zeile=0;
 	
-
+	//640 32
+	//499 25
+	//709 35
+	
 	// class Rueckgabe
 	// {
 	// float aktWert; //TODO: SChmittigenauigkeit: privat?
@@ -41,30 +44,61 @@ public class BarcodeScanner
 
 	BarcodeScanner(boolean zeit, boolean debug)
 	{
-		Motor.A.setSpeed(2000);
-		Motor.D.setSpeed(2000);
+		Motor.A.setSpeed(50);
+		Motor.D.setSpeed(50);
 		light = new EV3ColorSensor(SensorPort.S4);
 		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
-		this.zeit=zeit;
+		this.zeit=false;
 		this.debug=debug;
 		
 	}
 	public static void main(String[] args)
 	{	
-		boolean debug = false;
-		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
+		boolean debug = true;
+		boolean zeit = true; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
 		//myLineReader.calibrate();		
 		myLineReader.caliGrenze = 0.4f;
 		//LCD.clear();
 		myLineReader.fahre();
-		myLineReader.erkenneStart();
+		myLineReader.erkenneStart();//ohne den 4.Block
+		
+		//34
+		//35
+		//31
+		//  Steueung 15
+		
+		
+		
+		
 		myLineReader.drawString("Fertig");
 		myLineReader.stoppe();
 		while (Button.ENTER.isUp()); // TODO KILLME
 		//LCD.clear();
 	}
 
+	public void berechneBlockgroeße()
+	{
+		/* TODO Start Methode entwickeln
+		 */
+		 if(debug)
+		{
+// Der 4. Block des Starts (weiß) beginnt hoffentlich hier
+			// Rueckgabe ergebnis4 = this.erkenneFarbe(false);
+			myLineReader.drawString("AktWert: " + myLineReader.erkenneFarbe(false));
+			// LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
+			// while (Button.ENTER.isUp());
+		}
+		else
+		{
+// Der 4. Block des Starts (weiß) beginnt hoffentlich hier
+			myLineReader.erkenneFarbe(false);
+		}
+		/*
+		 * TODO Ende Methode entwickeln
+		 */
+	}
+	
 	public void fahre()
 	{
 		Motor.A.backward();
@@ -126,28 +160,37 @@ public class BarcodeScanner
 	/**
 	 *
 	 */
-	public int erkenneFarbe(boolean dunkel)
+	public long erkenneFarbe(boolean dunkel)
 	{
-		int aktDegreeBlock = -this.getTachoCount();
+		long aktBlock;
+		if(this.zeit)
+		{
+			aktBlock = -System.currentTimeMillis();
+		}
+		else
+		{	
+			aktBlock = -this.getTachoCount();
+		}
 		// //LCD.clear();
 		// long timeBlock= -System.nanoTime();
 		float aktWert = this.scanne();
 		if (dunkel == true)
 		{
-			while (aktWert < caliGrenze && Button.ENTER.isUp())
+			while (aktWert < (caliGrenze) && Button.ENTER.isUp())
 			{
 				aktWert = this.scanne();
 				// this.fahre();
 			}
-			this.drawString("erkenneSchwarz");
+			//this.drawString("erkenneSchwarz");
 		} else
 		{
-			while (aktWert > caliGrenze && Button.ENTER.isUp()) // weiß
+			//Grenze für weiß erhöht, da sonst zu schnell schwarz erkannt wird
+			while (aktWert > (caliGrenze-(caliGrenze/2)) && Button.ENTER.isUp()) // weiß
 			{
 				aktWert = this.scanne();
 				// this.fahre();
 			}
-			this.drawString("erkenneWeiss");
+			//this.drawString("erkenneWeiss");
 			//Sound.beep();
 		}
 		/*
@@ -161,12 +204,20 @@ public class BarcodeScanner
 		 */
 		if(debug)
 		{
-			this.drawString("AktWert: " + aktWert);
+			//this.drawString("AktWert: " + aktWert);
 		}
 		// timeBlock += System.nanoTime(); // Wird in der Methode erkenne start
 		// gemacht
 		// return new Rueckgabe(aktWert, timeBlock);
-		return aktDegreeBlock + this.getTachoCount();
+		if(this.zeit)
+		{
+			return aktBlock + System.currentTimeMillis();
+		}
+		else
+		{	
+			return aktBlock + this.getTachoCount();
+		}
+		//return aktDegreeBlock + this.getTachoCount();
 	}
 
 	/*
@@ -249,6 +300,8 @@ public class BarcodeScanner
 // TODO ist Integer/long gut? denk dran Nachkommastellen werden abgeschnitten
 		if(debug)
 		{
+			/*
+			 * TODO reinnehmen
 			this.drawString("Block:" + block);
 			if(this.zeit)
 			{
@@ -257,25 +310,15 @@ public class BarcodeScanner
 			else
 			{	
 				this.drawString("GesamtStr:" + (this.getTachoCount() - Streckenanfang));
-			}
+			}*/
 		}	
 		// Toleranz von einem 1/4.
 		toleranzBlock = (block / 4);
 		if(debug)
 		{
-			this.drawString("Toleranz:" + toleranzBlock);
+			//this.drawString("Toleranz:" + toleranzBlock); TODO reinnehmen
 			// LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
 			// while (Button.ENTER.isUp());
-// Der 4. Block des Starts (weiß) beginnt hoffentlich hier
-			// Rueckgabe ergebnis4 = this.erkenneFarbe(false);
-			this.drawString("AktWert: " + this.erkenneFarbe(false));
-			// LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
-			// while (Button.ENTER.isUp());
-		}
-		else
-		{
-// Der 4. Block des Starts (weiß) beginnt hoffentlich hier
-			this.erkenneFarbe(false);
 		}		
 	}
 	
@@ -342,7 +385,7 @@ public class BarcodeScanner
 		this.drawString("druecken sie ENTER",1);
 		while (Button.ENTER.isUp());
 		this.clearLCD();
-		this.drawString("Starte in 5 Sekunden",3);
+		this.drawString("Starte in 3 Sekunden",3);
 		Delay.msDelay(3000); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
 		this.clearLCD();
 	}
