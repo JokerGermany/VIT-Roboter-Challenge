@@ -134,7 +134,9 @@ Finde Ende*/
 			if(aktStrecke % this.block>=(anzahlBloecke*toleranzBlock))
 			{
 				this.drawString("Tolleranz überschritten");
+				anzahlBloecke++;
 			}
+			//else if(aktStrecke % this.block<=(anzahlBloecke*toleranzBlock))
 			else
 			{
 				this.drawString("Innerhalb Tolleranz");
