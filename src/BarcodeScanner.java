@@ -86,6 +86,7 @@ public class BarcodeScanner
 		//myLineReader.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
 		//LCD.clear();
 		myLineReader.erkenneStart();//ohne den 4.Block
+		myLineReader.berechneStartBlockgroesse();
 		
 		//34
 		//35
@@ -100,9 +101,23 @@ public class BarcodeScanner
 		while (Button.ENTER.isUp()); // TODO KILLME
 		//LCD.clear();
 	}
-	
-	public void berechneBlockgroeße()
+	public void berechneStartBlockgroesse()
 	{
+		int anzahlBloecke=this.berechneBlockgroesse(false);
+		if(anzahlBloecke==1)
+		{
+			//berechneBlockgroesse(true);
+			this.drawString("Weiss nur Start");
+		}
+		else
+		{
+			this.drawString(+(anzahlBloecke-1)+" Bloecke weiss");
+		}
+	}
+			
+	
+	public int berechneBlockgroesse(boolean dunkel)
+	{	
 		/*Fahr zu Anfang weiß
 Strecke entspricht x
 finde n, für das gilt:
@@ -110,21 +125,27 @@ nBlockgröße < x < nBlockgröße + Toleranz
 Sag wie viele Blöcke dieselbe Farbe hatten
 Miss den nächsten Block (andere Farbe) genau so
 Finde Ende*/
-		/*long aktStrecke = this.erkenneFarbe(false);
+		long aktStrecke = this.erkenneFarbe(dunkel);
 		
-		float anzahlBloecke = aktStrecke/this.block;
-		if
+		int anzahlBloecke = (int) (aktStrecke/this.block);
+		//float rest = aktStrecke % this.block;
+		if(this.debug)
+		{
+			if(aktStrecke % this.block>=(anzahlBloecke*toleranzBlock))
+			{
+				this.drawString("Tolleranz überschritten");
+			}
+			else
+			{
+				this.drawString("Innerhalb Tolleranz");
+			}
+		}
+		return anzahlBloecke;
+		//berechneBlockgroesse(!dunkel);
+	}	
 		
-		float resst = aktStrecke % this.block;
-		
-		
-		
-		else if()
-		*/
-		
-		
-		/* TODO Start Methode entwickeln
-		 */
+		/* TODO Müll entfernen wenn sicher ist, dass es müll ist
+		 
 		 if(debug)
 		{
 // Der 4. Block des Starts (weiß) beginnt hoffentlich hier
@@ -141,7 +162,7 @@ Finde Ende*/
 		/*
 		 * TODO Ende Methode entwickeln
 		 */
-	}
+	
 	
 	public void fahre()
 	{
