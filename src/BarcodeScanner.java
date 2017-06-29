@@ -84,6 +84,13 @@ public class BarcodeScanner
 	{
 		return (Motor.A.getTachoCount()*-1); 
 	}
+	
+	public void clearLCD()
+	{
+		LCD.clear();
+		this.zeile=0;
+	}
+	
 	public void drawString(String str, int y)
 	{
 		LCD.drawString(str, 0, y);
@@ -94,7 +101,7 @@ public class BarcodeScanner
 		if(this.zeile > 7)
 		{
 			LCD.scroll();
-			LCD.drawString(str, 0, 6);
+			LCD.drawString(str, 0, 7);
 		}
 		else
 		{
@@ -104,7 +111,7 @@ public class BarcodeScanner
 	}
 
 	/**
-	 * Lichtsensor pro Abfrage einen Wert FIXME funktioniere!!!
+	 * TODO Kann hier noch optimiert werden?
 	 */
 	public float scanne()
 	{
@@ -226,8 +233,7 @@ public class BarcodeScanner
 			this.erkenneFarbe(true);
 // Der 2. Block des Starts (weiß) beginnt hoffentlich hier
 			//this.drawString(""); //FIXME Ohne das hier keine erkenneWeiß auf dem Display oO
-			this.erkenneFarbe(false);
-			
+			this.erkenneFarbe(false);			
 // Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
 			this.erkenneFarbe(true);
 		}
@@ -288,8 +294,7 @@ public class BarcodeScanner
 		// Ab hier wird losgemessen
 		this.drawString("Helle Fleche stellen");
 		this.drawString("druecken sie ENTER");
-		while (Button.ENTER.isUp())
-			;
+		while (Button.ENTER.isUp());
 		caliHell = this.scanne();
 		/*
 		 * While schleife wird durch die Methode scannen ersetzt
@@ -304,11 +309,10 @@ public class BarcodeScanner
 		this.drawString("HelleFläche: " + caliHell);
 		// Delay.msDelay(5000); //TODO KILLME
 		while (Button.ENTER.isDown()); // verhindert das Hell und Dunkel gleichzeitig gesetzt werden
-		LCD.clear();
+		this.clearLCD();
 		// TODO Wenn nicht zufrieden ESC drücken und Methode neu aufrufen, sonst
 		// ENTER
 		// Delay.msDelay(5000); //TODO KILLME
-		this.zeile=0; //ganz nach oben schreiben
 		this.drawString("Dunkle Fleche stellen");
 		this.drawString("druecken sie ENTER");
 		while (Button.ENTER.isUp());
@@ -337,10 +341,10 @@ public class BarcodeScanner
 		this.drawString("Bitte an den Start stellen",0);
 		this.drawString("druecken sie ENTER",1);
 		while (Button.ENTER.isUp());
-		LCD.clear();
+		this.clearLCD();
 		this.drawString("Starte in 5 Sekunden",3);
-		Delay.msDelay(500); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
-		LCD.clear();
+		Delay.msDelay(3000); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
+		this.clearLCD();
 	}
 
 }
