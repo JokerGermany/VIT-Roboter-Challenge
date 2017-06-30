@@ -7,6 +7,7 @@ import lejos.hardware.motor.Motor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.robotics.RegulatedMotor;
 import lejos.utility.Delay;
 
 /*
@@ -62,6 +63,7 @@ public class BarcodeScanner
 		this.ziel=ziel;
 		this.dunkel=dunkel;
 		this.start=true;
+		linkerMotor.synchronizeWith(new RegulatedMotor[]{rechterMotor});
 	}
 	
 	public void warte(int sekunden)
@@ -180,29 +182,45 @@ public class BarcodeScanner
 		/*
 		 * TODO Ende Methode entwickeln
 		 */
-	
+	public void fahreZurueckStart()
+	{
+		this.stoppe();
+		Delay.msDelay(500);
+		linkerMotor.startSynchronization();
+		linkerMotor.forward();
+		rechterMotor.forward();
+		linkerMotor.endSynchronization();
+		while(linkerMotor.getTachoCount()<=0); //Fahre zurück zum start!
+		this.stoppe();
+		Delay.msDelay(500);
+		
+	}
 	
 	public void fahre()
 	{
+		linkerMotor.startSynchronization();
 		int geschwindigkeit = 50;	//	Festsetzen der Geschwindigkeit in "Grad/Sekunde"
 		int beschleunigung = 500;	//	Verzögerung von 500 ms bis Geschwindigkeit
+		 //Sicherstellen, dass die Motoren syncron fahren
 		linkerMotor.resetTachoCount();					//	Tacho-Reset
 		linkerMotor.setSpeed(geschwindigkeit);			//	setzen der Geschwindigkeit
 		linkerMotor.setAcceleration(beschleunigung);	//	setzen der Beschleunigung
 		rechterMotor.resetTachoCount();					//	Tacho-Reset
 		rechterMotor.setSpeed(geschwindigkeit);			//	setzen der Geschwindigkeit
 		rechterMotor.setAcceleration(beschleunigung);	//	setzen der Beschleunigung
-				
 		linkerMotor.backward();
 		rechterMotor.backward();
+		linkerMotor.endSynchronization(); //hier beginnen die Motoren los zu fahren
 		//Motor.A.backward();
 		//Motor.D.backward();
 	}
 
 	public void stoppe()
 	{
-		linkerMotor.stop();
-		rechterMotor.stop();
+		linkerMotor.startSynchronization(); //Sicherstellen, dass die Motoren gleichzeitig stoppen
+		linkerMotor.flt();
+		rechterMotor.flt();
+		linkerMotor.endSynchronization(); //hier stoppen die Motoren
 		//Motor.A.stop();
 		//Motor.D.stop();
 	}
@@ -415,41 +433,57 @@ public class BarcodeScanner
 		if(startString.substring(0, 1).equals("1"))
 		{
 			this.pruefeBeginnRichtigSteht(false);
-			this.fahre();
-			this.erkenneFarbe("0");
 		}
 		else if(startString.substring(0, 1).equals("0"))
 		{
 			this.pruefeBeginnRichtigSteht(true);
-			this.fahre();
-			this.erkenneFarbe("1");
-		}	
+		}
 		else
 		{
 			this.drawString("Nur 0 oder 1",3);
 			this.drawString("ESC zum beenden",4);
 			System.exit(1);
 		}
-		if(this.zeit)
-		{
-			block = -System.currentTimeMillis();
-		}
-		else
+		boolean restart=true;
+		while(restart && Button.ESCAPE.isUp())
 		{	
-			block = -this.getTachoCount();
-		}	
-		long Streckenanfang = block;
-		for(int i = 0; i < 3; i++)
-		{				
-			if(debug)
-			{
-				//this.drawString(startString.substring(i, i+1));
-				this.drawString("Strecke: " + this.erkenneFarbe(startString.substring(i, i+1)));
+			restart=false;
+			if(startString.substring(0, 1).equals("1"))
+			{	
+				this.fahre();
+				this.erkenneFarbe("0");
 			}
+			else if(startString.substring(0, 1).equals("0"))
+			{
+				this.fahre();
+				this.erkenneFarbe("1");
+			}	
 			else
 			{
-				this.erkenneFarbe(startString.substring(i, i+1));
-			}		
+				this.drawString("Nur 0 oder 1",3);
+				this.drawString("ESC zum beenden",4);
+				System.exit(1);
+			}
+			if(this.zeit)
+			{
+				block = -System.currentTimeMillis();
+			}
+			else
+			{	
+				block = -this.getTachoCount();
+			}	
+			for(int i = 0; i < 3; i++)
+			{	
+				long strecke = this.erkenneFarbe(startString.substring(i, i+1));
+				if(debug)
+				{
+					//this.drawString(startString.substring(i, i+1));
+					this.drawString("Strecke: " +strecke);
+				}
+				if(strecke==0)
+				{
+					restart=true;
+				}
 			/*if(i==3)//Nach dem 3. Durchgang (Die 0 zählt mit!) Zeitmessung stoppen
 			{
 				/*if(debug)
@@ -475,7 +509,12 @@ public class BarcodeScanner
 					while (Button.ENTER.isUp());
 				}
 			}*/
-		}
+			}
+			if(restart)
+			{
+				fahreZurueckStart();
+			}
+		}	
 		if(this.zeit)
 		{
 			this.block = (this.block + System.currentTimeMillis())/3;
@@ -704,12 +743,11 @@ Finde Ende*/
 		
 		int anzahlBloecke = (int) (aktStrecke/this.block);
 		//float rest = aktStrecke % this.block;
-		
 		if(aktStrecke % this.block>=toleranzBlock)
 		{
 			if(this.debug)
 			{
-				this.drawString(aktStrecke % this.block+"Ueber="+anzahlBloecke);
+				//this.drawString(aktStrecke % this.block+"Ueber="+anzahlBloecke);
 			}
 			anzahlBloecke++;			
 		}
@@ -718,7 +756,7 @@ Finde Ende*/
 		{
 			if(this.debug)
 			{
-				this.drawString(aktStrecke % this.block+"Inner="+anzahlBloecke);
+				//this.drawString(aktStrecke % this.block+"Inner="+anzahlBloecke);
 			}
 		}	
 		//this.drawString(""+block);
