@@ -23,13 +23,16 @@ public class BarcodeScanner
 	EV3LargeRegulatedMotor rechterMotor = new EV3LargeRegulatedMotor(MotorPort.D);
 	long toleranzBlock;
 	//int degreeBlock;
-	long block; // long falls zeit ausgewählt wird
+	long block;
 	boolean zeit;
 	boolean debug;
 	int zeile=0;
 	boolean start;
+	boolean ziel=false;
 	String dunkele=""; 
 	String strichcode="";  
+	int anzahlBloeckeRead;
+	String dunkel;
 	
 	//640 32
 	//499 25
@@ -47,6 +50,19 @@ public class BarcodeScanner
 	 * this.aktWert=aktWert; this.timeBlock=timeBlock; }
 	 */
 	// }
+	
+	BarcodeScanner(boolean zeit, boolean debug)
+	{
+		//Motor.A.setSpeed(50);
+		//Motor.D.setSpeed(50);
+		light = new EV3ColorSensor(SensorPort.S4);
+		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
+		this.zeit=zeit;
+		this.debug=debug;
+		this.ziel=ziel;
+		this.dunkel=dunkel;
+		this.start=true;
+	}
 	
 	public void warte(int sekunden)
 	{
@@ -82,25 +98,39 @@ public class BarcodeScanner
 		//LENNI: Einfach schwarz erkennen; fährt bis weiß und los gehts.		
 	}
 
-	BarcodeScanner(boolean zeit, boolean debug)
-	{
-		//Motor.A.setSpeed(50);
-		//Motor.D.setSpeed(50);
-		light = new EV3ColorSensor(SensorPort.S4);
-		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
-		this.zeit=zeit;
-		this.debug=debug;
-		
-	}
+	
 	public static void main(String[] args)
 	{	
 		boolean debug = true;
 		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
-		myLineReader.calibrate();		
+		myLineReader.calibrate();
+		myLineReader.dunkel = myLineReader.erkenneStart("1010");
+		int i = 0;
+		while(myLineReader.ziel!=true && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
+		{	
+			//myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel);
+			//this.drawString(""+this.erkenneFarbe(dunkel));
+      //dunkel=gegenTeilString(dunkel);
+//			this.dunkel=this.gegenTeilString(dunkel);
+			if(myLineReader.anzahlBloeckeRead!=0)
+			{
+				//myLineReader.drawString("Blocke "+myLineReader.anzahlBloeckeRead);
+				myLineReader.convertiereStrichcode(myLineReader.dunkel, myLineReader.anzahlBloeckeRead);
+			}
+			else
+			{
+				myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel); //TODO Variante 1
+				myLineReader.drawString(myLineReader.dunkel);
+			}
+			i++;
+		}
+		
+		
 		//myLineReader.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
 		//LCD.clear();
-		myLineReader.erkenneStart("1010");
+		//myLineReader.antiRecursion();
+		//this.drawString(""+this.suche(block, startString.substring(3).equals("1"))); //TODO Variante 2
 		
 		
 		//34
@@ -110,9 +140,9 @@ public class BarcodeScanner
 		
 		
 		
-		
-		myLineReader.drawString("Fertig");
 		myLineReader.stoppe();
+		myLineReader.drawString("Fertig");
+		
 		while (Button.ENTER.isUp()); // TODO KILLME
 		//LCD.clear();
 	}
@@ -326,9 +356,31 @@ public class BarcodeScanner
 	}
 	
 // String Methoden beginnen hier
-	/**
-	 *
-	 */
+	
+	//public void antiRecursion()
+	//{
+//		String dunkel = this.erkenneStart("1010");
+//		int i = 0;
+//		while(i < 10 && Button.ESCAPE.isUp()) //(this.ziel!=true && Button.ESCAPE.isUp())
+//		{	
+//			dunkel=this.berechneBlockgroesse(dunkel);
+////		this.drawString(""+this.erkenneFarbe(dunkel));
+////		dunkel=gegenTeilString(dunkel);
+////			this.dunkel=this.gegenTeilString(dunkel);
+////			/*if(this.anzahlBloeckeRead!=0)
+////			{
+////				this.drawString("Blocke "+this.anzahlBloeckeRead);
+////				this.anzahlBloeckeRead=this.convertiereStrichcode(this.dunkel, this.anzahlBloeckeRead);
+////			}
+////			else
+////			{
+//				//test=this.berechneBlockgroesse(test); //TODO Variante 1
+////				this.drawString(""+test);
+////			}*/
+//			i++;
+//		}
+	//}
+	
 	/*
 	 * ersetzt durch erkenneFarbe
 	 * 
@@ -356,7 +408,7 @@ public class BarcodeScanner
 	 * Soll den Start erkennen und die Abstände eines Blockes calibrieren.
 	 * Probleme hierbei könnte die Startlinie machen
 	 */
-	public void erkenneStart(String startString)//startString = z.b. 1010
+	public String erkenneStart(String startString)//startString = z.b. 1010
 	{
 		if (startString.length()!=4)
 		{
@@ -395,13 +447,14 @@ public class BarcodeScanner
 		{				
 			if(debug)
 			{
+				//this.drawString(startString.substring(i, i+1));
 				this.drawString("Strecke: " + this.erkenneFarbe(startString.substring(i, i+1)));
 			}
 			else
 			{
 				this.erkenneFarbe(startString.substring(i, i+1));
 			}		
-			if(i==2)//Nach dem 3. Durchgang (Die 0 zählt mit!) Zeitmessung stoppen
+			/*if(i==3)//Nach dem 3. Durchgang (Die 0 zählt mit!) Zeitmessung stoppen
 			{
 				/*if(debug)
 				{
@@ -424,22 +477,21 @@ public class BarcodeScanner
 					this.drawString("Toleranz:" + toleranzBlock); TODO reinnehmen
 					LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
 					while (Button.ENTER.isUp());
-				}*/
-			}
+				}
+			}*/
 		}
 		if(this.zeit)
 		{
-			block = (block + System.currentTimeMillis())/3;
+			this.block = (this.block + System.currentTimeMillis())/3;
 		}
 		else
 		{	
-			block = (block + this.getTachoCount()) / 3; 
+			this.block = (this.block + this.getTachoCount()) / 3; 
 		}
 		toleranzBlock = (block / 4);
 		this.drawString(""+block);
-		this.berechneBlockgroesse(startString.substring(3)); //TODO Variante 1 
-		//this.drawString(""+this.suche(block, startString.substring(3).equals("1"))); //TODO Variante 2
-		
+		return startString.substring(3);	
+	}
 		/*		
 		if(debug)
 		{
@@ -467,7 +519,7 @@ public class BarcodeScanner
 // Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
 			this.erkenneFarbe("1");
 		}*/		
-	}	
+		
 	
 	public long erkenneFarbe(String dunkel)
 	{
@@ -495,7 +547,8 @@ public class BarcodeScanner
 		else
 		{
 			//Grenze für weiß erhöht, da sonst zu schnell schwarz erkannt wird
-			while (aktWert > (caliGrenze-(caliGrenze/2)) && Button.ENTER.isUp()) // weiß
+			//while (aktWert > (caliGrenze-(caliGrenze/2)) && Button.ENTER.isUp()) // TODO: An die Blockgröße anpassen - Wird bei 1cm nicht benötigt!
+			while (aktWert > (caliGrenze) && Button.ENTER.isUp())
 			{
 				aktWert = this.scanne(aktWert);
 				// this.fahre();
@@ -553,28 +606,30 @@ public class BarcodeScanner
 	 */
 	public void dunkeleUebertragen(String volldunkele)
 	{
-		int strichcodeZahl = dunkeleAuswerten(volldunkele); //FIXME Wahrscheinlich der  Fehler
+		int strichcodeZahl = dunkeleAuswerten(volldunkele);
 		if( strichcodeZahl < 10 )
 		{
 			strichcode += " "+strichcodeZahl; //hinten?
+			this.drawString(strichcode);
 		}
 		else if (strichcodeZahl == 10)
 		{
 			Sound.beep();
-			this.stoppe();
 			this.drawString("Die Zahl lautet", 3);
 			this.drawString(strichcode, 4);
+			this.ziel=true;
 			Sound.beep();
 		}
 		else
 		{
 			//Fehler - TODO fahre zurück zum Start...
-			//this.drawString("Verzeihe mir Meister"); 
+			this.drawString("Verzeihe mir Meister"); 
 			Sound.beep();
 			this.stoppe();
 			while (Button.ESCAPE.isUp());
 			System.exit(1);
 		}
+		this.drawString(strichcode);
 	}
 	public void dunkeleLeer(String dunkel, int anzahl)
 	{
@@ -596,11 +651,11 @@ public class BarcodeScanner
 	}
 	
 	public void convertiereStrichcode(String dunkel, int anzahl)
-	{
-		
+	{		
 		if(dunkele.isEmpty()) // Wenn strichcode leer ist
 		{
-			dunkeleLeer(dunkel, anzahl);	
+			dunkeleLeer(dunkel, anzahl);
+			this.anzahlBloeckeRead=anzahl;
 		}
 		else
 		{
@@ -611,13 +666,15 @@ public class BarcodeScanner
 			}	
 			if(dunkele.length() == 4)
 			{
+				this.drawString(dunkele);
 				dunkeleUebertragen(dunkele);
 			}
 			if(anzahl > 0)
 			{
-				convertiereStrichcode(dunkel, anzahl);
+				this.dunkel=dunkel;
+				this.anzahlBloeckeRead=anzahl;
 			}
-		}			
+		}
 	}
 	
 	public String gegenTeilString(String dunkel)
@@ -633,7 +690,7 @@ public class BarcodeScanner
 	}
 			
 	
-	public void berechneBlockgroesse(String dunkel)
+	public String berechneBlockgroesse(String dunkel)
 	{	
 		/*Fahr zu Anfang weiß
 Strecke entspricht x
@@ -672,8 +729,9 @@ Finde Ende*/
 				{
 					this.drawString((anzahlBloecke-1)+" mehr als Start");
 				}	
-				anzahlBloecke--;	
-				convertiereStrichcode(dunkel, (anzahlBloecke-1));//"Overhead" weißer Blöcke weitergeben
+				anzahlBloecke--;
+				//"Overhead" weitergeben
+				convertiereStrichcode(dunkel, (anzahlBloecke-1));
 			}	
 			else
 			{
@@ -683,13 +741,14 @@ Finde Ende*/
 				}				
 			}
 			this.start=false;
-			berechneBlockgroesse(gegenTeilString(dunkel));
+			//berechneBlockgroesse(gegenTeilString(dunkel));//Stackoverflow-Vermeidung
 		}
 		else
 		{
 			convertiereStrichcode(dunkel, anzahlBloecke);
-			berechneBlockgroesse(gegenTeilString(dunkel));
+			//berechneBlockgroesse(gegenTeilString(dunkel)); Stackoverflow-Vermeidung
 		}
+		return gegenTeilString(dunkel);
 	}		
 	/**
 	 * Zaehler macht die komplizierte Sache. Sie vereinigt die Methoden der Klasse
