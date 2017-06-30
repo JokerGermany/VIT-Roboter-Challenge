@@ -661,7 +661,7 @@ Finde Ende*/
 					this.drawString((anzahlBloecke-1)+" mehr als Start");
 				}	
 				anzahlBloecke--;	
-				convertiereStrichcode("0", (anzahlBloecke-1));//"Overhead" weißer Blöcke weitergeben  TODO flexibel machen
+				convertiereStrichcode(dunkel, (anzahlBloecke-1));//"Overhead" weißer Blöcke weitergeben
 			}	
 			else
 			{
@@ -671,7 +671,14 @@ Finde Ende*/
 				}				
 			}
 			this.start=false;
-			berechneBlockgroesse("1"); //Nach Startweiß muss schwarz kommen TODO flexibel machen
+			if(dunkel.equals("1"))
+			{
+				berechneBlockgroesse("0");
+			}
+			else
+			{
+				berechneBlockgroesse("1");
+			}
 		}
 		else
 		{
