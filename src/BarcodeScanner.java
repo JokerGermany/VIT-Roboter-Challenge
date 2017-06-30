@@ -88,9 +88,8 @@ public class BarcodeScanner
 		//Motor.D.setSpeed(50);
 		light = new EV3ColorSensor(SensorPort.S4);
 		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
-		this.zeit=false;
+		this.zeit=zeit;
 		this.debug=debug;
-		start = false;
 		
 	}
 	public static void main(String[] args)
@@ -546,10 +545,12 @@ public class BarcodeScanner
 	        }
 	        return 110; //Fehler - TODO fahre zurück zum Start...
 	}   
-	
+	/*
+	 * Wenn voll, dann hier leeren
+	 */
 	public void dunkeleUebertragen(String volldunkele)
 	{
-		int strichcodeZahl = dunkeleAuswerten(volldunkele);
+		int strichcodeZahl = dunkeleAuswerten(volldunkele); //FIXME Wahrscheinlich der  Fehler
 		if( strichcodeZahl < 10 )
 		{
 			strichcode += strichcodeZahl;
@@ -571,7 +572,6 @@ public class BarcodeScanner
 			System.exit(1);
 		}
 	}
-	
 	public void dunkeleLeer(String dunkel, int anzahl)
 	{
 		if (anzahl>3) // Mindestens 4 boolean Werte welche nur hell (dunkel=false) sein können
