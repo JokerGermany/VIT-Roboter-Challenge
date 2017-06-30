@@ -64,7 +64,7 @@ public class BarcodeScanner
 		{
 			this.drawString("Bitte auf Schwarz stellen");
 		}
-		else if (!dunkel && (a < (caliGrenze-(caliGrenze/2))))
+		else if ((!dunkel) && (a < (caliGrenze-(caliGrenze/2))))
 		{
 			this.drawString("Bitte auf Weiß stellen");
 		}
@@ -72,7 +72,7 @@ public class BarcodeScanner
 		{	
 			this.drawString("und ENTER drücken");
 			while (Button.ENTER.isUp());
-			this.warte(3);
+			this.warte(3); //FIXME starte in 3 Sekunden
 			this.pruefeBeginnRichtigSteht(dunkel);
 		}
 		if(debug)
@@ -356,7 +356,7 @@ public class BarcodeScanner
 	 * Soll den Start erkennen und die Abstände eines Blockes calibrieren.
 	 * Probleme hierbei könnte die Startlinie machen
 	 */
-	public void erkenneStart(String startString) //TODO Extrapunkte: Lasse den Start beliebig sein
+	public void erkenneStart(String startString)//startString = z.b. 1010
 	{
 		if (startString.length()!=4)
 		{
