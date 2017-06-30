@@ -106,7 +106,6 @@ public class BarcodeScanner
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
 		myLineReader.calibrate();
 		myLineReader.dunkel = myLineReader.erkenneStart("1010");
-		int i = 0;
 		while(myLineReader.ziel!=true && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
 		{	
 			//myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel);
@@ -123,10 +122,7 @@ public class BarcodeScanner
 				myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel); //TODO Variante 1
 				myLineReader.drawString(myLineReader.dunkel);
 			}
-			i++;
-		}
-		
-		
+		}		
 		//myLineReader.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
 		//LCD.clear();
 		//myLineReader.antiRecursion();
@@ -652,6 +648,7 @@ public class BarcodeScanner
 	
 	public void convertiereStrichcode(String dunkel, int anzahl)
 	{		
+		//this.drawString("F:"+dunkel+" A:"+anzahl);
 		if(dunkele.isEmpty()) // Wenn strichcode leer ist
 		{
 			dunkeleLeer(dunkel, anzahl);
@@ -659,7 +656,7 @@ public class BarcodeScanner
 		}
 		else
 		{
-			while((anzahl > 0) && (dunkele.length() < 5)) //TODO git gefixt
+			while((anzahl > 0) && (dunkele.length() <= 4))
 			{		
 				dunkele+=dunkel;
 				anzahl--;
@@ -673,6 +670,10 @@ public class BarcodeScanner
 			{
 				this.dunkel=dunkel;
 				this.anzahlBloeckeRead=anzahl;
+			}
+			else
+			{
+				this.anzahlBloeckeRead=0;
 			}
 		}
 	}
@@ -704,11 +705,11 @@ Finde Ende*/
 		int anzahlBloecke = (int) (aktStrecke/this.block);
 		//float rest = aktStrecke % this.block;
 		
-		if(aktStrecke % this.block>=(toleranzBlock))
+		if(aktStrecke % this.block>=toleranzBlock)
 		{
 			if(this.debug)
 			{
-				this.drawString(aktStrecke % this.block+"Ueber");
+				this.drawString(aktStrecke % this.block+"Ueber="+anzahlBloecke);
 			}
 			anzahlBloecke++;			
 		}
@@ -717,7 +718,7 @@ Finde Ende*/
 		{
 			if(this.debug)
 			{
-				this.drawString(aktStrecke % this.block+"Inner");
+				this.drawString(aktStrecke % this.block+"Inner="+anzahlBloecke);
 			}
 		}	
 		//this.drawString(""+block);
