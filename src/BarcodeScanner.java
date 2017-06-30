@@ -95,7 +95,7 @@ public class BarcodeScanner
 	public static void main(String[] args)
 	{	
 		boolean debug = true;
-		boolean zeit = true; //Zeit oder Grad zur Messung verwenden?
+		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
 		myLineReader.calibrate();		
 		//myLineReader.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
@@ -416,15 +416,7 @@ public class BarcodeScanner
 					}
 				}*/
 				// TODO ist Integer/long gut? denk dran Nachkommastellen werden abgeschnitten
-				if(this.zeit)
-				{
-					block = (block + System.currentTimeMillis())/3;
-				}
-				else
-				{	
-					block = (block + this.getTachoCount()) / 3; 
-				}
-				toleranzBlock = (block / 4);
+				
 				
 				// Toleranz von einem 1/4.
 				/*if(debug)
@@ -435,7 +427,18 @@ public class BarcodeScanner
 				}*/
 			}
 		}
-		this.berechneBlockgroesse(startString.substring(3));
+		if(this.zeit)
+		{
+			block = (block + System.currentTimeMillis())/3;
+		}
+		else
+		{	
+			block = (block + this.getTachoCount()) / 3; 
+		}
+		toleranzBlock = (block / 4);
+		this.drawString(""+block);
+		this.berechneBlockgroesse(startString.substring(3)); //TODO Variante 1 
+		//this.drawString(""+this.suche(block, startString.substring(3).equals("1"))); //TODO Variante 2
 		
 		/*		
 		if(debug)
@@ -553,7 +556,7 @@ public class BarcodeScanner
 		int strichcodeZahl = dunkeleAuswerten(volldunkele); //FIXME Wahrscheinlich der  Fehler
 		if( strichcodeZahl < 10 )
 		{
-			strichcode += strichcodeZahl;
+			strichcode += " "+strichcodeZahl; //hinten?
 		}
 		else if (strichcodeZahl == 10)
 		{
@@ -566,7 +569,8 @@ public class BarcodeScanner
 		else
 		{
 			//Fehler - TODO fahre zurück zum Start...
-			this.drawString("Verzeihe mir Meister"); 
+			//this.drawString("Verzeihe mir Meister"); 
+			Sound.beep();
 			this.stoppe();
 			while (Button.ESCAPE.isUp());
 			System.exit(1);
@@ -600,7 +604,7 @@ public class BarcodeScanner
 		}
 		else
 		{
-			while((anzahl > 0) && (dunkele.length() < 4))
+			while((anzahl > 0) && (dunkele.length() < 5)) //TODO git gefixt
 			{		
 				dunkele+=dunkel;
 				anzahl--;
@@ -631,11 +635,11 @@ Finde Ende*/
 		int anzahlBloecke = (int) (aktStrecke/this.block);
 		//float rest = aktStrecke % this.block;
 		
-		if(aktStrecke % this.block>=(anzahlBloecke*toleranzBlock))
+		if(aktStrecke % this.block>=(toleranzBlock))
 		{
 			if(this.debug)
 			{
-				this.drawString("Tolleranz überschritten");
+				this.drawString(aktStrecke % this.block+"Ueber");
 			}
 			anzahlBloecke++;			
 		}
@@ -644,9 +648,10 @@ Finde Ende*/
 		{
 			if(this.debug)
 			{
-				this.drawString("Innerhalb Tolleranz");
+				this.drawString(aktStrecke % this.block+"Inner");
 			}
 		}	
+		//this.drawString(""+block);
 		if(this.start)
 		{
 			if(anzahlBloecke!=1)
@@ -656,7 +661,7 @@ Finde Ende*/
 					this.drawString((anzahlBloecke-1)+" mehr als Start");
 				}	
 				anzahlBloecke--;	
-				convertiereStrichcode("0", (anzahlBloecke-1));//"Overhead" weißer Blöcke weitergeben 
+				convertiereStrichcode("0", (anzahlBloecke-1));//"Overhead" weißer Blöcke weitergeben  TODO flexibel machen
 			}	
 			else
 			{
@@ -666,7 +671,7 @@ Finde Ende*/
 				}				
 			}
 			this.start=false;
-			berechneBlockgroesse("1"); //Nach Startweiß muss schwarz kommen
+			berechneBlockgroesse("1"); //Nach Startweiß muss schwarz kommen TODO flexibel machen
 		}
 		else
 		{
@@ -681,7 +686,141 @@ Finde Ende*/
 			}
 		}
 	}		
-	
+	/**
+	 * Zaehler macht die komplizierte Sache. Sie vereinigt die Methoden der Klasse
+	 * Zahl. Man ruft Zaehler.suche auf, damit die Magie passiert. Sie gibt den
+	 * Buchstaben zurück.
+	 * 
+	 * @author Lennart.Spiekermann
+	 *
+	 */
+	//class Zaehler {
+
+		/**
+		 * Suche sucht im Gegebenen Bereich nach einem Farbwechsel. Gibt wahr
+		 * zurück, wenn ein Wechsel vorliegt.
+		 * 
+		 * @param blockgroesse
+		 * @param farbe
+		 * @return
+		 */
+		public char suche(long blockgroesse, boolean farbe) {
+			Zahl Kette;
+			long toleranz = blockgroesse / 4;
+			boolean wechsel = fahr(farbe, blockgroesse + toleranz);
+			Kette = new Zahl(wechsel);
+			for (int i = 1; i < 4; i++) {
+				Kette.add(fahr(farbe, blockgroesse));
+			}
+			return Kette.verwandle();
+		}
+
+		public boolean fahr(boolean farbe, double strecke) {
+			double gefahren = this.getTachoCount();
+			boolean wechsel = false;
+			// Schwarz ist wahr
+			while ((this.getTachoCount() - gefahren) < strecke) {
+				wechsel = wechsel
+						|| (farbe == this.ersterScan() < this.caliGrenze);
+			}
+			return wechsel^farbe;
+		}
+
+	//}
+
+	/**
+	 * Zahl verwaltet einen array aus Boolean-Werten. Es können genau vier Werte
+	 * eingefügt werden. Diese vier Werte können, wenn sie denn vollständig sind,
+	 * nach der gegebenen Semantik ausgewertet werden.
+	 * 
+	 * @author Lennart.Spiekermann
+	 *
+	 */
+	class Zahl {
+		boolean[] bloecke = new boolean[4];
+		int zaehler = 1;
+
+		public Zahl(boolean eins) {
+			this.bloecke[0] = eins;
+		}
+
+		public void add(boolean block) { // TODO Fehleranfällig! Sichern
+			bloecke[zaehler] = block;
+			zaehler++;
+		}
+
+		public char verwandle() {
+			if (zaehler == 4) {
+				return this.parse(bloecke[0], bloecke[1], bloecke[2], bloecke[3]);
+			} else
+				return '-';
+		}
+
+		/**
+		 * Parse: Verwandelt ein hell-dunkel-Quartett in einen character. Die 3 fehlt.
+		 * 
+		 * @param a
+		 *            Der Wert des einsten Bereichsabschnitts, der umgewandelt
+		 *            werden soll. Wahr entspricht dunkel.
+		 * @param b
+		 *            Der Wert des zweiten Bereichsabschnitts, der umgewandelt
+		 *            werden soll. Wahr entspricht dunkel.
+		 * @param c
+		 *            Der Wert des dritten Bereichsabschnitts, der umgewandelt
+		 *            werden soll. Wahr entspricht dunkel.
+		 * @param d
+		 *            Der Wert des vierten Bereichsabschnitts, der umgewandelt
+		 *            werden soll. Wahr entspricht dunkel.
+		 * @return Der Quartettwert als character. Ziffern werden als
+		 *         Ziffercharacter zurückgegeben; Start und Ende als a oder z.
+		 */
+		public char parse(boolean a, boolean b, boolean c, boolean d) {
+			char r;
+			if (a) {// a+ schwarz
+				if (b) {// b+
+					r = '5';
+				} else {// b-
+					if (c) {// c+
+						if (d) {// d+
+							r = '9';
+						} else {
+							r = 'a';
+						}
+					} else {// c-
+						if (d) {// d+
+							r = '8';
+						} else {// d-
+							r = '1';
+						}
+					}
+				}
+			} else {// a-
+				if (b) {// b+
+					if (c) {// c+
+						r = '6';
+					} else {// c-
+						if (d) {// d+
+							r = 'z';
+						} else {// d-
+							r = '2';
+						}
+					}
+				} else {// b-
+					if (c) {// c+
+						r = '7';
+					} else {// c-
+						if (d) {// d+
+							r = '4';
+						} else {// d-
+							r = '0';
+						}
+					}
+				}
+			}
+			return r;
+		}
+
+	}	
 	
 
 }
