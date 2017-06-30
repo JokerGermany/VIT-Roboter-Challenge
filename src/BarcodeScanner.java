@@ -10,7 +10,6 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.utility.Delay;
 
 /*
- * GetTachocount oder System.nanoTime() oder beides?
  * 0,0527777777778 cm/°
  */
 
@@ -123,159 +122,7 @@ public class BarcodeScanner
 		}	
 		this.start=false;
 	}*/
-	public int dunkeleAuswerten(String volldunkele)
-	{	
-	 final String[] Muster = {
-	            "0000", "1000", "0100", "0010", "0001", //Zahlen 0-4
-	            "1100", "0110", "0011", //Zahlen 5-7 
-	            "1001", "1011", //Zahlen 8-9
-	            "0101" // Ziel  (10)
-	        };
-
-	        for (int i=0; i<Muster.length; i++)
-	        {	
-	            if (volldunkele.equals(Muster))
-	            {	
-	                return i;
-	            }
-	        }
-	        return 110; //Fehler - TODO fahre zurück zum Start...
-	}   
 	
-	public void dunkeleUebertragen(String volldunkele)
-	{
-		int strichcodeZahl = dunkeleAuswerten(volldunkele);
-		if( strichcodeZahl < 10 )
-		{
-			strichcode += strichcodeZahl;
-		}
-		else if (strichcodeZahl == 10)
-		{
-			Sound.beep();
-			this.stoppe();
-			this.drawString("Die Zahl lautet", 3);
-			this.drawString(strichcode, 4);
-			Sound.beep();
-		}
-		else
-		{
-			//Fehler - TODO fahre zurück zum Start...
-			this.drawString("Verzeihe mir Meister"); 
-			this.stoppe();
-			while (Button.ESCAPE.isUp());
-			System.exit(1);
-		}
-	}
-	
-	public void dunkeleLeer(String dunkel, int anzahl)
-	{
-		if (anzahl>3) // Mindestens 4 boolean Werte welche nur hell (dunkel=false) sein können
-		{
-			strichcode+="0";
-			if((anzahl -= 4) != 0)
-			{
-				this.convertiereStrichcode(dunkel, anzahl);
-			}				
-		}
-		else
-		{	
-			for(int i=0; i < anzahl;i++)
-			{
-				dunkele+=dunkel;
-			}
-		}
-	}
-	
-	public void convertiereStrichcode(String dunkel, int anzahl)
-	{
-		
-		if(dunkele.isEmpty()) // Wenn strichcode leer ist
-		{
-			dunkeleLeer(dunkel, anzahl);	
-		}
-		else
-		{
-			while((anzahl > 0) && (dunkele.length() < 4))
-			{		
-				dunkele+=dunkel;
-				anzahl--;
-			}	
-			if(dunkele.length() == 4)
-			{
-				dunkeleUebertragen(dunkele);
-			}
-			if(anzahl > 0)
-			{
-				convertiereStrichcode(dunkel, anzahl);
-			}
-		}			
-	}
-			
-	
-	public void berechneBlockgroesse(String dunkel)
-	{	
-		/*Fahr zu Anfang weiß
-Strecke entspricht x
-finde n, für das gilt:
-nBlockgröße < x < nBlockgröße + Toleranz
-Sag wie viele Blöcke dieselbe Farbe hatten
-Miss den nächsten Block (andere Farbe) genau so
-Finde Ende*/
-		long aktStrecke = this.erkenneFarbe(dunkel);
-		
-		int anzahlBloecke = (int) (aktStrecke/this.block);
-		//float rest = aktStrecke % this.block;
-		
-		if(aktStrecke % this.block>=(anzahlBloecke*toleranzBlock))
-		{
-			if(this.debug)
-			{
-				this.drawString("Tolleranz überschritten");
-			}
-			anzahlBloecke++;			
-		}
-		//else if(aktStrecke % this.block<=(anzahlBloecke*toleranzBlock))
-		else
-		{
-			if(this.debug)
-			{
-				this.drawString("Innerhalb Tolleranz");
-			}
-		}	
-		if(this.start)
-		{
-			if(anzahlBloecke!=1)
-			{
-				if(this.debug)
-				{
-					this.drawString((anzahlBloecke-1)+" mehr als Start");
-				}	
-				anzahlBloecke--;	
-				convertiereStrichcode("0", (anzahlBloecke-1));//"Overhead" weißer Blöcke weitergeben 
-			}	
-			else
-			{
-				if(this.debug)
-				{
-					this.drawString("Weiss nur Start");
-				}				
-			}
-			this.start=false;
-			berechneBlockgroesse("1"); //Nach Startweiß muss schwarz kommen
-		}
-		else
-		{
-			convertiereStrichcode(dunkel, anzahlBloecke);
-			if(dunkel.equals("1"))
-			{
-				berechneBlockgroesse("0");
-			}
-			else
-			{
-				berechneBlockgroesse("1");
-			}
-		}
-	}	
 		
 		/* TODO Müll entfernen wenn sicher ist, dass es müll ist
 		 
@@ -387,69 +234,7 @@ Finde Ende*/
 		return rueckgabeWert / samples.length;
 		*/
 
-	/**
-	 *
-	 */
-	public long erkenneFarbe(String dunkel)
-	{
-		long aktBlock;
-		if(this.zeit)
-		{
-			aktBlock = -System.currentTimeMillis();
-		}
-		else
-		{	
-			aktBlock = -this.getTachoCount();
-		}
-		// //LCD.clear();
-		// long timeBlock= -System.nanoTime();
-		float aktWert = this.ersterScan();
-		if (dunkel.equals("1"))
-		{
-			while (aktWert < (caliGrenze) && Button.ENTER.isUp())
-			{
-				aktWert = this.scanne(aktWert);
-				// this.fahre();
-			}
-			//this.drawString("erkenneSchwarz");
-		} 
-		else
-		{
-			//Grenze für weiß erhöht, da sonst zu schnell schwarz erkannt wird
-			while (aktWert > (caliGrenze-(caliGrenze/2)) && Button.ENTER.isUp()) // weiß
-			{
-				aktWert = this.scanne(aktWert);
-				// this.fahre();
-			}
-			//this.drawString("erkenneWeiss");
-			//Sound.beep();
-		}
-		/*
-		 * Crazy Schleife welche aus 2 Schleifen eine Schleife machen würde,
-		 * aber relativ kompliziert ist. float wert1; float wert2;
-		 * if(dunkel==true) { wert1 = aktWert; wert2 = caliGrenze;
-		 * LCD.drawString("erkenneSchwarz",0,0); } else { wert1 = caliGrenze;
-		 * wert2 = aktWert; LCD.drawString("erkenneWeiß",0,0); } while(wert1 <
-		 * wert2) //aktWert < caliGrenze - schwarz //caliGrenze < aktWert - weiß
-		 * { aktWert = this.scanne(); LCD.drawString("AktWert: "+aktWert,0,1); }
-		 */
-		if(debug)
-		{
-			//this.drawString("AktWert: " + aktWert);
-		}
-		// timeBlock += System.nanoTime(); // Wird in der Methode erkenne start
-		// gemacht
-		// return new Rueckgabe(aktWert, timeBlock);
-		if(this.zeit)
-		{
-			return aktBlock + System.currentTimeMillis();
-		}
-		else
-		{	
-			return aktBlock + this.getTachoCount();
-		}
-		//return aktDegreeBlock + this.getTachoCount();
-	}
+	
 
 	/*
 	 * ersetzt durch erkenneFarbe
@@ -628,5 +413,226 @@ Finde Ende*/
 			this.warte(3);
 	
 	}
+	
+// String Methoden beginnen hier
+	/**
+	 *
+	 */
+	public long erkenneFarbe(String dunkel)
+	{
+		long aktBlock;
+		if(this.zeit)
+		{
+			aktBlock = -System.currentTimeMillis();
+		}
+		else
+		{	
+			aktBlock = -this.getTachoCount();
+		}
+		// //LCD.clear();
+		// long timeBlock= -System.nanoTime();
+		float aktWert = this.ersterScan();
+		if (dunkel.equals("1"))
+		{
+			while (aktWert < (caliGrenze) && Button.ENTER.isUp())
+			{
+				aktWert = this.scanne(aktWert);
+				// this.fahre();
+			}
+			//this.drawString("erkenneSchwarz");
+		} 
+		else
+		{
+			//Grenze für weiß erhöht, da sonst zu schnell schwarz erkannt wird
+			while (aktWert > (caliGrenze-(caliGrenze/2)) && Button.ENTER.isUp()) // weiß
+			{
+				aktWert = this.scanne(aktWert);
+				// this.fahre();
+			}
+			//this.drawString("erkenneWeiss");
+			//Sound.beep();
+		}
+		/*
+		 * Crazy Schleife welche aus 2 Schleifen eine Schleife machen würde,
+		 * aber relativ kompliziert ist. float wert1; float wert2;
+		 * if(dunkel==true) { wert1 = aktWert; wert2 = caliGrenze;
+		 * LCD.drawString("erkenneSchwarz",0,0); } else { wert1 = caliGrenze;
+		 * wert2 = aktWert; LCD.drawString("erkenneWeiß",0,0); } while(wert1 <
+		 * wert2) //aktWert < caliGrenze - schwarz //caliGrenze < aktWert - weiß
+		 * { aktWert = this.scanne(); LCD.drawString("AktWert: "+aktWert,0,1); }
+		 */
+		if(debug)
+		{
+			//this.drawString("AktWert: " + aktWert);
+		}
+		// timeBlock += System.nanoTime(); // Wird in der Methode erkenne start
+		// gemacht
+		// return new Rueckgabe(aktWert, timeBlock);
+		if(this.zeit)
+		{
+			return aktBlock + System.currentTimeMillis();
+		}
+		else
+		{	
+			return aktBlock + this.getTachoCount();
+		}
+		//return aktDegreeBlock + this.getTachoCount();
+	}
+	
+	public int dunkeleAuswerten(String volldunkele)
+	{	
+	 final String[] Muster = {
+	            "0000", "1000", "0100", "0010", "0001", //Zahlen 0-4
+	            "1100", "0110", "0011", //Zahlen 5-7 
+	            "1001", "1011", //Zahlen 8-9
+	            "0101" // Ziel  (10)
+	        };
+
+	        for (int i=0; i<Muster.length; i++)
+	        {	
+	            if (volldunkele.equals(Muster))
+	            {	
+	                return i;
+	            }
+	        }
+	        return 110; //Fehler - TODO fahre zurück zum Start...
+	}   
+	
+	public void dunkeleUebertragen(String volldunkele)
+	{
+		int strichcodeZahl = dunkeleAuswerten(volldunkele);
+		if( strichcodeZahl < 10 )
+		{
+			strichcode += strichcodeZahl;
+		}
+		else if (strichcodeZahl == 10)
+		{
+			Sound.beep();
+			this.stoppe();
+			this.drawString("Die Zahl lautet", 3);
+			this.drawString(strichcode, 4);
+			Sound.beep();
+		}
+		else
+		{
+			//Fehler - TODO fahre zurück zum Start...
+			this.drawString("Verzeihe mir Meister"); 
+			this.stoppe();
+			while (Button.ESCAPE.isUp());
+			System.exit(1);
+		}
+	}
+	
+	public void dunkeleLeer(String dunkel, int anzahl)
+	{
+		if (anzahl>3) // Mindestens 4 boolean Werte welche nur hell (dunkel=false) sein können
+		{
+			strichcode+="0";
+			if((anzahl -= 4) != 0)
+			{
+				this.convertiereStrichcode(dunkel, anzahl);
+			}				
+		}
+		else
+		{	
+			for(int i=0; i < anzahl;i++)
+			{
+				dunkele+=dunkel;
+			}
+		}
+	}
+	
+	public void convertiereStrichcode(String dunkel, int anzahl)
+	{
+		
+		if(dunkele.isEmpty()) // Wenn strichcode leer ist
+		{
+			dunkeleLeer(dunkel, anzahl);	
+		}
+		else
+		{
+			while((anzahl > 0) && (dunkele.length() < 4))
+			{		
+				dunkele+=dunkel;
+				anzahl--;
+			}	
+			if(dunkele.length() == 4)
+			{
+				dunkeleUebertragen(dunkele);
+			}
+			if(anzahl > 0)
+			{
+				convertiereStrichcode(dunkel, anzahl);
+			}
+		}			
+	}
+			
+	
+	public void berechneBlockgroesse(String dunkel)
+	{	
+		/*Fahr zu Anfang weiß
+Strecke entspricht x
+finde n, für das gilt:
+nBlockgröße < x < nBlockgröße + Toleranz
+Sag wie viele Blöcke dieselbe Farbe hatten
+Miss den nächsten Block (andere Farbe) genau so
+Finde Ende*/
+		long aktStrecke = this.erkenneFarbe(dunkel);
+		
+		int anzahlBloecke = (int) (aktStrecke/this.block);
+		//float rest = aktStrecke % this.block;
+		
+		if(aktStrecke % this.block>=(anzahlBloecke*toleranzBlock))
+		{
+			if(this.debug)
+			{
+				this.drawString("Tolleranz überschritten");
+			}
+			anzahlBloecke++;			
+		}
+		//else if(aktStrecke % this.block<=(anzahlBloecke*toleranzBlock))
+		else
+		{
+			if(this.debug)
+			{
+				this.drawString("Innerhalb Tolleranz");
+			}
+		}	
+		if(this.start)
+		{
+			if(anzahlBloecke!=1)
+			{
+				if(this.debug)
+				{
+					this.drawString((anzahlBloecke-1)+" mehr als Start");
+				}	
+				anzahlBloecke--;	
+				convertiereStrichcode("0", (anzahlBloecke-1));//"Overhead" weißer Blöcke weitergeben 
+			}	
+			else
+			{
+				if(this.debug)
+				{
+					this.drawString("Weiss nur Start");
+				}				
+			}
+			this.start=false;
+			berechneBlockgroesse("1"); //Nach Startweiß muss schwarz kommen
+		}
+		else
+		{
+			convertiereStrichcode(dunkel, anzahlBloecke);
+			if(dunkel.equals("1"))
+			{
+				berechneBlockgroesse("0");
+			}
+			else
+			{
+				berechneBlockgroesse("1");
+			}
+		}
+	}		
+	
+	
 
 }
