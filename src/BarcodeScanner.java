@@ -56,17 +56,30 @@ public class BarcodeScanner
 		this.clearLCD();		
 	}
 	
-	public void pruefeBeginnWeißSteht()
+	public void pruefeBeginnRichtigSteht(boolean dunkel)
 	{
 		float a = this.ersterScan(); 
-		if (a < (caliGrenze-(caliGrenze/2)))
+		
+		if(dunkel && (a > caliGrenze))
+		{
+			this.drawString("Bitte auf Schwarz stellen");
+		}
+		else if (!dunkel && (a < (caliGrenze-(caliGrenze/2))))
 		{
 			this.drawString("Bitte auf Weiß stellen");
+		}
+		if((!dunkel && (a < (caliGrenze-(caliGrenze/2)))) || (dunkel && (a > caliGrenze)))
+		{	
 			this.drawString("und ENTER drücken");
 			while (Button.ENTER.isUp());
 			this.warte(3);
-			pruefeBeginnWeißSteht();
-		}//LENNI: Einfach schwarz erkennen; fährt bis weiß und los gehts.
+			this.pruefeBeginnRichtigSteht(dunkel);
+		}
+		if(debug)
+		{
+			drawString("pruefeBeginnRichtigSteht bestanden");
+		}
+		//LENNI: Einfach schwarz erkennen; fährt bis weiß und los gehts.		
 	}
 
 	BarcodeScanner(boolean zeit, boolean debug)
@@ -88,8 +101,8 @@ public class BarcodeScanner
 		myLineReader.calibrate();		
 		//myLineReader.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
 		//LCD.clear();
-		myLineReader.erkenneStart();//ohne den 4.Block
-		myLineReader.berechneBlockgroesse("0");
+		myLineReader.erkenneStart("1010");
+		
 		
 		//34
 		//35
@@ -236,108 +249,7 @@ public class BarcodeScanner
 
 	
 
-	/*
-	 * ersetzt durch erkenneFarbe
-	 * 
-	 * 
-	 * public Rueckgabe erkenneSchwarz() { //LCD.clear(); long timeBlock=
-	 * -System.nanoTime(); float aktWert = this.scanne(); while(aktWert <
-	 * caliGrenze && Button.ENTER.isUp()) //schwarz { aktWert = this.scanne();
-	 * //this.fahre(); LCD.drawString("erkenneSchwarz",0,0);
-	 * LCD.drawString("AktWert: "+aktWert,0,1); } //Sound.beep();
-	 * //Sound.beep(); timeBlock += System.nanoTime(); //Object[] rueckgabe = {
-	 * aktWert, timeBlock}; //return rueckgabe; return new Rueckgabe(aktWert,
-	 * timeBlock); } /**
-	 * 
-	 * 
-	 * //public float erkenneWeiß() old public Rueckgabe erkenneWeiß() {
-	 * //LCD.clear(); long timeBlock= -System.nanoTime(); float aktWert =
-	 * this.scanne(); while(aktWert > caliGrenze && Button.ENTER.isUp()) //weiß
-	 * { aktWert = this.scanne(); //this.fahre();
-	 * LCD.drawString("erkenneWeiss",0,0);
-	 * LCD.drawString("AktWert: "+aktWert,0,1); } //Sound.beep(); timeBlock +=
-	 * System.nanoTime(); //Object[] rueckgabe = { aktWert, timeBlock}; //return
-	 * rueckgabe; return new Rueckgabe(aktWert, timeBlock); }
-	 */
-	/**
-	 * Soll den Start erkennen und die Abstände eines Blockes calibrieren.
-	 * Probleme hierbei könnte die Startlinie machen FIXME funktioniere!!! Die
-	 * Entferungsberechnung fehlt noch
-	 */
-	public void erkenneStart() //TODO Extrapunkte: Lasse den Start beliebig sein
-	{
-		this.pruefeBeginnWeißSteht();
-		this.fahre();
-		this.erkenneFarbe("0");
-		// while (Button.ENTER.isUp());
-		// TODO END KILLME!
-		if(this.zeit)
-		{
-			block = -System.currentTimeMillis();
-		}
-		else
-		{	
-			block = -this.getTachoCount();
-		}			
-		if(debug)
-		{
-// Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier			
-			this.drawString("Strecke: " + this.erkenneFarbe("1"));
-			// aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider
-			// LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
-			// while (Button.ENTER.isUp());
-// Der 2. Block des Starts (weiß) beginnt hoffentlich hier
-			// Rueckgabe ergebnis2 = this.erkenneFarbe(false);
-			this.drawString("Strecke: " + this.erkenneFarbe("0"));
-			// LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
-			// while (Button.ENTER.isUp());
-// Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
-			// Rueckgabe ergebnis3 = this.erkenneFarbe(true);
-			this.drawString("Strecke: " + this.erkenneFarbe("1"));
-		}
-		else
-		{
-// Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier	
-			this.erkenneFarbe("1");
-// Der 2. Block des Starts (weiß) beginnt hoffentlich hier
-			//this.drawString(""); //FIXME Ohne das hier keine erkenneWeiß auf dem Display oO
-			this.erkenneFarbe("0");			
-// Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
-			this.erkenneFarbe("1");
-		}
-		long Streckenanfang = block;
-		if(this.zeit)
-		{
-			block = (block + System.currentTimeMillis())/3;
-		}
-		else
-		{	
-			block = (block + this.getTachoCount()) / 3; 
-		}	
-// TODO ist Integer/long gut? denk dran Nachkommastellen werden abgeschnitten
-		if(debug)
-		{
-			/*
-			 * TODO reinnehmen
-			this.drawString("Block:" + block);
-			if(this.zeit)
-			{
-				this.drawString("GesamtStr:" + (System.currentTimeMillis() - Streckenanfang));
-			}
-			else
-			{	
-				this.drawString("GesamtStr:" + (this.getTachoCount() - Streckenanfang));
-			}*/
-		}	
-		// Toleranz von einem 1/4.
-		toleranzBlock = (block / 4);
-		if(debug)
-		{
-			//this.drawString("Toleranz:" + toleranzBlock); TODO reinnehmen
-			// LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
-			// while (Button.ENTER.isUp());
-		}		
-	}
+	
 	
 	/**
 	 * Calibriert "Hell" und "Dunkel" TODO Kontrollieren
@@ -418,6 +330,143 @@ public class BarcodeScanner
 	/**
 	 *
 	 */
+	/*
+	 * ersetzt durch erkenneFarbe
+	 * 
+	 * 
+	 * public Rueckgabe erkenneSchwarz() { //LCD.clear(); long timeBlock=
+	 * -System.nanoTime(); float aktWert = this.scanne(); while(aktWert <
+	 * caliGrenze && Button.ENTER.isUp()) //schwarz { aktWert = this.scanne();
+	 * //this.fahre(); LCD.drawString("erkenneSchwarz",0,0);
+	 * LCD.drawString("AktWert: "+aktWert,0,1); } //Sound.beep();
+	 * //Sound.beep(); timeBlock += System.nanoTime(); //Object[] rueckgabe = {
+	 * aktWert, timeBlock}; //return rueckgabe; return new Rueckgabe(aktWert,
+	 * timeBlock); } /**
+	 * 
+	 * 
+	 * //public float erkenneWeiß() old public Rueckgabe erkenneWeiß() {
+	 * //LCD.clear(); long timeBlock= -System.nanoTime(); float aktWert =
+	 * this.scanne(); while(aktWert > caliGrenze && Button.ENTER.isUp()) //weiß
+	 * { aktWert = this.scanne(); //this.fahre();
+	 * LCD.drawString("erkenneWeiss",0,0);
+	 * LCD.drawString("AktWert: "+aktWert,0,1); } //Sound.beep(); timeBlock +=
+	 * System.nanoTime(); //Object[] rueckgabe = { aktWert, timeBlock}; //return
+	 * rueckgabe; return new Rueckgabe(aktWert, timeBlock); }
+	 */
+	/**
+	 * Soll den Start erkennen und die Abstände eines Blockes calibrieren.
+	 * Probleme hierbei könnte die Startlinie machen
+	 */
+	public void erkenneStart(String startString) //TODO Extrapunkte: Lasse den Start beliebig sein
+	{
+		if (startString.length()!=4)
+		{
+			this.drawString("Es werden genau 4 Werte benötigt",3);
+			this.drawString("ESC zum beenden",4);
+			System.exit(1);
+		}
+		if(startString.substring(0, 1).equals("1"))
+		{
+			this.pruefeBeginnRichtigSteht(false);
+			this.fahre();
+			this.erkenneFarbe("0");
+		}
+		else if(startString.substring(0, 1).equals("0"))
+		{
+			this.pruefeBeginnRichtigSteht(true);
+			this.fahre();
+			this.erkenneFarbe("1");
+		}	
+		else
+		{
+			this.drawString("Nur 0 oder 1",3);
+			this.drawString("ESC zum beenden",4);
+			System.exit(1);
+		}
+		if(this.zeit)
+		{
+			block = -System.currentTimeMillis();
+		}
+		else
+		{	
+			block = -this.getTachoCount();
+		}	
+		long Streckenanfang = block;
+		for(int i = 0; i < 3; i++)
+		{				
+			if(debug)
+			{
+				this.drawString("Strecke: " + this.erkenneFarbe(startString.substring(i, i+1)));
+			}
+			else
+			{
+				this.erkenneFarbe(startString.substring(i, i+1));
+			}		
+			if(i==2)//Nach dem 3. Durchgang (Die 0 zählt mit!) Zeitmessung stoppen
+			{
+				/*if(debug)
+				{
+					this.drawString("Block:" + block);
+					if(this.zeit)
+					{
+						this.drawString("GesamtStr:" + (System.currentTimeMillis() - Streckenanfang));
+					}
+					else
+					{	
+						this.drawString("GesamtStr:" + (this.getTachoCount() - Streckenanfang));
+					}
+				}*/
+				// TODO ist Integer/long gut? denk dran Nachkommastellen werden abgeschnitten
+				if(this.zeit)
+				{
+					block = (block + System.currentTimeMillis())/3;
+				}
+				else
+				{	
+					block = (block + this.getTachoCount()) / 3; 
+				}
+				toleranzBlock = (block / 4);
+				
+				// Toleranz von einem 1/4.
+				/*if(debug)
+				{
+					this.drawString("Toleranz:" + toleranzBlock); TODO reinnehmen
+					LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
+					while (Button.ENTER.isUp());
+				}*/
+			}
+		}
+		this.berechneBlockgroesse(startString.substring(3));
+		
+		/*		
+		if(debug)
+		{
+// Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier			
+			this.drawString("Strecke: " + this.erkenneFarbe("1"));
+			// aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider
+			// LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
+			// while (Button.ENTER.isUp());
+// Der 2. Block des Starts (weiß) beginnt hoffentlich hier
+			// Rueckgabe ergebnis2 = this.erkenneFarbe(false);
+			this.drawString("Strecke: " + this.erkenneFarbe("0"));
+			// LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
+			// while (Button.ENTER.isUp());
+// Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
+			// Rueckgabe ergebnis3 = this.erkenneFarbe(true);
+			this.drawString("Strecke: " + this.erkenneFarbe("1"));
+		}
+		else
+		{
+// Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier	
+			this.erkenneFarbe("1");
+// Der 2. Block des Starts (weiß) beginnt hoffentlich hier
+			//this.drawString(""); //FIXME Ohne das hier keine erkenneWeiß auf dem Display oO
+			this.erkenneFarbe("0");			
+// Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
+			this.erkenneFarbe("1");
+		}*/		
+	}	
+	
 	public long erkenneFarbe(String dunkel)
 	{
 		long aktBlock;
