@@ -619,6 +619,18 @@ public class BarcodeScanner
 			}
 		}			
 	}
+	
+	public String gegenTeilString(String dunkel)
+	{
+		if(dunkel.equals("1"))
+		{
+			return "0";
+		}
+		else
+		{
+			return "1";
+		}
+	}
 			
 	
 	public void berechneBlockgroesse(String dunkel)
@@ -671,26 +683,12 @@ Finde Ende*/
 				}				
 			}
 			this.start=false;
-			if(dunkel.equals("1"))
-			{
-				berechneBlockgroesse("0");
-			}
-			else
-			{
-				berechneBlockgroesse("1");
-			}
+			berechneBlockgroesse(gegenTeilString(dunkel));
 		}
 		else
 		{
 			convertiereStrichcode(dunkel, anzahlBloecke);
-			if(dunkel.equals("1"))
-			{
-				berechneBlockgroesse("0");
-			}
-			else
-			{
-				berechneBlockgroesse("1");
-			}
+			berechneBlockgroesse(gegenTeilString(dunkel));
 		}
 	}		
 	/**
