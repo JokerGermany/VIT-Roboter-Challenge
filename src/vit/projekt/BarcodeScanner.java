@@ -23,9 +23,9 @@ public class BarcodeScanner
 	String strichcode="";  
 	int anzahlBloeckeRead;
 	String dunkel;
-	Fortbewegung fort;
-	Anzeige anzeigen;
-	Messung messen;
+	Fortbewegung fort = Fortbewegung.getInstance();
+	Anzeige anzeigen = Anzeige.getInstance();
+	Messung messen = Messung.getInstance();
 	
 	//640 32
 	//499 25
@@ -46,19 +46,11 @@ public class BarcodeScanner
 	
 	BarcodeScanner(boolean zeit, boolean debug)
 	{
-		anzeigen = Anzeige.getInstance();
-		messen = Messung.getInstance();
-		
 		this.zeit=zeit;
 		this.debug=debug;
 		this.start=true;	
 	}
 	
-	public void setBlockUndToleranzBlock(long block)
-	{
-		this.block=block;
-		toleranzBlock=block/4; // 1/4 Toleranz
-	}
 	
 	public boolean getDebug()
 	{
@@ -83,7 +75,8 @@ public class BarcodeScanner
 		messen.calibrate();
 		this.warte(3);
 		this.dunkel = messen.erkenneStart("1010");
-		
+		block = messen.getBlock();
+		toleranzBlock = block / 4; // 1/4 Toleranz
 		//Fortbewegung fort = new Fortbewegung(500,50);
 		while(this.ziel!=true && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
 		{	

@@ -15,6 +15,7 @@ public class Messung
 	float caliGrenze; // Pauschal: 0 schwarz, 1 weiß
 	boolean debug;
 	boolean zeit;
+	long block;
 	
 	//Gewünscht ist genau eine Instanz der Klasse Fortbewegung, da sonst die Fehlermeldung "Port Open" angezeigt wird. //TODO potenzieller Flaschenhals?
 	  // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton
@@ -40,6 +41,11 @@ public class Messung
 	    return InstanceHolderM.INSTANCE;
 	  }
 		
+	public long getBlock()
+	{
+		return this.block;
+	}  
+	  
 	
 	public float getCaliGrenze() //Lennimethode
 	{
@@ -321,7 +327,7 @@ public class Messung
 			block = (block + fort.getTachoCount()) / 3; 
 		}
 		anzeigen.drawString(""+block);
-		myLineReaderM.setBlockUndToleranzBlock(block);
+		this.block=block;
 		return startString.substring(3);	
 	}
 }
