@@ -15,7 +15,7 @@ public class Fortbewegung
 	private int beschleunigung=500;
 	
 	//Gewünscht ist genau eine Instanz der Klasse Fortbewegung, da sonst die Fehlermeldung "Port Open" angezeigt wird. //TODO potenzieller Flaschenhals?
-	  // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton
+	 // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton
 	  // https://javabeginners.de/Design_Patterns/Singleton_-Pattern.php
 	  // Innere private Klasse, die erst beim Zugriff durch die umgebende Klasse initialisiert wird
 	  private static final class InstanceHolderF {

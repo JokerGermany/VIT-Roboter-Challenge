@@ -75,7 +75,9 @@ public class BarcodeScanner
 	{
 		//fort= new Fortbewegung(500,50);
 		messen.calibrate();
+		this.warte(3);
 		this.dunkel = messen.erkenneStart("1010");
+		
 		//Fortbewegung fort = new Fortbewegung(500,50);
 		while(this.ziel!=true && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
 		{	
@@ -399,7 +401,7 @@ Sag wie viele Blöcke dieselbe Farbe hatten
 Miss den nächsten Block (andere Farbe) genau so
 Finde Ende*/
 		long aktStrecke = messen.erkenneFarbe(dunkel);
-		
+		//FIXME Hier ist irgendwo im Fehlerfall ein devided by Zero...
 		int anzahlBloecke = (int) (aktStrecke/this.block);
 		//float rest = aktStrecke % this.block;
 		if(aktStrecke % this.block>=toleranzBlock)

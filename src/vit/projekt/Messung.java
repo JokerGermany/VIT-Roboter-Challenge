@@ -1,18 +1,15 @@
 package vit.projekt;
 
 import lejos.hardware.Button;
-import lejos.hardware.motor.EV3LargeRegulatedMotor;
-import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
-import lejos.robotics.RegulatedMotor;
 import lejos.utility.Delay;
 
 public class Messung
 {
 	float samples[] = new float[1];
 	EV3ColorSensor light;	
-	Fortbewegung fort;
+	Fortbewegung fort = Fortbewegung.getInstance();
 	BarcodeScanner myLineReaderM;
 	Anzeige anzeigen = Anzeige.getInstance();
 	float caliGrenze; // Pauschal: 0 schwarz, 1 weiß
@@ -194,9 +191,7 @@ public class Messung
 			anzeigen.drawString("druecken sie ENTER");
 			anzeigen.drawString("oder ESC");
 			while (Button.ENTER.isUp() && Button.ESCAPE.isUp());
-		}
-			myLineReaderM.warte(3);
-	
+		}	
 	}
 	
 	public void pruefeBeginnRichtigSteht(boolean dunkel)
