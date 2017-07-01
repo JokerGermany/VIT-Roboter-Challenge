@@ -14,6 +14,15 @@ public class Fortbewegung
 	private int geschwindigkeit;
 	private int beschleunigung;
 	
+	public Fortbewegung(int beschleunigung, int geschwindigkeit)
+	{
+		this.linkerMotor = new EV3LargeRegulatedMotor(MotorPort.A); //nicht direkt in die Klasse, sonst Exception (das Programm funktioniert trotzdem oO)
+		this.rechterMotor= new EV3LargeRegulatedMotor(MotorPort.D); //nicht direkt in die Klasse, sonst Exception (das Programm funktioniert trotzdem oO)
+		this.geschwindigkeit=geschwindigkeit;
+		this.beschleunigung=beschleunigung;
+		this.linkerMotor.synchronizeWith(new RegulatedMotor[]{rechterMotor});
+	}
+	
 	
 	public void fahreZurueckStart()
 	{
@@ -26,17 +35,6 @@ public class Fortbewegung
 		while(linkerMotor.getTachoCount()<=0); //Fahre zurück zum start!
 		this.stoppe();
 		Delay.msDelay(500);		
-	}
-	
-	
-	
-	public Fortbewegung(int beschleunigung, int geschwindigkeit)
-	{
-		linkerMotor = new EV3LargeRegulatedMotor(MotorPort.A); //nicht direkt in die Klasse, sonst Exception (das Programm funktioniert trotzdem oO)
-		rechterMotor= new EV3LargeRegulatedMotor(MotorPort.D); //nicht direkt in die Klasse, sonst Exception (das Programm funktioniert trotzdem oO)
-		this.geschwindigkeit=geschwindigkeit;
-		this.beschleunigung=beschleunigung;
-		linkerMotor.synchronizeWith(new RegulatedMotor[]{rechterMotor});
 	}
 
 
