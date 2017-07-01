@@ -246,10 +246,7 @@ public class Messung
 			System.exit(1);
 		}
 		long block=0; //block MUSS auf jedenfall gesetzt werden!
-		boolean restart=true;
-		while(restart && Button.ESCAPE.isUp())
-		{	
-			restart=false;
+		
 			if(startString.substring(0, 1).equals("1"))
 			{	
 				fort.fahre();
@@ -266,6 +263,10 @@ public class Messung
 				anzeigen.drawString("ESC zum beenden",4);
 				System.exit(1);
 			}
+			boolean restart=true;
+			while(restart && Button.ESCAPE.isUp())
+			{	
+				restart=false;
 			if(this.zeit)
 			{
 				block = -System.currentTimeMillis();
@@ -315,7 +316,15 @@ public class Messung
 			}
 			if(restart)
 			{
-				fort.fahreZurueckStart();
+				fort.fahreZurueck(0);
+				if(startString.substring(0, 1).equals("1"))
+				{	
+					this.erkenneFarbe("0");
+				}
+				else
+				{
+					this.erkenneFarbe("1");
+				}	
 			}
 		}	
 		if(this.zeit)

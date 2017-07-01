@@ -44,7 +44,7 @@ public class Fortbewegung
 	}
 	
 	
-	public void fahreZurueckStart()
+	public void fahreZurueck(long zielTacho)
 	{
 		this.stoppe();
 		Delay.msDelay(500);
@@ -52,9 +52,10 @@ public class Fortbewegung
 		linkerMotor.forward();
 		rechterMotor.forward();
 		linkerMotor.endSynchronization();
-		while(linkerMotor.getTachoCount()<=0); //Fahre zurück zum start!
+		while(this.getNegTachoCount()<zielTacho); //evtl. <=
 		this.stoppe();
 		Delay.msDelay(500);		
+		this.fahre();
 	}
 
 
@@ -94,6 +95,11 @@ public class Fortbewegung
 	public int getTachoCount()
 	{
 		return (linkerMotor.getTachoCount()*-1); 
+		//return (Motor.A.getTachoCount()*-1); 
+	}
+	public int getNegTachoCount()
+	{
+		return linkerMotor.getTachoCount(); 
 		//return (Motor.A.getTachoCount()*-1); 
 	}
 }

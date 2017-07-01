@@ -26,6 +26,8 @@ public class BarcodeScanner
 	Fortbewegung fort = Fortbewegung.getInstance();
 	Anzeige anzeigen = Anzeige.getInstance();
 	Messung messen = Messung.getInstance();
+	long notfallPunkt;
+	String notfallDunkel;
 	
 	//640 32
 	//499 25
@@ -75,6 +77,8 @@ public class BarcodeScanner
 		messen.calibrate();
 		this.warte(3);
 		this.dunkel = messen.erkenneStart("1010");
+		this.notfallPunkt = fort.getNegTachoCount();
+		String notfallDunkel=this.dunkel;
 		block = messen.getBlock();
 		toleranzBlock = block / 4; // 1/4 Toleranz
 		//Fortbewegung fort = new Fortbewegung(500,50);
@@ -305,6 +309,8 @@ public class BarcodeScanner
 		if( strichcodeZahl < 10 )
 		{
 			strichcode += " "+strichcodeZahl; //hinten?
+			this.notfallPunkt=fort.getNegTachoCount();
+			this.notfallDunkel=gegenTeilString(dunkel);
 			anzeigen.drawString(strichcode);
 		}
 		else if (strichcodeZahl == 10)
@@ -317,12 +323,10 @@ public class BarcodeScanner
 		}
 		else
 		{
-			//Fehler - TODO fahre zurück zum Start...
+			//Fehler - fahre zurück zum Notfallpunkt...
 			anzeigen.drawString("Verzeihe mir Meister"); 
-			Sound.beep();
-			fort.stoppe();
-			while (Button.ESCAPE.isUp());
-			System.exit(1);
+			this.dunkel=notfallDunkel;
+			fort.fahreZurueck(this.notfallPunkt);
 		}
 		anzeigen.drawString(strichcode);
 	}
@@ -338,10 +342,14 @@ public class BarcodeScanner
 		}
 		else
 		{	
-			for(int i=0; i < anzahl;i++)
+			while(anzahl>0)
+			//for(int i=0; i < anzahl;i++)
 			{
 				dunkele+=dunkel;
+				anzahl--;
 			}
+			this.anzahlBloeckeRead=anzahl; // sollte 0 sein...
+			
 		}
 	}
 	
@@ -350,20 +358,24 @@ public class BarcodeScanner
 		//anzeigen.drawString("F:"+dunkel+" A:"+anzahl);
 		if(dunkele.isEmpty()) // Wenn strichcode leer ist
 		{
-			dunkeleLeer(dunkel, anzahl);
-			this.anzahlBloeckeRead=anzahl;
+			if(debug)
+			{
+				//anzeigen.drawString("Leer");
+			}
+				dunkeleLeer(dunkel, anzahl);		
 		}
 		else
 		{
-			while((anzahl > 0) && (dunkele.length() <= 4))
+			while((anzahl > 0) && (dunkele.length() < 4))
 			{		
-				dunkele+=dunkel;
+				dunkele+=dunkel;//1000
 				anzahl--;
 			}	
 			if(dunkele.length() == 4)
 			{
 				anzeigen.drawString(dunkele);
 				dunkeleUebertragen(dunkele);
+				dunkele="";
 			}
 			if(anzahl > 0)
 			{
@@ -399,27 +411,12 @@ nBlockgröße < x < nBlockgröße + Toleranz
 Sag wie viele Blöcke dieselbe Farbe hatten
 Miss den nächsten Block (andere Farbe) genau so
 Finde Ende*/
-		if(this.block == 0 || block == 0 )
-		{
-			//TODO mach was sinnvolleres...
-			anzeigen.drawString(this.block+"Panik!!"+block); 
-			Sound.beep();
-			fort.stoppe();
-			while (Button.ENTER.isUp());
-			System.exit(1);
-			
-		}
 		long aktStrecke = messen.erkenneFarbe(dunkel);
-		if(aktStrecke < (block-toleranzBlock))
+		if(aktStrecke < (block-toleranzBlock)) // Fehler
 		{
-			//TODO mach was sinnvolleres...
-			anzeigen.drawString("Panik!!"); 
-			Sound.beep();
-			fort.stoppe();
-			while (Button.ENTER.isUp());
-			System.exit(1);
-			
-		}
+			fort.fahreZurueck(notfallPunkt); 
+			return this.notfallDunkel;			
+		}	
 		//FIXME Hier ist irgendwo im Fehlerfall ein devided by Zero...
 		int anzahlBloecke = (int) (aktStrecke/block);
 		//float rest = aktStrecke % this.block;
@@ -427,7 +424,7 @@ Finde Ende*/
 		{
 			if(this.debug)
 			{
-				//anzeigen.drawString(aktStrecke % this.block+"Ueber="+anzahlBloecke);
+				anzeigen.drawString(aktStrecke % this.block+"Ueber="+anzahlBloecke+"F"+this.dunkel);
 			}
 			anzahlBloecke++;			
 		}
@@ -436,13 +433,13 @@ Finde Ende*/
 		{
 			if(this.debug)
 			{
-				//anzeigen.drawString(aktStrecke % this.block+"Inner="+anzahlBloecke);
+				anzeigen.drawString(aktStrecke % this.block+"Inner="+anzahlBloecke+"F"+this.dunkel);
 			}
 		}	
 		//anzeigen.drawString(""+block);
 		if(this.start)
 		{
-			if(anzahlBloecke!=1)
+			if(anzahlBloecke>1)
 			{
 				if(this.debug)
 				{
@@ -451,15 +448,25 @@ Finde Ende*/
 				anzahlBloecke--;
 				//"Overhead" weitergeben
 				convertiereStrichcode(dunkel, (anzahlBloecke-1));
+				this.start=false;
 			}	
-			else
+			else if(anzahlBloecke<1)
 			{
+				fort.fahreZurueck(notfallPunkt); 
+				this.dunkel=this.notfallDunkel;	
+				this.start=true;
+			}
+			else //Block ist 1 lang
+			{
+				this.notfallPunkt=fort.getNegTachoCount();
+				this.notfallDunkel=gegenTeilString(dunkel);
 				if(this.debug)
 				{
 					anzeigen.drawString("Weiss nur Start");
 				}				
+				this.start=false;
 			}
-			this.start=false;
+			
 			//berechneBlockgroesse(gegenTeilString(dunkel));//Stackoverflow-Vermeidung
 		}
 		else
