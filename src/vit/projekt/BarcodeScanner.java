@@ -57,7 +57,7 @@ public class BarcodeScanner
 	public void setBlockUndToleranzBlock(long block)
 	{
 		this.block=block;
-		this.toleranzBlock=block/4; // 1/4 Toleranz
+		toleranzBlock=block/4; // 1/4 Toleranz
 	}
 	
 	public boolean getDebug()
@@ -296,7 +296,7 @@ public class BarcodeScanner
 
 	        for (int i=0; i<Muster.length; i++)
 	        {	
-	            if (volldunkele.equals(Muster))
+	            if (volldunkele.equals(Muster[i]))
 	            {	
 	                return i;
 	            }
@@ -406,11 +406,31 @@ nBlockgröße < x < nBlockgröße + Toleranz
 Sag wie viele Blöcke dieselbe Farbe hatten
 Miss den nächsten Block (andere Farbe) genau so
 Finde Ende*/
+		if(this.block == 0 || block == 0 )
+		{
+			//TODO mach was sinnvolleres...
+			anzeigen.drawString(this.block+"Panik!!"+block); 
+			Sound.beep();
+			fort.stoppe();
+			while (Button.ENTER.isUp());
+			System.exit(1);
+			
+		}
 		long aktStrecke = messen.erkenneFarbe(dunkel);
+		if(aktStrecke < (block-toleranzBlock))
+		{
+			//TODO mach was sinnvolleres...
+			anzeigen.drawString("Panik!!"); 
+			Sound.beep();
+			fort.stoppe();
+			while (Button.ENTER.isUp());
+			System.exit(1);
+			
+		}
 		//FIXME Hier ist irgendwo im Fehlerfall ein devided by Zero...
-		int anzahlBloecke = (int) (aktStrecke/this.block);
+		int anzahlBloecke = (int) (aktStrecke/block);
 		//float rest = aktStrecke % this.block;
-		if(aktStrecke % this.block>=toleranzBlock)
+		if(aktStrecke % block>=toleranzBlock)
 		{
 			if(this.debug)
 			{

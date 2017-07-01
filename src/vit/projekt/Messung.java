@@ -39,8 +39,7 @@ public class Messung
 	  public static Messung getInstance () {
 	    return InstanceHolderM.INSTANCE;
 	  }
-	
-	
+		
 	
 	public float getCaliGrenze() //Lennimethode
 	{
@@ -280,6 +279,7 @@ public class Messung
 				if(strecke==0)
 				{
 					restart=true;
+					i=3; //fliege aus der Schleife
 				}
 			/*if(i==3)//Nach dem 3. Durchgang (Die 0 zählt mit!) Zeitmessung stoppen
 			{
