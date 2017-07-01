@@ -1,3 +1,4 @@
+package vit.projekt;
 
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
@@ -20,8 +21,6 @@ public class BarcodeScanner
 	float samples[] = new float[1];
 	//Object[] rueckgabe = new Object[2]; // Evtl nur fürs Debugging gebraucht
 	EV3ColorSensor light;
-	EV3LargeRegulatedMotor linkerMotor = new EV3LargeRegulatedMotor(MotorPort.A);
-	EV3LargeRegulatedMotor rechterMotor = new EV3LargeRegulatedMotor(MotorPort.D);
 	long toleranzBlock;
 	//int degreeBlock;
 	long block;
@@ -34,6 +33,7 @@ public class BarcodeScanner
 	String strichcode="";  
 	int anzahlBloeckeRead;
 	String dunkel;
+	Fortbewegung fort;
 	
 	//640 32
 	//499 25
@@ -58,12 +58,15 @@ public class BarcodeScanner
 		//Motor.D.setSpeed(50);
 		light = new EV3ColorSensor(SensorPort.S4);
 		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
+		fort= new Fortbewegung(500,50);
+		
 		this.zeit=zeit;
 		this.debug=debug;
 		this.ziel=ziel;
 		this.dunkel=dunkel;
 		this.start=true;
-		linkerMotor.synchronizeWith(new RegulatedMotor[]{rechterMotor});
+		
+		
 	}
 	
 	public void warte(int sekunden)
@@ -107,7 +110,9 @@ public class BarcodeScanner
 		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
 		myLineReader.calibrate();
+		
 		myLineReader.dunkel = myLineReader.erkenneStart("1010");
+		//Fortbewegung fort = new Fortbewegung(500,50);
 		while(myLineReader.ziel!=true && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
 		{	
 			//myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel);
@@ -138,7 +143,7 @@ public class BarcodeScanner
 		
 		
 		
-		myLineReader.stoppe();
+		//fort.stoppe(); TODO rausnehmen, wenn nicht mehr benötigt.
 		myLineReader.drawString("Fertig");
 		
 		while (Button.ENTER.isUp()); // TODO KILLME
@@ -182,57 +187,7 @@ public class BarcodeScanner
 		/*
 		 * TODO Ende Methode entwickeln
 		 */
-	public void fahreZurueckStart()
-	{
-		this.stoppe();
-		Delay.msDelay(500);
-		linkerMotor.startSynchronization();
-		linkerMotor.forward();
-		rechterMotor.forward();
-		linkerMotor.endSynchronization();
-		while(linkerMotor.getTachoCount()<=0); //Fahre zurück zum start!
-		this.stoppe();
-		Delay.msDelay(500);
-		
-	}
 	
-	public void fahre()
-	{
-		linkerMotor.startSynchronization();
-		int geschwindigkeit = 50;	//	Festsetzen der Geschwindigkeit in "Grad/Sekunde"
-		int beschleunigung = 500;	//	Verzögerung von 500 ms bis Geschwindigkeit
-		 //Sicherstellen, dass die Motoren syncron fahren
-		linkerMotor.resetTachoCount();					//	Tacho-Reset
-		linkerMotor.setSpeed(geschwindigkeit);			//	setzen der Geschwindigkeit
-		linkerMotor.setAcceleration(beschleunigung);	//	setzen der Beschleunigung
-		rechterMotor.resetTachoCount();					//	Tacho-Reset
-		rechterMotor.setSpeed(geschwindigkeit);			//	setzen der Geschwindigkeit
-		rechterMotor.setAcceleration(beschleunigung);	//	setzen der Beschleunigung
-		linkerMotor.backward();
-		rechterMotor.backward();
-		linkerMotor.endSynchronization(); //hier beginnen die Motoren los zu fahren
-		//Motor.A.backward();
-		//Motor.D.backward();
-	}
-
-	public void stoppe()
-	{
-		linkerMotor.startSynchronization(); //Sicherstellen, dass die Motoren gleichzeitig stoppen
-		linkerMotor.flt();
-		rechterMotor.flt();
-		linkerMotor.endSynchronization(); //hier stoppen die Motoren
-		//Motor.A.stop();
-		//Motor.D.stop();
-	}
-	
-	/*
-	 * positve Zahlen...
-	 */
-	public int getTachoCount()
-	{
-		return (linkerMotor.getTachoCount()*-1); 
-		//return (Motor.A.getTachoCount()*-1); 
-	}
 	
 	public void clearLCD()
 	{
@@ -402,7 +357,7 @@ public class BarcodeScanner
 	 * public Rueckgabe erkenneSchwarz() { //LCD.clear(); long timeBlock=
 	 * -System.nanoTime(); float aktWert = this.scanne(); while(aktWert <
 	 * caliGrenze && Button.ENTER.isUp()) //schwarz { aktWert = this.scanne();
-	 * //this.fahre(); LCD.drawString("erkenneSchwarz",0,0);
+	 * //fort.fahre; LCD.drawString("erkenneSchwarz",0,0);
 	 * LCD.drawString("AktWert: "+aktWert,0,1); } //Sound.beep();
 	 * //Sound.beep(); timeBlock += System.nanoTime(); //Object[] rueckgabe = {
 	 * aktWert, timeBlock}; //return rueckgabe; return new Rueckgabe(aktWert,
@@ -412,7 +367,7 @@ public class BarcodeScanner
 	 * //public float erkenneWeiß() old public Rueckgabe erkenneWeiß() {
 	 * //LCD.clear(); long timeBlock= -System.nanoTime(); float aktWert =
 	 * this.scanne(); while(aktWert > caliGrenze && Button.ENTER.isUp()) //weiß
-	 * { aktWert = this.scanne(); //this.fahre();
+	 * { aktWert = this.scanne(); //fort.fahre;
 	 * LCD.drawString("erkenneWeiss",0,0);
 	 * LCD.drawString("AktWert: "+aktWert,0,1); } //Sound.beep(); timeBlock +=
 	 * System.nanoTime(); //Object[] rueckgabe = { aktWert, timeBlock}; //return
@@ -450,12 +405,12 @@ public class BarcodeScanner
 			restart=false;
 			if(startString.substring(0, 1).equals("1"))
 			{	
-				this.fahre();
+				fort.fahre();
 				this.erkenneFarbe("0");
 			}
 			else if(startString.substring(0, 1).equals("0"))
 			{
-				this.fahre();
+				fort.fahre();
 				this.erkenneFarbe("1");
 			}	
 			else
@@ -470,7 +425,7 @@ public class BarcodeScanner
 			}
 			else
 			{	
-				block = -this.getTachoCount();
+				block = -fort.getTachoCount();
 			}	
 			for(int i = 0; i < 3; i++)
 			{	
@@ -512,7 +467,7 @@ public class BarcodeScanner
 			}
 			if(restart)
 			{
-				fahreZurueckStart();
+				fort.fahreZurueckStart();
 			}
 		}	
 		if(this.zeit)
@@ -521,7 +476,7 @@ public class BarcodeScanner
 		}
 		else
 		{	
-			this.block = (this.block + this.getTachoCount()) / 3; 
+			this.block = (this.block + fort.getTachoCount()) / 3; 
 		}
 		toleranzBlock = (block / 4);
 		this.drawString(""+block);
@@ -565,7 +520,7 @@ public class BarcodeScanner
 		}
 		else
 		{	
-			aktBlock = -this.getTachoCount();
+			aktBlock = -fort.getTachoCount();
 		}
 		// //LCD.clear();
 		// long timeBlock= -System.nanoTime();
@@ -575,7 +530,7 @@ public class BarcodeScanner
 			while (aktWert < (caliGrenze) && Button.ENTER.isUp())
 			{
 				aktWert = this.scanne(aktWert);
-				// this.fahre();
+				// fort.fahre;
 			}
 			//this.drawString("erkenneSchwarz");
 		} 
@@ -586,7 +541,7 @@ public class BarcodeScanner
 			while (aktWert > (caliGrenze) && Button.ENTER.isUp())
 			{
 				aktWert = this.scanne(aktWert);
-				// this.fahre();
+				// fort.fahre;
 			}
 			//this.drawString("erkenneWeiss");
 			//Sound.beep();
@@ -613,7 +568,7 @@ public class BarcodeScanner
 		}
 		else
 		{	
-			return aktBlock + this.getTachoCount();
+			return aktBlock + fort.getTachoCount();
 		}
 		//return aktDegreeBlock + this.getTachoCount();
 	}
@@ -660,7 +615,7 @@ public class BarcodeScanner
 			//Fehler - TODO fahre zurück zum Start...
 			this.drawString("Verzeihe mir Meister"); 
 			Sound.beep();
-			this.stoppe();
+			fort.stoppe();
 			while (Button.ESCAPE.isUp());
 			System.exit(1);
 		}
@@ -819,10 +774,10 @@ Finde Ende*/
 		}
 
 		public boolean fahr(boolean farbe, double strecke) {
-			double gefahren = this.getTachoCount();
+			double gefahren = fort.getTachoCount();
 			boolean wechsel = false;
 			// Schwarz ist wahr
-			while ((this.getTachoCount() - gefahren) < strecke) {
+			while ((fort.getTachoCount() - gefahren) < strecke) {
 				wechsel = wechsel
 						|| (farbe == this.ersterScan() < this.caliGrenze);
 			}
