@@ -11,16 +11,36 @@ public class Fortbewegung
 {
 	EV3LargeRegulatedMotor linkerMotor; 
 	EV3LargeRegulatedMotor rechterMotor; 
-	private int geschwindigkeit;
-	private int beschleunigung;
+	private int geschwindigkeit=50;
+	private int beschleunigung=500;
+	
+	//Gewünscht ist genau eine Instanz der Klasse Fortbewegung, da sonst die Fehlermeldung "Port Open" angezeigt wird. //TODO potenzieller Flaschenhals?
+	  // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton
+	  // https://javabeginners.de/Design_Patterns/Singleton_-Pattern.php
+	  // Innere private Klasse, die erst beim Zugriff durch die umgebende Klasse initialisiert wird
+	  private static final class InstanceHolderF {
+	    // Die Initialisierung von Klassenvariablen geschieht nur einmal 
+	    // und wird vom ClassLoader implizit synchronisiert
+	    static final Fortbewegung INSTANCE = new Fortbewegung();
+	  }
+
+	  // Verhindere die Erzeugung des Objektes über andere Methoden
+	  private Fortbewegung() 
+	  {
+		  this.linkerMotor = new EV3LargeRegulatedMotor(MotorPort.A); //nicht direkt in die Klasse, sonst Exception (das Programm funktioniert trotzdem oO)
+		  this.rechterMotor= new EV3LargeRegulatedMotor(MotorPort.D); //nicht direkt in die Klasse, sonst Exception (das Programm funktioniert trotzdem oO)
+		  this.linkerMotor.synchronizeWith(new RegulatedMotor[]{rechterMotor});	  
+	  }
+	  // Eine nicht synchronisierte Zugriffsmethode auf Klassenebene.
+	  public static Fortbewegung getInstance () {
+	    return InstanceHolderF.INSTANCE;
+	  }
+	
+	
 	
 	public Fortbewegung(int beschleunigung, int geschwindigkeit)
 	{
-		this.linkerMotor = new EV3LargeRegulatedMotor(MotorPort.A); //nicht direkt in die Klasse, sonst Exception (das Programm funktioniert trotzdem oO)
-		this.rechterMotor= new EV3LargeRegulatedMotor(MotorPort.D); //nicht direkt in die Klasse, sonst Exception (das Programm funktioniert trotzdem oO)
-		this.geschwindigkeit=geschwindigkeit;
-		this.beschleunigung=beschleunigung;
-		this.linkerMotor.synchronizeWith(new RegulatedMotor[]{rechterMotor});
+		
 	}
 	
 	

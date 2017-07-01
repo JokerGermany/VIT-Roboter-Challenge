@@ -46,18 +46,21 @@ public class BarcodeScanner
 	
 	BarcodeScanner(boolean zeit, boolean debug)
 	{
-		fort = new Fortbewegung(500,50);
 		anzeigen = Anzeige.getInstance();
-		messen = new Messung();
+		messen = Messung.getInstance();
 		
 		this.zeit=zeit;
 		this.debug=debug;
 		this.start=true;	
 	}
 	
-	public Anzeige getAnzeige()
+	public boolean getDebug()
 	{
-		return this.anzeigen;
+		return this.debug;
+	}
+	public boolean getZeit()
+	{
+		return this.zeit;
 	}
 	
 	public void warte(int sekunden)

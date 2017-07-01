@@ -1,8 +1,11 @@
 package vit.projekt;
 
 import lejos.hardware.Button;
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.robotics.RegulatedMotor;
 import lejos.utility.Delay;
 
 public class Messung
@@ -10,7 +13,7 @@ public class Messung
 	float samples[] = new float[1];
 	EV3ColorSensor light;	
 	Fortbewegung fort;
-	BarcodeScanner myLineReader;
+	BarcodeScanner myLineReaderM;
 	Anzeige anzeigen = Anzeige.getInstance();
 	float caliGrenze; // Pauschal: 0 schwarz, 1 weiß
 	boolean debug;
@@ -18,11 +21,29 @@ public class Messung
 	long block;
 	long toleranzBlock;
 	
-	public Messung()
-	{
-		light = new EV3ColorSensor(SensorPort.S4);
-		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
-	}
+	//Gewünscht ist genau eine Instanz der Klasse Fortbewegung, da sonst die Fehlermeldung "Port Open" angezeigt wird. //TODO potenzieller Flaschenhals?
+	  // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton
+	  // https://javabeginners.de/Design_Patterns/Singleton_-Pattern.php
+	  // Innere private Klasse, die erst beim Zugriff durch die umgebende Klasse initialisiert wird
+	  private static final class InstanceHolderM {
+	    // Die Initialisierung von Klassenvariablen geschieht nur einmal 
+	    // und wird vom ClassLoader implizit synchronisiert
+	    static final Messung INSTANCE = new Messung();
+	  }
+
+	  // Verhindere die Erzeugung des Objektes über andere Methoden
+	  private Messung() 
+	  {
+		  light = new EV3ColorSensor(SensorPort.S4);
+		  light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
+		  myLineReaderM = new BarcodeScanner(zeit,debug);
+		  this.zeit=myLineReaderM.getZeit();
+		  this.debug=myLineReaderM.getDebug();				  
+	  }
+	  // Eine nicht synchronisierte Zugriffsmethode auf Klassenebene.
+	  public static Messung getInstance () {
+	    return InstanceHolderM.INSTANCE;
+	  }
 	
 	
 	
@@ -174,7 +195,7 @@ public class Messung
 			anzeigen.drawString("oder ESC");
 			while (Button.ENTER.isUp() && Button.ESCAPE.isUp());
 		}
-			myLineReader.warte(3);
+			myLineReaderM.warte(3);
 	
 	}
 	
@@ -194,7 +215,7 @@ public class Messung
 		{	
 			anzeigen.drawString("und ENTER drücken");
 			while (Button.ENTER.isUp());
-			myLineReader.warte(3); //FIXME starte in 3 Sekunden
+			myLineReaderM.warte(3); //FIXME starte in 3 Sekunden
 			this.pruefeBeginnRichtigSteht(dunkel);
 		}
 		if(debug)
