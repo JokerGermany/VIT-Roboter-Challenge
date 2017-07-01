@@ -8,11 +8,11 @@ import lejos.utility.Delay;
 public class Messung
 {
 	float samples[] = new float[1];
-	Anzeige anzeigen;
 	EV3ColorSensor light;	
 	Fortbewegung fort;
 	BarcodeScanner myLineReader;
-	private float caliGrenze; // Pauschal: 0 schwarz, 1 weiß
+	Anzeige anzeigen = Anzeige.getInstance();
+	float caliGrenze; // Pauschal: 0 schwarz, 1 weiß
 	boolean debug;
 	boolean zeit;
 	long block;
@@ -23,6 +23,8 @@ public class Messung
 		light = new EV3ColorSensor(SensorPort.S4);
 		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
 	}
+	
+	
 	
 	public float getCaliGrenze() //Lennimethode
 	{
@@ -108,13 +110,11 @@ public class Messung
 
 	public void calibrate()
 	{
-		float samples[] = new float[light.sampleSize()]; // wird in dieser
+		//float samples[] = new float[light.sampleSize()]; // wird in dieser
 														// Methode mehrfach
 														// verwendet
-		float caliHell = 2; // Da der Wert eigentliche Wert nur zwischen 0-1
-							// sein kann, 2 als initialsierung genommen
-		float caliDunkel = 2; // Da der Wert eigentliche Wert nur zwischen 0-1
-								// sein kann, 2 als initialsierung genommen
+		float caliHell ;
+		float caliDunkel;
 		// Ab hier wird losgemessen
 		
 		while (Button.ENTER.isUp()) 

@@ -11,7 +11,6 @@ import lejos.utility.Delay;
 public class BarcodeScanner
 {
 	
-	
 	//Object[] rueckgabe = new Object[2]; // Evtl nur fürs Debugging gebraucht
 	long toleranzBlock;
 	//int degreeBlock;
@@ -47,18 +46,18 @@ public class BarcodeScanner
 	
 	BarcodeScanner(boolean zeit, boolean debug)
 	{
-		//Motor.A.setSpeed(50);
-		//Motor.D.setSpeed(50);
-				
-		fort= new Fortbewegung(500,50);
-		anzeigen = new Anzeige();
+		fort = new Fortbewegung(500,50);
+		anzeigen = Anzeige.getInstance();
 		messen = new Messung();
 		
 		this.zeit=zeit;
 		this.debug=debug;
-		this.ziel=ziel;
-		this.dunkel=dunkel;
 		this.start=true;	
+	}
+	
+	public Anzeige getAnzeige()
+	{
+		return this.anzeigen;
 	}
 	
 	public void warte(int sekunden)
@@ -71,6 +70,7 @@ public class BarcodeScanner
 	
 	public void scanneCode()
 	{
+		//fort= new Fortbewegung(500,50);
 		messen.calibrate();
 		this.dunkel = messen.erkenneStart("1010");
 		//Fortbewegung fort = new Fortbewegung(500,50);
@@ -99,7 +99,7 @@ public class BarcodeScanner
 		boolean debug = true;
 		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
-		
+		//fort = new Fortbewegung(500,50);
 		myLineReader.scanneCode();
 		
 				
