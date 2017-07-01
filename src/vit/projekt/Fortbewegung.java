@@ -46,6 +46,10 @@ public class Fortbewegung
 	
 	public void fahreZurueck(long zielTacho)
 	{
+		if(zielTacho==110)
+		{
+			zielTacho=0;
+		}
 		this.stoppe();
 		Delay.msDelay(500);
 		linkerMotor.startSynchronization();

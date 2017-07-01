@@ -26,8 +26,10 @@ public class BarcodeScanner
 	Fortbewegung fort = Fortbewegung.getInstance();
 	Anzeige anzeigen = Anzeige.getInstance();
 	Messung messen = Messung.getInstance();
-	long notfallPunkt;
+	long notfallStartPunkt;
+	long notfallPunkt=110; //sollte nur positiv sein, wenn ungesetzt
 	String notfallDunkel;
+	boolean restart;
 	
 	//640 32
 	//499 25
@@ -52,7 +54,14 @@ public class BarcodeScanner
 		this.debug=debug;
 		this.start=true;	
 	}
-	
+	public long getNotfallPunkt()
+	{
+		return this.notfallPunkt;
+	}
+	public long getNotfallStartPunkt()
+	{
+		return this.notfallStartPunkt;
+	}	
 	
 	public boolean getDebug()
 	{
@@ -76,29 +85,44 @@ public class BarcodeScanner
 		//fort= new Fortbewegung(500,50);
 		messen.calibrate();
 		this.warte(3);
+		restart=true;
 		this.dunkel = messen.erkenneStart("1010");
-		this.notfallPunkt = fort.getNegTachoCount();
-		String notfallDunkel=this.dunkel;
-		block = messen.getBlock();
-		toleranzBlock = block / 4; // 1/4 Toleranz
-		//Fortbewegung fort = new Fortbewegung(500,50);
-		while(this.ziel!=true && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
-		{	
-			//myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel);
-			//anzeigen.drawString(""+this.erkenneFarbe(dunkel));
-      //dunkel=gegenTeilString(dunkel);
-//			this.dunkel=this.gegenTeilString(dunkel);
-			if(this.anzahlBloeckeRead!=0)
-			{
-				//this.drawString("Blocke "+myLineReader.anzahlBloeckeRead);
-				this.convertiereStrichcode(this.dunkel, this.anzahlBloeckeRead);
+		while(restart && Button.ESCAPE.isUp()) //TODO 
+		{
+			this.notfallStartPunkt = fort.getNegTachoCount();
+			start=true;
+			restart=false;
+			String notfallDunkel=this.dunkel;
+			block = messen.getBlock();
+			toleranzBlock = block / 4; // 1/4 Toleranz
+			//Fortbewegung fort = new Fortbewegung(500,50);
+			while(!this.ziel && !restart && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
+			{	
+				//myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel);
+				//anzeigen.drawString(""+this.erkenneFarbe(dunkel));
+	      //dunkel=gegenTeilString(dunkel);
+	//			this.dunkel=this.gegenTeilString(dunkel);
+				if(this.anzahlBloeckeRead!=0)
+				{
+					//this.drawString("Blocke "+myLineReader.anzahlBloeckeRead);
+					this.convertiereStrichcode(this.dunkel, this.anzahlBloeckeRead);
+				}
+				else
+				{
+					this.dunkel=this.berechneBlockgroesse(this.dunkel); //TODO Variante 1
+					//myLineReader.drawString(myLineReader.dunkel);
+				}
+				if(restart && notfallPunkt==110) // => Fallback NotfallStartPunkt
+				{
+					dunkele="";
+					strichcode="";
+				}
+				else
+				{
+					restart=false;
+				}
 			}
-			else
-			{
-				this.dunkel=this.berechneBlockgroesse(this.dunkel); //TODO Variante 1
-				//myLineReader.drawString(myLineReader.dunkel);
-			}
-		}
+		}	
 	}
 
 	
@@ -326,7 +350,9 @@ public class BarcodeScanner
 			//Fehler - fahre zurück zum Notfallpunkt...
 			anzeigen.drawString("Verzeihe mir Meister"); 
 			this.dunkel=notfallDunkel;
+			dunkele="";
 			fort.fahreZurueck(this.notfallPunkt);
+			this.restart=true;
 		}
 		anzeigen.drawString(strichcode);
 	}
@@ -415,6 +441,8 @@ Finde Ende*/
 		if(aktStrecke < (block-toleranzBlock)) // Fehler
 		{
 			fort.fahreZurueck(notfallPunkt); 
+			restart=true;
+			dunkele="";
 			return this.notfallDunkel;			
 		}	
 		//FIXME Hier ist irgendwo im Fehlerfall ein devided by Zero...
@@ -452,7 +480,8 @@ Finde Ende*/
 			}	
 			else if(anzahlBloecke<1)
 			{
-				fort.fahreZurueck(notfallPunkt); 
+				fort.fahreZurueck(notfallStartPunkt);
+				dunkele="";
 				this.dunkel=this.notfallDunkel;	
 				this.start=true;
 			}
