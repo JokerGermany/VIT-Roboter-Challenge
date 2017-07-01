@@ -2,9 +2,6 @@ package vit.projekt;
 
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
-import lejos.hardware.lcd.LCD;
-import lejos.hardware.port.SensorPort;
-import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.utility.Delay;
 
 /*
@@ -72,7 +69,29 @@ public class BarcodeScanner
 		anzeigen.clearLCD();		
 	}
 	
-	
+	public void scanneCode()
+	{
+		messen.calibrate();
+		this.dunkel = messen.erkenneStart("1010");
+		//Fortbewegung fort = new Fortbewegung(500,50);
+		while(this.ziel!=true && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
+		{	
+			//myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel);
+			//anzeigen.drawString(""+this.erkenneFarbe(dunkel));
+      //dunkel=gegenTeilString(dunkel);
+//			this.dunkel=this.gegenTeilString(dunkel);
+			if(this.anzahlBloeckeRead!=0)
+			{
+				//this.drawString("Blocke "+myLineReader.anzahlBloeckeRead);
+				this.convertiereStrichcode(this.dunkel, this.anzahlBloeckeRead);
+			}
+			else
+			{
+				this.dunkel=this.berechneBlockgroesse(this.dunkel); //TODO Variante 1
+				//myLineReader.drawString(myLineReader.dunkel);
+			}
+		}
+	}
 
 	
 	public static void main(String[] args)
@@ -80,27 +99,10 @@ public class BarcodeScanner
 		boolean debug = true;
 		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
-		messen.calibrate();
 		
-		myLineReader.dunkel = myLineReader.erkenneStart("1010");
-		//Fortbewegung fort = new Fortbewegung(500,50);
-		while(myLineReader.ziel!=true && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
-		{	
-			//myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel);
-			//anzeigen.drawString(""+this.erkenneFarbe(dunkel));
-      //dunkel=gegenTeilString(dunkel);
-//			this.dunkel=this.gegenTeilString(dunkel);
-			if(myLineReader.anzahlBloeckeRead!=0)
-			{
-				//myLineReader.drawString("Blocke "+myLineReader.anzahlBloeckeRead);
-				myLineReader.convertiereStrichcode(myLineReader.dunkel, myLineReader.anzahlBloeckeRead);
-			}
-			else
-			{
-				myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel); //TODO Variante 1
-				//myLineReader.drawString(myLineReader.dunkel);
-			}
-		}		
+		myLineReader.scanneCode();
+		
+				
 		//myLineReader.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
 		//LCD.clear();
 		//myLineReader.antiRecursion();
