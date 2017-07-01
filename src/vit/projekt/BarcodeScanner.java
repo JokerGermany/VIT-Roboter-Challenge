@@ -54,6 +54,12 @@ public class BarcodeScanner
 		this.start=true;	
 	}
 	
+	public void setBlockUndToleranzBlock(long block)
+	{
+		this.block=block;
+		this.toleranzBlock=block/4; // 1/4 Toleranz
+	}
+	
 	public boolean getDebug()
 	{
 		return this.debug;

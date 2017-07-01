@@ -15,8 +15,6 @@ public class Messung
 	float caliGrenze; // Pauschal: 0 schwarz, 1 weiß
 	boolean debug;
 	boolean zeit;
-	long block;
-	long toleranzBlock;
 	
 	//Gewünscht ist genau eine Instanz der Klasse Fortbewegung, da sonst die Fehlermeldung "Port Open" angezeigt wird. //TODO potenzieller Flaschenhals?
 	  // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton
@@ -221,7 +219,7 @@ public class Messung
 	}
 	
 	public String erkenneStart(String startString)//startString = z.b. 1010
-	{
+	{		
 		if (startString.length()!=4)
 		{
 			anzeigen.drawString("Es werden genau 4 Werte benötigt",3);
@@ -242,6 +240,7 @@ public class Messung
 			anzeigen.drawString("ESC zum beenden",4);
 			System.exit(1);
 		}
+		long block=0; //block MUSS auf jedenfall gesetzt werden!
 		boolean restart=true;
 		while(restart && Button.ESCAPE.isUp())
 		{	
@@ -315,14 +314,14 @@ public class Messung
 		}	
 		if(this.zeit)
 		{
-			this.block = (this.block + System.currentTimeMillis())/3;
+			block = (block + System.currentTimeMillis())/3;
 		}
 		else
 		{	
-			this.block = (this.block + fort.getTachoCount()) / 3; 
+			block = (block + fort.getTachoCount()) / 3; 
 		}
-		toleranzBlock = (block / 4);
 		anzeigen.drawString(""+block);
+		myLineReaderM.setBlockUndToleranzBlock(block);
 		return startString.substring(3);	
 	}
 }
