@@ -30,6 +30,7 @@ public class BarcodeScanner
 	int anzahlBloeckeRead;
 	String dunkel;
 	Fortbewegung fort;
+	Anzeige anzeigen;
 	
 	//640 32
 	//499 25
@@ -55,6 +56,8 @@ public class BarcodeScanner
 		light = new EV3ColorSensor(SensorPort.S4);
 		light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt		
 		fort= new Fortbewegung(500,50);
+		anzeigen = new Anzeige();
+		
 		
 		this.zeit=zeit;
 		this.debug=debug;
@@ -67,10 +70,10 @@ public class BarcodeScanner
 	
 	public void warte(int sekunden)
 	{
-		this.clearLCD();
-		this.drawString("Starte in "+sekunden+" Sekunden",3);
+		anzeigen.clearLCD();
+		anzeigen.drawString("Starte in "+sekunden+" Sekunden",3);
 		Delay.msDelay(sekunden*1000); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
-		this.clearLCD();		
+		anzeigen.clearLCD();		
 	}
 	
 	public void pruefeBeginnRichtigSteht(boolean dunkel)
@@ -79,22 +82,22 @@ public class BarcodeScanner
 		
 		if(dunkel && (a > caliGrenze))
 		{
-			this.drawString("Bitte auf Schwarz stellen");
+			anzeigen.drawString("Bitte auf Schwarz stellen");
 		}
 		else if ((!dunkel) && (a < (caliGrenze-(caliGrenze/2))))
 		{
-			this.drawString("Bitte auf Weiß stellen");
+			anzeigen.drawString("Bitte auf Weiß stellen");
 		}
 		if((!dunkel && (a < (caliGrenze-(caliGrenze/2)))) || (dunkel && (a > caliGrenze)))
 		{	
-			this.drawString("und ENTER drücken");
+			anzeigen.drawString("und ENTER drücken");
 			while (Button.ENTER.isUp());
 			this.warte(3); //FIXME starte in 3 Sekunden
 			this.pruefeBeginnRichtigSteht(dunkel);
 		}
 		if(debug)
 		{
-			drawString("pruefeBeginnRichtigSteht bestanden");
+			anzeigen.drawString("pruefeBeginnRichtigSteht bestanden");
 		}
 		//LENNI: Einfach schwarz erkennen; fährt bis weiß und los gehts.		
 	}
@@ -112,7 +115,7 @@ public class BarcodeScanner
 		while(myLineReader.ziel!=true && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
 		{	
 			//myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel);
-			//this.drawString(""+this.erkenneFarbe(dunkel));
+			//anzeigen.drawString(""+this.erkenneFarbe(dunkel));
       //dunkel=gegenTeilString(dunkel);
 //			this.dunkel=this.gegenTeilString(dunkel);
 			if(myLineReader.anzahlBloeckeRead!=0)
@@ -123,13 +126,13 @@ public class BarcodeScanner
 			else
 			{
 				myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel); //TODO Variante 1
-				myLineReader.drawString(myLineReader.dunkel);
+				//myLineReader.drawString(myLineReader.dunkel);
 			}
 		}		
 		//myLineReader.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
 		//LCD.clear();
 		//myLineReader.antiRecursion();
-		//this.drawString(""+this.suche(block, startString.substring(3).equals("1"))); //TODO Variante 2
+		//anzeigen.drawString(""+this.suche(block, startString.substring(3).equals("1"))); //TODO Variante 2
 		
 		
 		//34
@@ -140,7 +143,7 @@ public class BarcodeScanner
 		
 		
 		//fort.stoppe(); TODO rausnehmen, wenn nicht mehr benötigt.
-		myLineReader.drawString("Fertig");
+		//myLineReader.drawString("Fertig");
 		
 		while (Button.ENTER.isUp()); // TODO KILLME
 		//LCD.clear();
@@ -151,11 +154,11 @@ public class BarcodeScanner
 		if(anzahlBloecke==1)
 		{
 			//berechneBlockgroesse(true); //TODO Nach Test einkommentieren
-			this.drawString("Weiss nur Start");
+			anzeigen.drawString("Weiss nur Start");
 		}
 		else
 		{
-			this.drawString(+(anzahlBloecke-1)+" Bloecke weiss");
+			anzeigen.drawString(+(anzahlBloecke-1)+" Bloecke weiss");
 			if((anzahlBloecke-1) > 3)
 			{
 				//0
@@ -171,7 +174,7 @@ public class BarcodeScanner
 		{
 // Der 4. Block des Starts (weiß) beginnt hoffentlich hier
 			// Rueckgabe ergebnis4 = this.erkenneFarbe(false);
-			this.drawString("AktWert: " + this.erkenneFarbe(false));
+			anzeigen.drawString("AktWert: " + this.erkenneFarbe(false));
 			// LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
 			// while (Button.ENTER.isUp());
 		}
@@ -185,31 +188,6 @@ public class BarcodeScanner
 		 */
 	
 	
-	public void clearLCD()
-	{
-		LCD.clear();
-		this.zeile=0;
-	}
-	
-	public void drawString(String str, int y)
-	{
-		LCD.drawString(str, 0, y);
-	}
-	
-	public void drawString(String str)
-	{
-		if(this.zeile > 7)
-		{
-			LCD.scroll();
-			LCD.drawString(str, 0, 7);
-		}
-		else
-		{
-			LCD.drawString(str, 0, this.zeile);
-			this.zeile++;
-		}				
-	}
-
 	/**
 	 * TODO Kann hier noch optimiert werden?
 	 */
@@ -261,9 +239,9 @@ public class BarcodeScanner
 		
 		while (Button.ENTER.isUp()) 
 		{
-			this.clearLCD();
-			this.drawString("Helle Fleche stellen");
-			this.drawString("druecken sie ENTER");
+			anzeigen.clearLCD();
+			anzeigen.drawString("Helle Fleche stellen");
+			anzeigen.drawString("druecken sie ENTER");
 			while (Button.ENTER.isUp());
 			Delay.msDelay(1000);
 			caliHell = this.ersterScan();
@@ -277,15 +255,15 @@ public class BarcodeScanner
 			// caliHell = sample[0];
 			// //Delay.msDelay(5000);
 			// }
-			this.drawString("HelleFläche: " + caliHell);
+			anzeigen.drawString("HelleFläche: " + caliHell);
 			// Delay.msDelay(5000); //TODO KILLME
 			while (Button.ENTER.isDown()); // verhindert das Hell und Dunkel gleichzeitig gesetzt werden
-			this.clearLCD();
+			anzeigen.clearLCD();
 			// TODO Wenn nicht zufrieden ESC drücken und Methode neu aufrufen, sonst
 			// ENTER
 			// Delay.msDelay(5000); //TODO KILLME
-			this.drawString("Dunkle Fleche stellen");
-			this.drawString("druecken sie ENTER");
+			anzeigen.drawString("Dunkle Fleche stellen");
+			anzeigen.drawString("druecken sie ENTER");
 			while (Button.ENTER.isUp());
 			Delay.msDelay(1000);
 			caliDunkel = this.ersterScan();
@@ -300,20 +278,20 @@ public class BarcodeScanner
 			// //Delay.msDelay(5000);
 			// }
 			//LCD.clear();
-			this.drawString("Hell: " + caliHell);
-			this.drawString("Dunkel: " + caliDunkel);
+			anzeigen.drawString("Hell: " + caliHell);
+			anzeigen.drawString("Dunkel: " + caliDunkel);
 			caliGrenze = caliDunkel + ((caliHell - caliDunkel) / 2); // Achtung,
 																		// beachtet
 																		// nicht
 																		// Punkt vor
 																		// Strich
 																		// Rechnung!
-			this.drawString("Grenze: " + caliGrenze);
+			anzeigen.drawString("Grenze: " + caliGrenze);
 			while (Button.ENTER.isDown()); // verhindert das die Kalibrierung versehentlich zu früh beendet wird.
-			this.drawString("");
-			this.drawString("Bitte an den Start stellen");
-			this.drawString("druecken sie ENTER");
-			this.drawString("oder ESC");
+			anzeigen.drawString("");
+			anzeigen.drawString("Bitte an den Start stellen");
+			anzeigen.drawString("druecken sie ENTER");
+			anzeigen.drawString("oder ESC");
 			while (Button.ENTER.isUp() && Button.ESCAPE.isUp());
 		}
 			this.warte(3);
@@ -329,18 +307,18 @@ public class BarcodeScanner
 //		while(i < 10 && Button.ESCAPE.isUp()) //(this.ziel!=true && Button.ESCAPE.isUp())
 //		{	
 //			dunkel=this.berechneBlockgroesse(dunkel);
-////		this.drawString(""+this.erkenneFarbe(dunkel));
+////		anzeigen.drawString(""+this.erkenneFarbe(dunkel));
 ////		dunkel=gegenTeilString(dunkel);
 ////			this.dunkel=this.gegenTeilString(dunkel);
 ////			/*if(this.anzahlBloeckeRead!=0)
 ////			{
-////				this.drawString("Blocke "+this.anzahlBloeckeRead);
+////				anzeigen.drawString("Blocke "+this.anzahlBloeckeRead);
 ////				this.anzahlBloeckeRead=this.convertiereStrichcode(this.dunkel, this.anzahlBloeckeRead);
 ////			}
 ////			else
 ////			{
 //				//test=this.berechneBlockgroesse(test); //TODO Variante 1
-////				this.drawString(""+test);
+////				anzeigen.drawString(""+test);
 ////			}*/
 //			i++;
 //		}
@@ -377,8 +355,8 @@ public class BarcodeScanner
 	{
 		if (startString.length()!=4)
 		{
-			this.drawString("Es werden genau 4 Werte benötigt",3);
-			this.drawString("ESC zum beenden",4);
+			anzeigen.drawString("Es werden genau 4 Werte benötigt",3);
+			anzeigen.drawString("ESC zum beenden",4);
 			System.exit(1);
 		}
 		if(startString.substring(0, 1).equals("1"))
@@ -391,8 +369,8 @@ public class BarcodeScanner
 		}
 		else
 		{
-			this.drawString("Nur 0 oder 1",3);
-			this.drawString("ESC zum beenden",4);
+			anzeigen.drawString("Nur 0 oder 1",3);
+			anzeigen.drawString("ESC zum beenden",4);
 			System.exit(1);
 		}
 		boolean restart=true;
@@ -411,8 +389,8 @@ public class BarcodeScanner
 			}	
 			else
 			{
-				this.drawString("Nur 0 oder 1",3);
-				this.drawString("ESC zum beenden",4);
+				anzeigen.drawString("Nur 0 oder 1",3);
+				anzeigen.drawString("ESC zum beenden",4);
 				System.exit(1);
 			}
 			if(this.zeit)
@@ -428,8 +406,8 @@ public class BarcodeScanner
 				long strecke = this.erkenneFarbe(startString.substring(i, i+1));
 				if(debug)
 				{
-					//this.drawString(startString.substring(i, i+1));
-					this.drawString("Strecke: " +strecke);
+					//anzeigen.drawString(startString.substring(i, i+1));
+					anzeigen.drawString("Strecke: " +strecke);
 				}
 				if(strecke==0)
 				{
@@ -439,14 +417,14 @@ public class BarcodeScanner
 			{
 				/*if(debug)
 				{
-					this.drawString("Block:" + block);
+					anzeigen.drawString("Block:" + block);
 					if(this.zeit)
 					{
-						this.drawString("GesamtStr:" + (System.currentTimeMillis() - Streckenanfang));
+						anzeigen.drawString("GesamtStr:" + (System.currentTimeMillis() - Streckenanfang));
 					}
 					else
 					{	
-						this.drawString("GesamtStr:" + (this.getTachoCount() - Streckenanfang));
+						anzeigen.drawString("GesamtStr:" + (this.getTachoCount() - Streckenanfang));
 					}
 				}*/
 				// TODO ist Integer/long gut? denk dran Nachkommastellen werden abgeschnitten
@@ -455,7 +433,7 @@ public class BarcodeScanner
 				// Toleranz von einem 1/4.
 				/*if(debug)
 				{
-					this.drawString("Toleranz:" + toleranzBlock); TODO reinnehmen
+					anzeigen.drawString("Toleranz:" + toleranzBlock); TODO reinnehmen
 					LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
 					while (Button.ENTER.isUp());
 				}
@@ -475,32 +453,32 @@ public class BarcodeScanner
 			this.block = (this.block + fort.getTachoCount()) / 3; 
 		}
 		toleranzBlock = (block / 4);
-		this.drawString(""+block);
+		anzeigen.drawString(""+block);
 		return startString.substring(3);	
 	}
 		/*		
 		if(debug)
 		{
 // Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier			
-			this.drawString("Strecke: " + this.erkenneFarbe("1"));
+			anzeigen.drawString("Strecke: " + this.erkenneFarbe("1"));
 			// aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider
 			// LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
 			// while (Button.ENTER.isUp());
 // Der 2. Block des Starts (weiß) beginnt hoffentlich hier
 			// Rueckgabe ergebnis2 = this.erkenneFarbe(false);
-			this.drawString("Strecke: " + this.erkenneFarbe("0"));
+			anzeigen.drawString("Strecke: " + this.erkenneFarbe("0"));
 			// LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
 			// while (Button.ENTER.isUp());
 // Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
 			// Rueckgabe ergebnis3 = this.erkenneFarbe(true);
-			this.drawString("Strecke: " + this.erkenneFarbe("1"));
+			anzeigen.drawString("Strecke: " + this.erkenneFarbe("1"));
 		}
 		else
 		{
 // Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier	
 			this.erkenneFarbe("1");
 // Der 2. Block des Starts (weiß) beginnt hoffentlich hier
-			//this.drawString(""); //FIXME Ohne das hier keine erkenneWeiß auf dem Display oO
+			//anzeigen.drawString(""); //FIXME Ohne das hier keine erkenneWeiß auf dem Display oO
 			this.erkenneFarbe("0");			
 // Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
 			this.erkenneFarbe("1");
@@ -528,7 +506,7 @@ public class BarcodeScanner
 				aktWert = this.scanne(aktWert);
 				// fort.fahre;
 			}
-			//this.drawString("erkenneSchwarz");
+			//anzeigen.drawString("erkenneSchwarz");
 		} 
 		else
 		{
@@ -539,7 +517,7 @@ public class BarcodeScanner
 				aktWert = this.scanne(aktWert);
 				// fort.fahre;
 			}
-			//this.drawString("erkenneWeiss");
+			//anzeigen.drawString("erkenneWeiss");
 			//Sound.beep();
 		}
 		/*
@@ -553,7 +531,7 @@ public class BarcodeScanner
 		 */
 		if(debug)
 		{
-			//this.drawString("AktWert: " + aktWert);
+			//anzeigen.drawString("AktWert: " + aktWert);
 		}
 		// timeBlock += System.nanoTime(); // Wird in der Methode erkenne start
 		// gemacht
@@ -596,26 +574,26 @@ public class BarcodeScanner
 		if( strichcodeZahl < 10 )
 		{
 			strichcode += " "+strichcodeZahl; //hinten?
-			this.drawString(strichcode);
+			anzeigen.drawString(strichcode);
 		}
 		else if (strichcodeZahl == 10)
 		{
 			Sound.beep();
-			this.drawString("Die Zahl lautet", 3);
-			this.drawString(strichcode, 4);
+			anzeigen.drawString("Die Zahl lautet", 3);
+			anzeigen.drawString(strichcode, 4);
 			this.ziel=true;
 			Sound.beep();
 		}
 		else
 		{
 			//Fehler - TODO fahre zurück zum Start...
-			this.drawString("Verzeihe mir Meister"); 
+			anzeigen.drawString("Verzeihe mir Meister"); 
 			Sound.beep();
 			fort.stoppe();
 			while (Button.ESCAPE.isUp());
 			System.exit(1);
 		}
-		this.drawString(strichcode);
+		anzeigen.drawString(strichcode);
 	}
 	public void dunkeleLeer(String dunkel, int anzahl)
 	{
@@ -638,7 +616,7 @@ public class BarcodeScanner
 	
 	public void convertiereStrichcode(String dunkel, int anzahl)
 	{		
-		//this.drawString("F:"+dunkel+" A:"+anzahl);
+		//anzeigen.drawString("F:"+dunkel+" A:"+anzahl);
 		if(dunkele.isEmpty()) // Wenn strichcode leer ist
 		{
 			dunkeleLeer(dunkel, anzahl);
@@ -653,7 +631,7 @@ public class BarcodeScanner
 			}	
 			if(dunkele.length() == 4)
 			{
-				this.drawString(dunkele);
+				anzeigen.drawString(dunkele);
 				dunkeleUebertragen(dunkele);
 			}
 			if(anzahl > 0)
@@ -698,7 +676,7 @@ Finde Ende*/
 		{
 			if(this.debug)
 			{
-				//this.drawString(aktStrecke % this.block+"Ueber="+anzahlBloecke);
+				//anzeigen.drawString(aktStrecke % this.block+"Ueber="+anzahlBloecke);
 			}
 			anzahlBloecke++;			
 		}
@@ -707,17 +685,17 @@ Finde Ende*/
 		{
 			if(this.debug)
 			{
-				//this.drawString(aktStrecke % this.block+"Inner="+anzahlBloecke);
+				//anzeigen.drawString(aktStrecke % this.block+"Inner="+anzahlBloecke);
 			}
 		}	
-		//this.drawString(""+block);
+		//anzeigen.drawString(""+block);
 		if(this.start)
 		{
 			if(anzahlBloecke!=1)
 			{
 				if(this.debug)
 				{
-					this.drawString((anzahlBloecke-1)+" mehr als Start");
+					anzeigen.drawString((anzahlBloecke-1)+" mehr als Start");
 				}	
 				anzahlBloecke--;
 				//"Overhead" weitergeben
@@ -727,7 +705,7 @@ Finde Ende*/
 			{
 				if(this.debug)
 				{
-					this.drawString("Weiss nur Start");
+					anzeigen.drawString("Weiss nur Start");
 				}				
 			}
 			this.start=false;
