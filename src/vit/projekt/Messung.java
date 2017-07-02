@@ -33,14 +33,19 @@ public class Messung
 		  light = new EV3ColorSensor(SensorPort.S4);
 		  light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
 		  myLineReaderM = new BarcodeScanner(zeit,debug);
-		  this.zeit=myLineReaderM.getZeit();
-		  this.debug=myLineReaderM.getDebug();				  
+		  //this.zeit=myLineReaderM.getZeit();
+		  //this.debug=myLineReaderM.getDebug();				  
 	  }
 	  // Eine nicht synchronisierte Zugriffsmethode auf Klassenebene.
 	  public static Messung getInstance () {
 	    return InstanceHolderM.INSTANCE;
 	  }
 		
+	public void setDebug(boolean debug)
+	{
+		this.debug=debug;
+	}
+	  
 	public long getBlock()
 	{
 		return this.block;

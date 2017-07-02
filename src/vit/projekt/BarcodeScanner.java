@@ -64,10 +64,10 @@ public class BarcodeScanner
 		return this.notfallStartPunkt;
 	}	
 	
-	public boolean getDebug()
-	{
-		return this.debug;
-	}
+//	public boolean getDebug() // funktioniert nicht, vermutlich da mehrere Instanzen...
+//	{
+//		return this.debug;
+//	}
 	public boolean getZeit()
 	{
 		return this.zeit;
@@ -84,6 +84,7 @@ public class BarcodeScanner
 	public void scanneCode()
 	{
 		//fort= new Fortbewegung(500,50);
+		messen.setDebug(this.debug);
 		messen.calibrate();
 		this.warte(3);
 		restart=true;
