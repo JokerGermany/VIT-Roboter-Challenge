@@ -11,9 +11,8 @@ import lejos.utility.Delay;
 public class BarcodeScanner
 {
 	
-	//Object[] rueckgabe = new Object[2]; // Evtl nur fürs Debugging gebraucht
 	long toleranzBlock;
-	//int degreeBlock;
+	//int degreeBlock; //Wenn wir den Switch zwischen Zeit und degree nicht hätten würde wahrscheinlich long reichen
 	long block;
 	boolean zeit;
 	boolean debug;
@@ -31,30 +30,14 @@ public class BarcodeScanner
 	String notfallDunkel;
 	String notfallDunkele;
 	boolean restart;
-	
-	//640 32
-	//499 25
-	//709 35
-	
-	// class Rueckgabe
-	// {
-	// float aktWert; //TODO: SChmittigenauigkeit: privat?
-	// long timeBlock; //Wie lange braucht Robi für einen Block -
-	// durchgetTachocount ersetzt
-
-	/*
-	 * nicht mehr gebraucht, da die Blöcke in der Methode erkenneStart gemesssen
-	 * werden. public Rueckgabe(float aktWert, long timeBlock) {
-	 * this.aktWert=aktWert; this.timeBlock=timeBlock; }
-	 */
-	// }
-	
+		
 	BarcodeScanner(boolean zeit, boolean debug)
 	{
 		this.zeit=zeit;
 		this.debug=debug;
 		this.start=true;	
 	}
+	
 	public long getNotfallPunkt()
 	{
 		return this.notfallPunkt;
@@ -73,10 +56,10 @@ public class BarcodeScanner
 		return this.zeit;
 	}
 	
-	public void warte(int sekunden)
+	public void warte(int sekunden, String text)
 	{
 		anzeigen.clearLCD();
-		anzeigen.drawString("Starte in "+sekunden+" Sekunden",3);
+		anzeigen.drawString(text+" in "+sekunden+" Sekunden",3);
 		Delay.msDelay(sekunden*1000); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
 		anzeigen.clearLCD();		
 	}
@@ -86,7 +69,7 @@ public class BarcodeScanner
 		//fort= new Fortbewegung(500,50);
 		messen.setDebugUndZeit(this.debug, this.zeit);
 		messen.calibrate();
-		this.warte(3);
+		this.warte(3,"Starte");
 		restart=true;
 		this.dunkel = messen.erkenneStart("1010");
 		//restart = false; // TODO rausnehmen!
