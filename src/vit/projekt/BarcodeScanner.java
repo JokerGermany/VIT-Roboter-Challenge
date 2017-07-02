@@ -125,6 +125,7 @@ public class BarcodeScanner
 				}
 			}
 		}	
+		fort.stoppe();
 	}
 
 	
@@ -153,7 +154,7 @@ public class BarcodeScanner
 		//fort.stoppe(); TODO rausnehmen, wenn nicht mehr benötigt.
 		//myLineReader.drawString("Fertig");
 		
-		while (Button.ENTER.isUp()); // TODO KILLME
+		while (Button.ESCAPE.isUp()); // TODO KILLME
 		//LCD.clear();
 	}
 	/*public void berechneStartBlockgroesse()
@@ -360,7 +361,6 @@ public class BarcodeScanner
 				anzeigen.drawString(strichcode, 4);
 				this.ziel=true; // TODO herausbekommen, warum es nicht funktioniert
 				Sound.beep();
-				fort.stoppe();
 				
 			}
 			else
