@@ -393,25 +393,31 @@ public class BarcodeScanner
 		else
 		{
 			while((anzahl > 0) && (dunkele.length() < 4))
-			{		
+			{	
+				if(dunkele.length() == 4)
+				{
+					anzeigen.drawString(dunkele);
+					dunkeleUebertragen(dunkele);
+					dunkele="";
+				}
 				dunkele+=dunkel;//1000
-				anzahl--;
+				anzahl--;				
 			}	
-			if(dunkele.length() == 4)
-			{
-				anzeigen.drawString(dunkele);
-				dunkeleUebertragen(dunkele);
-				dunkele="";
-			}
-			if(anzahl > 0)
-			{
-				this.dunkel=dunkel;
-				this.anzahlBloeckeRead=anzahl;
-			}
-			else
-			{
+//			if(dunkele.length() == 4)
+//			{
+//				anzeigen.drawString(dunkele);
+//				dunkeleUebertragen(dunkele);
+//				dunkele="";
+//			}
+//			if(anzahl > 0)
+//			{
+//				this.dunkel=dunkel;
+//				this.anzahlBloeckeRead=anzahl;
+//			}
+//			else
+//			{
 				this.anzahlBloeckeRead=0;
-			}
+//			}
 		}
 	}
 	
