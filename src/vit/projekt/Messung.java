@@ -41,9 +41,10 @@ public class Messung
 	    return InstanceHolderM.INSTANCE;
 	  }
 		
-	public void setDebug(boolean debug)
+	public void setDebugUndZeit(boolean debug, boolean zeit)
 	{
 		this.debug=debug;
+		this.zeit=zeit;
 	}
 	  
 	public long getBlock()

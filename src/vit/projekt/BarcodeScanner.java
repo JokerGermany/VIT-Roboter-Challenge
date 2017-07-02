@@ -84,7 +84,7 @@ public class BarcodeScanner
 	public void scanneCode()
 	{
 		//fort= new Fortbewegung(500,50);
-		messen.setDebug(this.debug);
+		messen.setDebugUndZeit(this.debug, this.zeit);
 		messen.calibrate();
 		this.warte(3);
 		restart=true;
