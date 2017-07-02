@@ -278,15 +278,19 @@ public class Messung
 			for(int i = 0; i < 3; i++)
 			{	
 				long strecke = this.erkenneFarbe(startString.substring(i, i+1));
-				if(debug)
-				{
-					//anzeigen.drawString(startString.substring(i, i+1));
-					anzeigen.drawString("Strecke: " +strecke);
-				}
 				if(strecke==0)
 				{
 					restart=true;
 					i=3; //fliege aus der Schleife
+					if(debug)
+					{
+						anzeigen.drawString("Restart Start");
+					}
+				}
+				else if(debug)
+				{
+					//anzeigen.drawString(startString.substring(i, i+1));
+					anzeigen.drawString("Strecke: " +strecke);
 				}
 			/*if(i==3)//Nach dem 3. Durchgang (Die 0 zählt mit!) Zeitmessung stoppen
 			{

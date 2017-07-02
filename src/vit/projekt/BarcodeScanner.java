@@ -88,6 +88,7 @@ public class BarcodeScanner
 		this.warte(3);
 		restart=true;
 		this.dunkel = messen.erkenneStart("1010");
+		//restart = false; // TODO rausnehmen!
 		while(restart && Button.ESCAPE.isUp()) //TODO 
 		{
 			this.notfallStartPunkt = fort.getNegTachoCount();
