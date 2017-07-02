@@ -29,6 +29,7 @@ public class BarcodeScanner
 	long notfallStartPunkt;
 	long notfallPunkt=110; //sollte nur positiv sein, wenn ungesetzt
 	String notfallDunkel;
+	String notfallDunkele;
 	boolean restart;
 	
 	//640 32
@@ -93,6 +94,7 @@ public class BarcodeScanner
 			start=true;
 			restart=false;
 			String notfallDunkel=this.dunkel;
+			dunkele="";
 			block = messen.getBlock();
 			toleranzBlock = block / 4; // 1/4 Toleranz
 			//Fortbewegung fort = new Fortbewegung(500,50);
@@ -329,32 +331,49 @@ public class BarcodeScanner
 	 */
 	public void dunkeleUebertragen(String volldunkele)
 	{
-		int strichcodeZahl = dunkeleAuswerten(volldunkele);
-		if( strichcodeZahl < 10 )
-		{
-			strichcode += " "+strichcodeZahl; //hinten?
-			this.notfallPunkt=fort.getNegTachoCount();
-			this.notfallDunkel=gegenTeilString(dunkel);
+		while (dunkele.length()>3)
+		{	
+			int strichcodeZahl=110; //Case Error...
+			if (dunkele.length() > 3)
+			{
+				strichcodeZahl=dunkeleAuswerten(dunkele.substring(0,4));
+				dunkele=dunkele.substring(4);
+			}
+			else
+			{
+				strichcodeZahl=dunkeleAuswerten(dunkele);
+				dunkele="";
+			}
+		//int strichcodeZahl = dunkeleAuswerten(volldunkele);
+			if( strichcodeZahl < 10 )
+			{
+				strichcode += " "+strichcodeZahl; //hinten?
+				this.notfallPunkt=fort.getNegTachoCount();
+				this.notfallDunkel=gegenTeilString(dunkel);
+				this.notfallDunkele=dunkele;
+				anzeigen.drawString(strichcode);
+			}
+			else if (strichcodeZahl == 10)
+			{
+				Sound.beep();
+				anzeigen.drawString("Die Zahl lautet", 3);
+				anzeigen.drawString(strichcode, 4);
+				this.ziel=true; // TODO herausbekommen, warum es nicht funktioniert
+				Sound.beep();
+				fort.stoppe();
+				
+			}
+			else
+			{
+				//Fehler - fahre zurück zum Notfallpunkt...
+				anzeigen.drawString("Verzeihe mir Meister"); 
+				this.dunkel=notfallDunkel;
+				this.notfallDunkele=dunkele;
+				fort.fahreZurueck(this.notfallPunkt);
+				this.restart=true;
+			}
 			anzeigen.drawString(strichcode);
-		}
-		else if (strichcodeZahl == 10)
-		{
-			Sound.beep();
-			anzeigen.drawString("Die Zahl lautet", 3);
-			anzeigen.drawString(strichcode, 4);
-			this.ziel=true;
-			Sound.beep();
-		}
-		else
-		{
-			//Fehler - fahre zurück zum Notfallpunkt...
-			anzeigen.drawString("Verzeihe mir Meister"); 
-			this.dunkel=notfallDunkel;
-			dunkele="";
-			fort.fahreZurueck(this.notfallPunkt);
-			this.restart=true;
-		}
-		anzeigen.drawString(strichcode);
+		}	
 	}
 	public void dunkeleLeer(String dunkel, int anzahl)
 	{
@@ -394,21 +413,20 @@ public class BarcodeScanner
 		{
 			while((anzahl > 0))// && (dunkele.length() < 4))
 			{	
-				if(dunkele.length() == 4)
-				{
-					anzeigen.drawString(dunkele);
-					dunkeleUebertragen(dunkele);
-					dunkele="";
-				}
+				//if(dunkele.length() > 3)
+				//{
+				//	anzeigen.drawString(dunkele);
+				//	dunkeleUebertragen(dunkele);
+				//	dunkele="";
+				//}
 				dunkele+=dunkel;//1000
 				anzahl--;				
 			}	
-//			if(dunkele.length() == 4)
-//			{
-//				anzeigen.drawString(dunkele);
-//				dunkeleUebertragen(dunkele);
-//				dunkele="";
-//			}
+			if(dunkele.length() > 3)
+			{
+				anzeigen.drawString(dunkele);
+				dunkeleUebertragen(dunkele);
+			}
 //			if(anzahl > 0)
 //			{
 //				this.dunkel=dunkel;
@@ -448,7 +466,6 @@ Finde Ende*/
 		{
 			fort.fahreZurueck(notfallPunkt); 
 			restart=true;
-			dunkele="";
 			return this.notfallDunkel;			
 		}	
 		//FIXME Hier ist irgendwo im Fehlerfall ein devided by Zero...
@@ -487,7 +504,6 @@ Finde Ende*/
 			else if(anzahlBloecke<1)
 			{
 				fort.fahreZurueck(notfallStartPunkt);
-				dunkele="";
 				this.dunkel=this.notfallDunkel;	
 				this.start=true;
 			}
