@@ -16,6 +16,8 @@ public class Messung
 	boolean debug;
 	boolean zeit;
 	long block;
+	float weissgleich=1; //wird bei erkenneStart kalibriert
+	float schwarzgleich=1; //0.962618wird bei erkenneStart kalibriert
 	
 	//Gewünscht ist genau eine Instanz der Klasse Fortbewegung, da sonst die Fehlermeldung "Port Open" angezeigt wird. //TODO potenzieller Flaschenhals?
 	  // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton
@@ -89,7 +91,7 @@ public class Messung
 		float aktWert = this.ersterScan();
 		if (dunkel.equals("1"))
 		{
-			while (aktWert < (caliGrenze) && Button.ENTER.isUp())
+			while (aktWert < (caliGrenze*schwarzgleich) && Button.ENTER.isUp())
 			{
 				aktWert = this.scanne(aktWert);
 				// fort.fahre;
@@ -99,8 +101,8 @@ public class Messung
 		else
 		{
 			//Grenze für weiß erhöht, da sonst zu schnell schwarz erkannt wird
-			//while (aktWert > (caliGrenze-(caliGrenze/2)) && Button.ENTER.isUp()) // TODO: An die Blockgröße anpassen - Wird bei 1cm nicht benötigt!
-			while (aktWert > (caliGrenze) && Button.ENTER.isUp())
+			//while (aktWert > (caliGrenze-(caliGrenze/2)) && Button.ENTER.isUp()) // TODO: An die Blockgröße anpassen - Wird bei 2cm nicht benötigt!
+			while ((aktWert > (caliGrenze*weissgleich)) && Button.ENTER.isUp()) //(caliGrenze*0.7)
 			{
 				aktWert = this.scanne(aktWert);
 				// fort.fahre;
@@ -231,6 +233,9 @@ public class Messung
 	
 	public String erkenneStart(String startString)//startString = z.b. 1010
 	{		
+		long schwarz=0;
+		long schwarz2=0;		
+		long weiss=0;
 		if (startString.length()!=4)
 		{
 			anzeigen.drawString("Es werden genau 4 Werte benötigt",3);
@@ -280,7 +285,7 @@ public class Messung
 			else
 			{	
 				block = -fort.getTachoCount();
-			}	
+			}
 			for(int i = 0; i < 3; i++)
 			{	
 				long strecke = this.erkenneFarbe(startString.substring(i, i+1));
@@ -293,7 +298,23 @@ public class Messung
 						anzeigen.drawString("Restart Start");
 					}
 				}
-				else if(debug)
+				else if(startString.substring(i, i+1).equals("1"))
+				{
+					if (schwarz==0)
+					{	
+						schwarz=strecke;
+					}
+					else
+					{
+						schwarz=(schwarz+strecke)/2;
+						schwarz2=strecke;
+					}		
+				}
+				else
+				{					
+						weiss=strecke;	
+				}
+				if(debug)
 				{
 					//anzeigen.drawString(startString.substring(i, i+1));
 					anzeigen.drawString("Strecke: " +strecke);
@@ -344,6 +365,27 @@ public class Messung
 		else
 		{	
 			block = (block + fort.getTachoCount()) / 3; 
+		}
+		if(schwarz<weiss && schwarz2 <weiss) //< wegen Messungenauigkeiten
+		{
+			this.schwarzgleich = (float) schwarz / (float) weiss; //TODO herausfinden ob Cast to float Nebenwirkungen hat
+			//float schwarzgleich2 = (float) schwarz2 / (float) weiss; zu hohe Nebenwirkungen
+			if(debug)
+			{
+				anzeigen.drawString("W:"+weiss+" S:"+schwarz);
+				anzeigen.drawString("SF:"+schwarzgleich);
+				//anzeigen.drawString("SF:"+schwarzgleich2);
+			}
+		}
+		else
+		{
+			this.weissgleich = (float) weiss / (float) schwarz; //TODO herausfinden ob Cast to float Nebenwirkungen hat
+			if(debug)
+			{
+				anzeigen.drawString("W:"+weiss+" S:"+schwarz);
+				anzeigen.drawString(" WF:"+weissgleich);
+			}
+			
 		}
 		anzeigen.drawString(""+block);
 		this.block=block;
