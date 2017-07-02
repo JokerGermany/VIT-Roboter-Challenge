@@ -102,16 +102,16 @@ public class BarcodeScanner
 				//anzeigen.drawString(""+this.erkenneFarbe(dunkel));
 	      //dunkel=gegenTeilString(dunkel);
 	//			this.dunkel=this.gegenTeilString(dunkel);
-				if(this.anzahlBloeckeRead!=0)
-				{
-					//this.drawString("Blocke "+myLineReader.anzahlBloeckeRead);
-					this.convertiereStrichcode(this.dunkel, this.anzahlBloeckeRead);
-				}
-				else
-				{
+//				if(this.anzahlBloeckeRead!=0)
+//				{
+//					//this.drawString("Blocke "+myLineReader.anzahlBloeckeRead);
+//					this.convertiereStrichcode(this.dunkel, this.anzahlBloeckeRead);
+//				}
+//				else
+//				{
 					this.dunkel=this.berechneBlockgroesse(this.dunkel); //TODO Variante 1
 					//myLineReader.drawString(myLineReader.dunkel);
-				}
+//				}
 				if(restart && notfallPunkt==110) // => Fallback NotfallStartPunkt
 				{
 					dunkele="";
@@ -392,7 +392,7 @@ public class BarcodeScanner
 		}
 		else
 		{
-			while((anzahl > 0)) // && (dunkele.length() < 4))
+			while((anzahl > 0))// && (dunkele.length() < 4))
 			{	
 				if(dunkele.length() == 4)
 				{
