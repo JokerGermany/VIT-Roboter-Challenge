@@ -53,6 +53,11 @@ public class Fortbewegung
 		this.stoppe();
 		Delay.msDelay(500);
 		linkerMotor.startSynchronization();
+		linkerMotor.setSpeed(50);			//	setzen der Geschwindigkeit
+		linkerMotor.setAcceleration(500);	//	setzen der Beschleunigung
+		//rechterMotor.resetTachoCount();				//	Tacho-Reset unnötig, da meines wissen am Anfang des Programms sowieso 0, könnte Probleme ergeben
+		rechterMotor.setSpeed(50);			//	setzen der Geschwindigkeit
+		rechterMotor.setAcceleration(500);	//	setzen der Beschleunigung
 		linkerMotor.forward();
 		rechterMotor.forward();
 		linkerMotor.endSynchronization();
