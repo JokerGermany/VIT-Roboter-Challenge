@@ -8,8 +8,7 @@ import lejos.hardware.Sound;
  */
 
 public class BarcodeScanner
-{
-	
+{	
 	long toleranzBlock;
 	//int degreeBlock; //Wenn wir den Switch zwischen Zeit und degree nicht hätten würde wahrscheinlich long reichen
 	long block;
@@ -30,6 +29,11 @@ public class BarcodeScanner
 	String notfallDunkele;
 	boolean restart;
 		
+	/**
+	 * Konstruktor 
+	 * @param zeit ob mit Zeit oder Grad gemessen wird
+	 * @param debug true wenn Werte fürs Debugging mit ausgegeben werden sollen
+	 */
 	BarcodeScanner(boolean zeit, boolean debug)
 	{
 		this.zeit=zeit;
@@ -55,7 +59,12 @@ public class BarcodeScanner
 		return this.zeit;
 	}
 	
-	
+	/* Es werden die Vairablen Debug und Zeit weitergegeben.
+	 * Anschließend wird schwarz und weiß calibireirt bzw. die Caligrenze berechnet
+	 *Anschließend soll der Start erkannt werden. Der Startcodierung ist dabei variabel einstellbar(Aufgabe swsw)
+	 *TODO verbessern
+	 *
+	 */
 	public void scanneCode()
 	{
 		//fort= new Fortbewegung(500,50); //funktioniert nicht mehr, da keine Konstruktoren mehr von Fortbewegung gebaut werden können
@@ -103,7 +112,10 @@ public class BarcodeScanner
 		fort.stoppe();
 	}
 
-	
+	/**
+	 *Erzeugt eine Instanz der BarcodeScanner myLineReader. Ihm muss mitgegebn werden ob Zwischenwerte
+	 *ausgegebn werden sollen und ob mit Zeit oder Grad gemessen werden soll
+	 */
 	public static void main(String[] args)
 	{	
 		boolean debug = true;

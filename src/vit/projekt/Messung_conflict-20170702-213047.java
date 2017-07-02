@@ -60,10 +60,6 @@ public class Messung
 		return this.caliGrenze;
 	}
 	
-	/**
-	 * Scannt den ersten Wert
-	 * @return 1 Scannwert (nicht gemittelt!)
-	 */
 	public float ersterScan()
 	{
 		light.fetchSample(samples, 0);
@@ -74,23 +70,11 @@ public class Messung
 		return samples[0];
 	}
 	
-	/**
-	 * Ruft die Methode ersterScan auf und fügt dem vorhandenen Scannwert einen Wert hinzu
-	 * @param letzter Wert
-	 * @ return Durchschnitt aus gescannten neuen Wert und alten Wert
-	 */
 	public float scanne(float letzterWert)
 	{
 		return (this.ersterScan()+letzterWert)/2;
 	}	
 	
-	/**
-	 * In der Variablen aktBlock wird die Zeit/Gradzahl gespeichert, die der Roboter hierfür benötgt hat
-	 * Anschließend wird der aktuelle Farbwert gemessen
-	 * was passiert weiter //TODO
-	 * @param dunkel true = schwarz
-	 * @return
-	 */
 	public long erkenneFarbe(String dunkel)
 	{
 		long aktBlock;
@@ -113,21 +97,18 @@ public class Messung
 		} 
 		else
 		{
-			while ((aktWert > (caliGrenze*weissgleich)) && Button.ENTER.isUp()) //Beispiel: caliGrenze*0.7 bei 1cm.
+			while ((aktWert > (caliGrenze*weissgleich)) && Button.ENTER.isUp()) //Beispiel: caliGrenze*0.7 bei 1cm
 			{
 				aktWert = this.scanne(aktWert);
-				// fort.fahre;
 			}
 			//anzeigen.drawString("erkenneWeiss");
-			//Sound.beep();
 		}
-		if(debug)
-		{
-			//anzeigen.drawString("AktWert: " + aktWert);
-		}
-		// timeBlock += System.nanoTime(); // Wird in der Methode erkenne start
-		// gemacht
-		// return new Rueckgabe(aktWert, timeBlock);
+		
+//		if(debug)
+//		{
+//			anzeigen.drawString("AktWert: " + aktWert);
+//		}
+		
 		if(this.zeit)
 		{
 			return aktBlock + System.currentTimeMillis();
@@ -136,22 +117,13 @@ public class Messung
 		{	
 			return aktBlock + fort.getTachoCount();
 		}
-		//return aktDegreeBlock + this.getTachoCount();
 	}
 
 	/**
-	 * Calibriert "Hell" und "Dunkel" 
-	 * Fordert den User auf ihn auf eine helle Fläche zu stellen
-	 * Wenn Enter gedrückt wird, wird nun der Farbwert der Fläche genommen. 
-	 * Wenn Enter losgelassen wird folgt die Aufforderung für schwarz und es folgt das Gleiche Prozedere
-	 * 
-	 * Es folgt die Aufforderung ihn an den Start zu stellen, wenn schwarz und weiß gemessen worden sind
+	 * Calibriert "Hell" und "Dunkel"
 	 */
 	public void calibrate()
 	{
-		//float samples[] = new float[light.sampleSize()]; // wird in dieser
-														// Methode mehrfach
-														// verwendet
 		float caliHell ;
 		float caliDunkel;
 		// Ab hier wird losgemessen
@@ -167,20 +139,9 @@ public class Messung
 			/*
 			 * While schleife wird durch die Methode scannen ersetzt
 			 */
-			// while (sample[0]==0 || caliHell==2) //TODO: Nice to have: abfangen
-			// wenn Hell abgefragt aber auf dunkel gestellt
-			// {
-			// light.fetchSample(sample, 0);
-			// caliHell = sample[0];
-			// //Delay.msDelay(5000);
-			// }
 			anzeigen.drawString("HelleFläche: " + caliHell);
-			// Delay.msDelay(5000); //TODO KILLME
 			while (Button.ENTER.isDown()); // verhindert das Hell und Dunkel gleichzeitig gesetzt werden
 			anzeigen.clearLCD();
-			// TODO Wenn nicht zufrieden ESC drücken und Methode neu aufrufen, sonst
-			// ENTER
-			// Delay.msDelay(5000); //TODO KILLME
 			anzeigen.drawString("Dunkle Fleche stellen");
 			anzeigen.drawString("druecken sie ENTER");
 			while (Button.ENTER.isUp());
@@ -189,14 +150,6 @@ public class Messung
 			/*
 			 * While schleife wird durch die Methode scannen ersetzt
 			 */
-			// while (sample[0]==0 || caliDunkel==2) //TODO: Nice to have: abfangen
-			// wenn Dunkel abgefragt aber auf hell gestellt
-			// {
-			// light.fetchSample(sample, 0);
-			// caliDunkel = sample[0];
-			// //Delay.msDelay(5000);
-			// }
-			//LCD.clear();
 			anzeigen.drawString("Hell: " + caliHell);
 			anzeigen.drawString("Dunkel: " + caliDunkel);
 			caliGrenze = caliDunkel + ((caliHell - caliDunkel) / 2); // Achtung,
@@ -215,12 +168,6 @@ public class Messung
 		}	
 	}
 	
-	/**
-	 * Wenn der Start mit schwarz beginnt müsste der Scanner auf weiß stehen.
-	 * Er Scannt den aktuellen Wert. Wenn er einen flaschen Wert erhält fordert er seinen Herren auf
-	 * ihn auf die richtige Stelle. Durch Enter wird nach einer kurzen Wartezeit erneut geprüft
-	 * @param dunkel ob er auf weiß oder schwarz stehen muss
-	 */
 	public void pruefeBeginnRichtigSteht(boolean dunkel)
 	{
 		float a = this.ersterScan(); 
@@ -243,23 +190,11 @@ public class Messung
 		if(debug)
 		{
 			anzeigen.drawString("pruefeBeginnRichtigSteht bestanden");
-		}
-		//LENNI: Einfach schwarz erkennen; fährt bis weiß und los gehts.		
+		}		
 	}
 	
 	/**
-	 * Wenn die erste Linie des Starts schwarz ist muss der Roboter auf weiß stehen [Wird geprüft]
-	 * Wenn eine der Strecken falsch mit der Länge 0 zurück gegeben wird, fährt der Roboter zurück und versucht es erneut.
-	 * Hier ist drauf zu achten, dass der Roboter am Anfang möglichst gerade steht.
-	 * Im Attribut block wird nun die Zeit vom ersten Block mit der Zeit bis zum erkennen von dem 3. Blocken addiert
-	 * Anschließend wird eine Tolleranz von 25% daraus errechnet 
-	 * Weiterhin wird hier berechnet, ob der Messraum für weiß oder Schwarz vergrößert werden muss.
-	 * Pauschal kann man sagen: 
-	 * Um so größer die Blöcke sind, umso mehr weiß wird gemessen, sodass schwarzgleich angepasst werden muss.
-	 * Um so kleiner die Blocke sind, umso mehr wird schwarz gemessen, sodass weissgleich angepasst werden muss.
-	 * 
-	 * @param Der übergebende String muss genau die Länge vier besitzen, da der Start aus vier Flächen besteht. 
-	 * Er muss aus den Zeichen 0 (weiß) oder 1 (schwarz) bestehen.
+	 * Soll den Start erkennen und die Abstände eines Blockes calibrieren.
 	 */
 	public String erkenneStart(String startString)//startString = z.b. 1010
 	{		
@@ -363,6 +298,7 @@ public class Messung
 				}	
 			}
 		}	
+		// TODO ist Integer/long gut? denk dran Nachkommastellen werden abgeschnitten
 		if(this.zeit)
 		{
 			block = (block + System.currentTimeMillis())/3;
@@ -371,10 +307,11 @@ public class Messung
 		{	
 			block = (block + fort.getTachoCount()) / 3; 
 		}
+		
 		if(schwarz<weiss && schwarz2 <weiss) //< wegen Messungenauigkeiten
 		{
 			this.schwarzgleich = (float) schwarz / (float) weiss; //TODO herausfinden ob Cast to float Nebenwirkungen hat
-			//float schwarzgleich2 = (float) schwarz2 / (float) weiss; zu hohe Nebenwirkungen
+			//float schwarzgleich2 = (float) schwarz2 / (float) weiss; zu hohe Nebenwirkungen, Werte zu "scharf"
 			if(debug)
 			{
 				anzeigen.drawString("W:"+weiss+" S:"+schwarz);
