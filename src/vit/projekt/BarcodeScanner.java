@@ -56,20 +56,13 @@ public class BarcodeScanner
 		return this.zeit;
 	}
 	
-	public void warte(int sekunden, String text)
-	{
-		anzeigen.clearLCD();
-		anzeigen.drawString(text+" in "+sekunden+" Sekunden",3);
-		Delay.msDelay(sekunden*1000); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
-		anzeigen.clearLCD();		
-	}
 	
 	public void scanneCode()
 	{
 		//fort= new Fortbewegung(500,50);
 		messen.setDebugUndZeit(this.debug, this.zeit);
 		messen.calibrate();
-		this.warte(3,"Starte");
+		anzeigen.warte(3,"Starte");
 		restart=true;
 		this.dunkel = messen.erkenneStart("1010");
 		//restart = false; // TODO rausnehmen!

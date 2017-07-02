@@ -1,6 +1,7 @@
 package vit.projekt;
 
 import lejos.hardware.lcd.LCD;
+import lejos.utility.Delay;
 
 public class Anzeige
 {
@@ -23,6 +24,13 @@ public class Anzeige
 		    return InstanceHolderA.INSTANCE;
 		  }
 
+	public void warte(int sekunden, String text)
+	{
+		this.clearLCD();
+		this.drawString(text+" in "+sekunden+" Sekunden",3);
+		Delay.msDelay(sekunden*1000); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
+		this.clearLCD();		
+	}	  
 	
 	public void clearLCD()
 	{

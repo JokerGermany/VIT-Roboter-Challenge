@@ -221,7 +221,7 @@ public class Messung
 		{	
 			anzeigen.drawString("und ENTER drücken");
 			while (Button.ENTER.isUp());
-			myLineReaderM.warte(3,"Pruefe");
+			anzeigen.warte(3,"Pruefe");
 			this.pruefeBeginnRichtigSteht(dunkel);
 		}
 		if(debug)
