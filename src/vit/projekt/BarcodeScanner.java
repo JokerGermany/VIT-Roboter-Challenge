@@ -392,7 +392,7 @@ public class BarcodeScanner
 		}
 		else
 		{
-			while((anzahl > 0) && (dunkele.length() < 4))
+			while((anzahl > 0)) // && (dunkele.length() < 4))
 			{	
 				if(dunkele.length() == 4)
 				{
