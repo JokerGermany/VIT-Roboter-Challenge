@@ -17,7 +17,7 @@ public class Messung
 	boolean zeit;
 	long block;
 	float weissgleich=1; //wird bei erkenneStart kalibriert
-	float schwarzgleich=1; //0.962618wird bei erkenneStart kalibriert
+	float schwarzgleich=1; //wird bei erkenneStart kalibriert
 	
 	//Gewünscht ist genau eine Instanz der Klasse Fortbewegung, da sonst die Fehlermeldung "Port Open" angezeigt wird. //TODO potenzieller Flaschenhals?
 	  // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton
@@ -35,7 +35,7 @@ public class Messung
 		  light = new EV3ColorSensor(SensorPort.S4);
 		  light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
 		  myLineReaderM = new BarcodeScanner(zeit,debug);
-		  //this.zeit=myLineReaderM.getZeit();
+		  //this.zeit=myLineReaderM.getZeit(); //funktioniert nicht, da es scheinbar mehrere Instanzen von BarcodeScanner gibt...
 		  //this.debug=myLineReaderM.getDebug();				  
 	  }
 	  // Eine nicht synchronisierte Zugriffsmethode auf Klassenebene.
@@ -86,46 +86,29 @@ public class Messung
 		{	
 			aktBlock = -fort.getTachoCount();
 		}
-		// //LCD.clear();
-		// long timeBlock= -System.nanoTime();
+		// long timeBlock= -System.nanoTime(); //verursacht astronomische Zahlen, die so genau gar nicht sein müssen. TODO Dank Mikrosekunden reich vielleicht auch int?
 		float aktWert = this.ersterScan();
 		if (dunkel.equals("1"))
 		{
 			while (aktWert < (caliGrenze*schwarzgleich) && Button.ENTER.isUp())
 			{
 				aktWert = this.scanne(aktWert);
-				// fort.fahre;
 			}
-			//anzeigen.drawString("erkenneSchwarz");
 		} 
 		else
 		{
-			//Grenze für weiß erhöht, da sonst zu schnell schwarz erkannt wird
-			//while (aktWert > (caliGrenze-(caliGrenze/2)) && Button.ENTER.isUp()) // TODO: An die Blockgröße anpassen - Wird bei 2cm nicht benötigt!
-			while ((aktWert > (caliGrenze*weissgleich)) && Button.ENTER.isUp()) //(caliGrenze*0.7)
+			while ((aktWert > (caliGrenze*weissgleich)) && Button.ENTER.isUp()) //Beispiel: caliGrenze*0.7 bei 1cm
 			{
 				aktWert = this.scanne(aktWert);
-				// fort.fahre;
 			}
 			//anzeigen.drawString("erkenneWeiss");
-			//Sound.beep();
 		}
-		/*
-		 * Crazy Schleife welche aus 2 Schleifen eine Schleife machen würde,
-		 * aber relativ kompliziert ist. float wert1; float wert2;
-		 * if(dunkel==true) { wert1 = aktWert; wert2 = caliGrenze;
-		 * LCD.drawString("erkenneSchwarz",0,0); } else { wert1 = caliGrenze;
-		 * wert2 = aktWert; LCD.drawString("erkenneWeiß",0,0); } while(wert1 <
-		 * wert2) //aktWert < caliGrenze - schwarz //caliGrenze < aktWert - weiß
-		 * { aktWert = this.scanne(); LCD.drawString("AktWert: "+aktWert,0,1); }
-		 */
-		if(debug)
-		{
-			//anzeigen.drawString("AktWert: " + aktWert);
-		}
-		// timeBlock += System.nanoTime(); // Wird in der Methode erkenne start
-		// gemacht
-		// return new Rueckgabe(aktWert, timeBlock);
+		
+//		if(debug)
+//		{
+//			anzeigen.drawString("AktWert: " + aktWert);
+//		}
+		
 		if(this.zeit)
 		{
 			return aktBlock + System.currentTimeMillis();
@@ -134,14 +117,13 @@ public class Messung
 		{	
 			return aktBlock + fort.getTachoCount();
 		}
-		//return aktDegreeBlock + this.getTachoCount();
 	}
 
+	/**
+	 * Calibriert "Hell" und "Dunkel"
+	 */
 	public void calibrate()
 	{
-		//float samples[] = new float[light.sampleSize()]; // wird in dieser
-														// Methode mehrfach
-														// verwendet
 		float caliHell ;
 		float caliDunkel;
 		// Ab hier wird losgemessen
@@ -157,20 +139,9 @@ public class Messung
 			/*
 			 * While schleife wird durch die Methode scannen ersetzt
 			 */
-			// while (sample[0]==0 || caliHell==2) //TODO: Nice to have: abfangen
-			// wenn Hell abgefragt aber auf dunkel gestellt
-			// {
-			// light.fetchSample(sample, 0);
-			// caliHell = sample[0];
-			// //Delay.msDelay(5000);
-			// }
 			anzeigen.drawString("HelleFläche: " + caliHell);
-			// Delay.msDelay(5000); //TODO KILLME
 			while (Button.ENTER.isDown()); // verhindert das Hell und Dunkel gleichzeitig gesetzt werden
 			anzeigen.clearLCD();
-			// TODO Wenn nicht zufrieden ESC drücken und Methode neu aufrufen, sonst
-			// ENTER
-			// Delay.msDelay(5000); //TODO KILLME
 			anzeigen.drawString("Dunkle Fleche stellen");
 			anzeigen.drawString("druecken sie ENTER");
 			while (Button.ENTER.isUp());
@@ -179,14 +150,6 @@ public class Messung
 			/*
 			 * While schleife wird durch die Methode scannen ersetzt
 			 */
-			// while (sample[0]==0 || caliDunkel==2) //TODO: Nice to have: abfangen
-			// wenn Dunkel abgefragt aber auf hell gestellt
-			// {
-			// light.fetchSample(sample, 0);
-			// caliDunkel = sample[0];
-			// //Delay.msDelay(5000);
-			// }
-			//LCD.clear();
 			anzeigen.drawString("Hell: " + caliHell);
 			anzeigen.drawString("Dunkel: " + caliDunkel);
 			caliGrenze = caliDunkel + ((caliHell - caliDunkel) / 2); // Achtung,
@@ -227,10 +190,12 @@ public class Messung
 		if(debug)
 		{
 			anzeigen.drawString("pruefeBeginnRichtigSteht bestanden");
-		}
-		//LENNI: Einfach schwarz erkennen; fährt bis weiß und los gehts.		
+		}		
 	}
 	
+	/**
+	 * Soll den Start erkennen und die Abstände eines Blockes calibrieren.
+	 */
 	public String erkenneStart(String startString)//startString = z.b. 1010
 	{		
 		long schwarz=0;
@@ -319,31 +284,6 @@ public class Messung
 					//anzeigen.drawString(startString.substring(i, i+1));
 					anzeigen.drawString("Strecke: " +strecke);
 				}
-			/*if(i==3)//Nach dem 3. Durchgang (Die 0 zählt mit!) Zeitmessung stoppen
-			{
-				/*if(debug)
-				{
-					anzeigen.drawString("Block:" + block);
-					if(this.zeit)
-					{
-						anzeigen.drawString("GesamtStr:" + (System.currentTimeMillis() - Streckenanfang));
-					}
-					else
-					{	
-						anzeigen.drawString("GesamtStr:" + (this.getTachoCount() - Streckenanfang));
-					}
-				}*/
-				// TODO ist Integer/long gut? denk dran Nachkommastellen werden abgeschnitten
-				
-				
-				// Toleranz von einem 1/4.
-				/*if(debug)
-				{
-					anzeigen.drawString("Toleranz:" + toleranzBlock); TODO reinnehmen
-					LCD.drawString("TBlock: "+ergebnis3.timeBlock,0,2);
-					while (Button.ENTER.isUp());
-				}
-			}*/
 			}
 			if(restart)
 			{
@@ -358,6 +298,7 @@ public class Messung
 				}	
 			}
 		}	
+		// TODO ist Integer/long gut? denk dran Nachkommastellen werden abgeschnitten
 		if(this.zeit)
 		{
 			block = (block + System.currentTimeMillis())/3;
@@ -366,10 +307,11 @@ public class Messung
 		{	
 			block = (block + fort.getTachoCount()) / 3; 
 		}
+		
 		if(schwarz<weiss && schwarz2 <weiss) //< wegen Messungenauigkeiten
 		{
 			this.schwarzgleich = (float) schwarz / (float) weiss; //TODO herausfinden ob Cast to float Nebenwirkungen hat
-			//float schwarzgleich2 = (float) schwarz2 / (float) weiss; zu hohe Nebenwirkungen
+			//float schwarzgleich2 = (float) schwarz2 / (float) weiss; zu hohe Nebenwirkungen, Werte zu "scharf"
 			if(debug)
 			{
 				anzeigen.drawString("W:"+weiss+" S:"+schwarz);

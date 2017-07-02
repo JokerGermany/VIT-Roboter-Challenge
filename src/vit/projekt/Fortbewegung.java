@@ -94,7 +94,7 @@ public class Fortbewegung
 		linkerMotor.flt();
 		rechterMotor.flt();
 		linkerMotor.endSynchronization(); //hier stoppen die Motoren
-		//Motor.A.stop();
+		//Motor.A.stop(); //Stoppt zu Ruckartig und könnte dazu führen, dass die Fahrtrichtung (leicht) verändert wird.
 		//Motor.D.stop();
 	}
 	
@@ -106,7 +106,7 @@ public class Fortbewegung
 		return (linkerMotor.getTachoCount()*-1); 
 		//return (Motor.A.getTachoCount()*-1); 
 	}
-	public int getNegTachoCount()
+	public int getNegTachoCount() //Wird für den Notfallalgorithmus benutzt
 	{
 		return linkerMotor.getTachoCount(); 
 		//return (Motor.A.getTachoCount()*-1); 

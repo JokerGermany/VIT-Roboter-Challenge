@@ -2,7 +2,6 @@ package vit.projekt;
 
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
-import lejos.utility.Delay;
 
 /*
  * 0,0527777777778 cm/°
@@ -59,13 +58,14 @@ public class BarcodeScanner
 	
 	public void scanneCode()
 	{
-		//fort= new Fortbewegung(500,50);
+		//fort= new Fortbewegung(500,50); //funktioniert nicht mehr, da keine Konstruktoren mehr von Fortbewegung gebaut werden können
 		messen.setDebugUndZeit(this.debug, this.zeit);
 		messen.calibrate();
 		anzeigen.warte(3,"Starte");
 		restart=true;
 		this.dunkel = messen.erkenneStart("1010");
-		//restart = false; // TODO rausnehmen!
+		//this.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
+		//restart = false; // TODO rausnehmen! Nützlich wenn man nur erkenneStart testen will
 		while(restart && Button.ESCAPE.isUp()) //TODO 
 		{
 			this.notfallStartPunkt = fort.getNegTachoCount();
@@ -78,18 +78,15 @@ public class BarcodeScanner
 			//Fortbewegung fort = new Fortbewegung(500,50);
 			while(!this.ziel && !restart && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
 			{	
-				//myLineReader.dunkel=myLineReader.berechneBlockgroesse(myLineReader.dunkel);
-				//anzeigen.drawString(""+this.erkenneFarbe(dunkel));
-	      //dunkel=gegenTeilString(dunkel);
-	//			this.dunkel=this.gegenTeilString(dunkel);
-//				if(this.anzahlBloeckeRead!=0)
+//				if(this.anzahlBloeckeRead!=0) //anzahlBloeckeRead sollte nicht mehr gebraucht werden.
 //				{
 //					//this.drawString("Blocke "+myLineReader.anzahlBloeckeRead);
 //					this.convertiereStrichcode(this.dunkel, this.anzahlBloeckeRead);
 //				}
 //				else
 //				{
-					this.dunkel=this.berechneBlockgroesse(this.dunkel); //TODO Variante 1
+					this.dunkel=this.berechneBlockgroesse(this.dunkel); //Variante 1, die Zaehler nicht nutzt
+					//anzeigen.drawString(""+this.suche(block, startString.substring(3).equals("1"))); //TODO Variante 2
 					//myLineReader.drawString(myLineReader.dunkel);
 //				}
 				if(restart && notfallPunkt==110) // => Fallback NotfallStartPunkt
@@ -112,179 +109,11 @@ public class BarcodeScanner
 		boolean debug = true;
 		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
 		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
-		//fort = new Fortbewegung(500,50);
-		myLineReader.scanneCode();
+		//fort = new Fortbewegung(500,50); //funktioniert nicht mehr, da keine Konstruktoren mehr von Fortbewegung gebaut werden können
+		myLineReader.scanneCode();	
 		
-				
-		//myLineReader.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
-		//LCD.clear();
-		//myLineReader.antiRecursion();
-		//anzeigen.drawString(""+this.suche(block, startString.substring(3).equals("1"))); //TODO Variante 2
-		
-		
-		//34
-		//35
-		//31
-		//  Steueung 15
-		
-		
-		
-		//fort.stoppe(); TODO rausnehmen, wenn nicht mehr benötigt.
-		//myLineReader.drawString("Fertig");
-		
-		while (Button.ESCAPE.isUp()); // TODO KILLME
-		//LCD.clear();
+		while (Button.ESCAPE.isUp()); // Ohne dies wird am Ende der "Gewinncode" nicht angezeigt!
 	}
-	/*public void berechneStartBlockgroesse()
-	{
-		int anzahlBloecke=this.berechneBlockgroesse(false);
-		if(anzahlBloecke==1)
-		{
-			//berechneBlockgroesse(true); //TODO Nach Test einkommentieren
-			anzeigen.drawString("Weiss nur Start");
-		}
-		else
-		{
-			anzeigen.drawString(+(anzahlBloecke-1)+" Bloecke weiss");
-			if((anzahlBloecke-1) > 3)
-			{
-				//0
-			}
-		}	
-		this.start=false;
-	}*/
-	
-		
-		/* TODO Müll entfernen wenn sicher ist, dass es müll ist
-		 
-		 if(debug)
-		{
-// Der 4. Block des Starts (weiß) beginnt hoffentlich hier
-			// Rueckgabe ergebnis4 = this.erkenneFarbe(false);
-			anzeigen.drawString("AktWert: " + this.erkenneFarbe(false));
-			// LCD.drawString("TBlock: "+ergebnis4.timeBlock,0,2);
-			// while (Button.ENTER.isUp());
-		}
-		else
-		{
-// Der 4. Block des Starts (weiß) beginnt hoffentlich hier
-			this.erkenneFarbe(false);
-		}
-		/*
-		 * TODO Ende Methode entwickeln
-		 */
-	
-	
-	
-	
-	
-	/*
-	 * light.fetchSample(samples, 0);
-		float rueckgabeWert=0;
-		//for(float sample: samples)
-		for(int i = 0; i < samples.length; i++)
-		{	
-			while (samples[i] == 0)
-			{
-				light.fetchSample(samples, i);
-			}
-			rueckgabeWert += samples[i];
-		}	
-		return rueckgabeWert / samples.length;
-		*/
-
-	
-
-	
-	
-	/**
-	 * Calibriert "Hell" und "Dunkel" TODO Kontrollieren
-	 */
-	
-	
-// String Methoden beginnen hier
-	
-	//public void antiRecursion()
-	//{
-//		String dunkel = this.erkenneStart("1010");
-//		int i = 0;
-//		while(i < 10 && Button.ESCAPE.isUp()) //(this.ziel!=true && Button.ESCAPE.isUp())
-//		{	
-//			dunkel=this.berechneBlockgroesse(dunkel);
-////		anzeigen.drawString(""+this.erkenneFarbe(dunkel));
-////		dunkel=gegenTeilString(dunkel);
-////			this.dunkel=this.gegenTeilString(dunkel);
-////			/*if(this.anzahlBloeckeRead!=0)
-////			{
-////				anzeigen.drawString("Blocke "+this.anzahlBloeckeRead);
-////				this.anzahlBloeckeRead=this.convertiereStrichcode(this.dunkel, this.anzahlBloeckeRead);
-////			}
-////			else
-////			{
-//				//test=this.berechneBlockgroesse(test); //TODO Variante 1
-////				anzeigen.drawString(""+test);
-////			}*/
-//			i++;
-//		}
-	//}
-	
-	/*
-	 * ersetzt durch erkenneFarbe
-	 * 
-	 * 
-	 * public Rueckgabe erkenneSchwarz() { //LCD.clear(); long timeBlock=
-	 * -System.nanoTime(); float aktWert = this.scanne(); while(aktWert <
-	 * caliGrenze && Button.ENTER.isUp()) //schwarz { aktWert = this.scanne();
-	 * //fort.fahre; LCD.drawString("erkenneSchwarz",0,0);
-	 * LCD.drawString("AktWert: "+aktWert,0,1); } //Sound.beep();
-	 * //Sound.beep(); timeBlock += System.nanoTime(); //Object[] rueckgabe = {
-	 * aktWert, timeBlock}; //return rueckgabe; return new Rueckgabe(aktWert,
-	 * timeBlock); } /**
-	 * 
-	 * 
-	 * //public float erkenneWeiß() old public Rueckgabe erkenneWeiß() {
-	 * //LCD.clear(); long timeBlock= -System.nanoTime(); float aktWert =
-	 * this.scanne(); while(aktWert > caliGrenze && Button.ENTER.isUp()) //weiß
-	 * { aktWert = this.scanne(); //fort.fahre;
-	 * LCD.drawString("erkenneWeiss",0,0);
-	 * LCD.drawString("AktWert: "+aktWert,0,1); } //Sound.beep(); timeBlock +=
-	 * System.nanoTime(); //Object[] rueckgabe = { aktWert, timeBlock}; //return
-	 * rueckgabe; return new Rueckgabe(aktWert, timeBlock); }
-	 */
-	/**
-	 * Soll den Start erkennen und die Abstände eines Blockes calibrieren.
-	 * Probleme hierbei könnte die Startlinie machen
-	 */
-	
-		/*		
-		if(debug)
-		{
-// Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier			
-			anzeigen.drawString("Strecke: " + this.erkenneFarbe("1"));
-			// aktWert = (this.erkenneSchwarz())[0]; Funktioniert in Java leider
-			// LCD.drawString("TBlock: "+ergebnis1.timeBlock,0,2);
-			// while (Button.ENTER.isUp());
-// Der 2. Block des Starts (weiß) beginnt hoffentlich hier
-			// Rueckgabe ergebnis2 = this.erkenneFarbe(false);
-			anzeigen.drawString("Strecke: " + this.erkenneFarbe("0"));
-			// LCD.drawString("TBlock: "+ergebnis2.timeBlock,0,2);
-			// while (Button.ENTER.isUp());
-// Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
-			// Rueckgabe ergebnis3 = this.erkenneFarbe(true);
-			anzeigen.drawString("Strecke: " + this.erkenneFarbe("1"));
-		}
-		else
-		{
-// Der 1. Block des Starts (Schwarz) beginnt hoffentlich hier	
-			this.erkenneFarbe("1");
-// Der 2. Block des Starts (weiß) beginnt hoffentlich hier
-			//anzeigen.drawString(""); //FIXME Ohne das hier keine erkenneWeiß auf dem Display oO
-			this.erkenneFarbe("0");			
-// Der 3. Block des Starts (schwarz) beginnt hoffentlich hier
-			this.erkenneFarbe("1");
-		}*/		
-		
-	
 	
 	
 	public int dunkeleAuswerten(String volldunkele)
@@ -339,6 +168,7 @@ public class BarcodeScanner
 				anzeigen.drawString(strichcode, 4);
 				this.ziel=true; // TODO herausbekommen, warum es nicht funktioniert
 				Sound.beep();
+				anzeigen.drawString("Fertig",7);
 				
 			}
 			else
@@ -366,7 +196,7 @@ public class BarcodeScanner
 		else
 		{	
 			while(anzahl>0)
-			//for(int i=0; i < anzahl;i++)
+			for(int i=0; i < anzahl;i++)
 			{
 				dunkele+=dunkel;
 				anzahl--;
@@ -391,7 +221,7 @@ public class BarcodeScanner
 		{
 			while((anzahl > 0))// && (dunkele.length() < 4))
 			{	
-				//if(dunkele.length() > 3)
+				//if(dunkele.length() > 3) //nicht mehr nötig, da dunkele jetzt bis zu 8 Zahlen enthalten kann
 				//{
 				//	anzeigen.drawString(dunkele);
 				//	dunkeleUebertragen(dunkele);
@@ -405,7 +235,7 @@ public class BarcodeScanner
 				anzeigen.drawString(dunkele);
 				dunkeleUebertragen(dunkele);
 			}
-//			if(anzahl > 0)
+//			if(anzahl > 0) //nicht mehr nötig, da dunkele jetzt bis zu 8 Zahlen enthalten kann
 //			{
 //				this.dunkel=dunkel;
 //				this.anzahlBloeckeRead=anzahl;
@@ -432,13 +262,6 @@ public class BarcodeScanner
 	
 	public String berechneBlockgroesse(String dunkel)
 	{	
-		/*Fahr zu Anfang weiß
-Strecke entspricht x
-finde n, für das gilt:
-nBlockgröße < x < nBlockgröße + Toleranz
-Sag wie viele Blöcke dieselbe Farbe hatten
-Miss den nächsten Block (andere Farbe) genau so
-Finde Ende*/
 		long aktStrecke = messen.erkenneFarbe(dunkel);
 		if(aktStrecke < (block-toleranzBlock)) // Fehler
 		{
