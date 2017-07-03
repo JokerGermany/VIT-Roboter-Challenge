@@ -84,7 +84,7 @@ public class BarcodeScanner
 			block = messen.getBlock();
 			toleranzBlock = block / 4; // 1/4 Toleranz
 			//Fortbewegung fort = new Fortbewegung(500,50);
-			fort.setMaxSpeed(100);
+			fort.setMaxSpeed(500,100);
 			while(!this.ziel && !restart && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
 			{	
 //				if(this.anzahlBloeckeRead!=0) //anzahlBloeckeRead sollte nicht mehr gebraucht werden.

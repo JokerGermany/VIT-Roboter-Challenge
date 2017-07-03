@@ -36,11 +36,11 @@ public class Fortbewegung
 	    return InstanceHolderF.INSTANCE;
 	  }
 	
-	  public void setMaxSpeed(int geschwindigkeit)
+	  public void setMaxSpeed(int beschleunigung, int geschwindigkeit)
 	  {
 		    linkerMotor.startSynchronization();
-	     	rechterMotor.setAcceleration(500); //evtl. nicht benötigt
-	     	linkerMotor.setAcceleration(500);
+	     	rechterMotor.setAcceleration(beschleunigung); //evtl. nicht benötigt
+	     	linkerMotor.setAcceleration(beschleunigung);
 	     	rechterMotor.setSpeed(geschwindigkeit);	
 	     	linkerMotor.setSpeed(geschwindigkeit);	
 	     	linkerMotor.endSynchronization();
