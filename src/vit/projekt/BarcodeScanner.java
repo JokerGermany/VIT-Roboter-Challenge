@@ -79,7 +79,7 @@ public class BarcodeScanner
 			this.notfallStartPunkt = fort.getNegTachoCount();
 			start=true;
 			restart=false;
-			String notfallDunkel=this.dunkel;
+			notfallDunkel=this.dunkel;
 			dunkele="";
 			block = messen.getBlock();
 			toleranzBlock = block / 4; // 1/4 Toleranz
