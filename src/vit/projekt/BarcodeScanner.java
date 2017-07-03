@@ -154,7 +154,7 @@ public class BarcodeScanner
 		while (dunkele.length()>3)
 		{	
 			int strichcodeZahl=110; //Case Error...
-			if (dunkele.length() > 3)
+			if (dunkele.length() > 4)
 			{
 				strichcodeZahl=dunkeleAuswerten(dunkele.substring(0,4));
 				dunkele=dunkele.substring(4);
