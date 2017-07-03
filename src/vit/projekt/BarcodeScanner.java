@@ -311,7 +311,7 @@ public class BarcodeScanner
 				}	
 				anzahlBloecke--;
 				//"Overhead" weitergeben
-				convertiereStrichcode(dunkel, (anzahlBloecke-1));
+				convertiereStrichcode(dunkel, (anzahlBloecke));
 				this.start=false;
 			}	
 			else if(anzahlBloecke<1)
