@@ -167,7 +167,7 @@ public class BarcodeScanner
 		//int strichcodeZahl = dunkeleAuswerten(volldunkele);
 			if( strichcodeZahl < 10 )
 			{
-				strichcode += " "+strichcodeZahl; //hinten?
+				strichcode += strichcodeZahl; //hinten?
 				this.notfallPunkt=fort.getNegTachoCount();
 				this.notfallDunkel=gegenTeilString(dunkel);
 				this.notfallDunkele=dunkele;
