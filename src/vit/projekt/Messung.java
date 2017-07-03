@@ -270,6 +270,7 @@ public class Messung
 		{
 			anzeigen.drawString("Es werden genau 4 Werte benötigt",3);
 			anzeigen.drawString("ESC zum beenden",4);
+			while (Button.ESCAPE.isUp());
 			System.exit(1);
 		}
 		if(startString.substring(0, 1).equals("1"))
@@ -284,6 +285,7 @@ public class Messung
 		{
 			anzeigen.drawString("Nur 0 oder 1",3);
 			anzeigen.drawString("ESC zum beenden",4);
+			while (Button.ESCAPE.isUp());
 			System.exit(1);
 		}
 		long block=0; //block MUSS auf jedenfall gesetzt werden!
