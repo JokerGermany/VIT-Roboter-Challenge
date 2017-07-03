@@ -201,7 +201,7 @@ public class BarcodeScanner
 			strichcode+="0";
 			if((anzahl -= 4) != 0)
 			{
-				this.convertiereStrichcode(dunkel, anzahl);
+				this.konvertiereStrichcode(dunkel, anzahl);
 			}				
 		}
 		else
@@ -215,7 +215,7 @@ public class BarcodeScanner
 		}
 	}
 	
-	public void convertiereStrichcode(String dunkel, int anzahl)
+	public void konvertiereStrichcode(String dunkel, int anzahl)
 	{		
 		//anzeigen.drawString("F:"+dunkel+" A:"+anzahl);
 		if(dunkele.isEmpty()) // Wenn strichcode leer ist
@@ -308,7 +308,7 @@ public class BarcodeScanner
 				}	
 				anzahlBloecke--;
 				//"Overhead" weitergeben
-				convertiereStrichcode(dunkel, (anzahlBloecke));
+				konvertiereStrichcode(dunkel, (anzahlBloecke));
 				this.start=false;
 			}	
 			else if(anzahlBloecke<1)
@@ -332,7 +332,7 @@ public class BarcodeScanner
 		}
 		else
 		{
-			convertiereStrichcode(dunkel, anzahlBloecke);
+			konvertiereStrichcode(dunkel, anzahlBloecke);
 			//berechneBlockgroesse(gegenTeilString(dunkel)); Stackoverflow-Vermeidung
 		}
 		return gegenTeilString(dunkel);
