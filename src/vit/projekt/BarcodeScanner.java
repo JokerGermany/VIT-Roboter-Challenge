@@ -68,7 +68,7 @@ public class BarcodeScanner
 	{
 		//fort= new Fortbewegung(500,50); //funktioniert nicht mehr, da keine Konstruktoren mehr von Fortbewegung gebaut werden können
 		messen.setDebugUndZeit(this.debug, this.zeit);
-		messen.calibrate();
+		messen.kalibriere();
 		anzeigen.warte(3,"Starte");
 		restart=true;
 		this.dunkel = messen.erkenneStart("1010");

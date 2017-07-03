@@ -147,7 +147,7 @@ public class Messung
 	 * 
 	 * Es folgt die Aufforderung ihn an den Start zu stellen, wenn schwarz und weiß gemessen worden sind
 	 */
-	public void calibrate()
+	public void kalibriere()
 	{
 		//float samples[] = new float[light.sampleSize()]; // wird in dieser
 														// Methode mehrfach
