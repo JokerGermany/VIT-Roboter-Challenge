@@ -15,7 +15,7 @@ public class Messung
 	float caliGrenze; // Pauschal: 0 schwarz, 1 weiß
 	boolean debug;
 	boolean zeit;
-	long block;
+	long block=0; //block muss auf jedenfall gesetzt sein!
 	float weissgleich=1; //wird bei erkenneStart kalibriert
 	float schwarzgleich=1; //wird bei erkenneStart kalibriert
 	
@@ -288,9 +288,7 @@ public class Messung
 			anzeigen.drawString("ESC zum beenden",4);
 			while (Button.ESCAPE.isUp());
 			System.exit(1);
-		}
-		long block=0; //block MUSS auf jedenfall gesetzt werden!
-		
+		}		
 			if(startString.substring(0, 1).equals("1"))
 			{	
 				fort.fahre();
@@ -396,7 +394,6 @@ public class Messung
 			
 		}
 		anzeigen.drawString(""+block);
-		this.block=block;
 		return startString.substring(3);	
 	}
 }
