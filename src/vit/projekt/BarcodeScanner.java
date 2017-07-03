@@ -186,7 +186,7 @@ public class BarcodeScanner
 			{
 				//Fehler - fahre zurück zum Notfallpunkt...
 				anzeigen.drawString("Verzeihe mir Meister"); 
-				this.dunkel=notfallDunkel;
+				notfallDunkel=this.dunkel;
 				this.notfallDunkele=dunkele;
 				fort.fahreZurueck(this.notfallPunkt);
 				this.restart=true;
