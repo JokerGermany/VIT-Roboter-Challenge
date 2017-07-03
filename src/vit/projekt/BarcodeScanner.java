@@ -17,8 +17,7 @@ public class BarcodeScanner
 	boolean start;
 	boolean ziel=false;
 	String dunkele=""; 
-	String strichcode="";  
-	int anzahlBloeckeRead;
+	String strichcode=""; 
 	String dunkel;
 	Fortbewegung fort = Fortbewegung.getInstance();
 	Anzeige anzeigen = Anzeige.getInstance();
@@ -212,9 +211,7 @@ public class BarcodeScanner
 			{
 				dunkele+=dunkel;
 				anzahl--;
-			}
-			this.anzahlBloeckeRead=anzahl; // sollte 0 sein...
-			
+			}			
 		}
 	}
 	
@@ -254,7 +251,7 @@ public class BarcodeScanner
 //			}
 //			else
 //			{
-				this.anzahlBloeckeRead=0;
+				//this.anzahlBloeckeRead=0;
 //			}
 		}
 	}
