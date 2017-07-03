@@ -320,8 +320,8 @@ public class Messung
 			}
 			for(int i = 0; i < 3; i++)
 			{	
-				long strecke = this.erkenneFarbe(startString.substring(i, i+1));
-				if(strecke==0)
+				long streckeGefahren = this.erkenneFarbe(startString.substring(i, i+1));
+				if(streckeGefahren==0)
 				{
 					restart=true;
 					i=3; //fliege aus der Schleife
@@ -334,22 +334,22 @@ public class Messung
 				{
 					if (schwarz==0)
 					{	
-						schwarz=strecke;
+						schwarz=streckeGefahren;
 					}
 					else
 					{
-						schwarz=(schwarz+strecke)/2;
-						schwarz2=strecke;
+						schwarz=(schwarz+streckeGefahren)/2;
+						schwarz2=streckeGefahren;
 					}		
 				}
 				else
 				{					
-						weiss=strecke;	
+						weiss=streckeGefahren;	
 				}
 				if(debug)
 				{
 					//anzeigen.drawString(startString.substring(i, i+1));
-					anzeigen.drawString("Strecke: " +strecke);
+					anzeigen.drawString("Strecke: " +streckeGefahren);
 				}
 			}
 			if(restart)
