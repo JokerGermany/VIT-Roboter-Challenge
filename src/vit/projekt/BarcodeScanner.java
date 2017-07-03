@@ -129,7 +129,62 @@ public class BarcodeScanner
 	
 	public int dunkeleAuswerten(String volldunkele)
 	{	
-	 final String[] Muster = {
+		int r;
+		boolean[] stellen=new boolean[4];
+		char[] nulleins=volldunkele.toCharArray();
+		for (int i = 0; i < nulleins.length; i++) {
+			stellen[i]=nulleins[i]=='1';
+		}
+		if (stellen[0]) {// a+ schwarz
+			if (stellen[1]) {// b+
+				r = 5;
+			} else {// b-
+				if (stellen[2]) {// c+
+					if (stellen[3]) {// d+
+						r = 9;
+					} else {
+						r = 110; //anfang
+					}
+				} else {// c-
+					if (stellen[3]) {// d+
+						r = 8;
+					} else {// d-
+						r = 1;
+					}
+				}
+			}
+		} else {// a-
+			if (stellen[1]) {// b+
+				if (stellen[2]) {// c+
+					r = 6;
+				} else {// c-
+					if (stellen[3]) {// d+
+						r = 10;//ende
+					} else {// d-
+						r = 2;
+					}
+				}
+			} else {// b-
+				if (stellen[2]) {// c+
+					if (stellen[3]){//d+
+						r = 7;
+					}else{//d-
+						r = 3;
+					}
+				} else {// c-
+					if (stellen[3]) {// d+
+						r = 4;
+					} else {// d-
+						r = 0;
+					}
+				}
+			}
+		}
+		return r;
+		/*
+		 * 
+		 * Alte nicht so effiziente Methode
+	 		final String[] Muster = {
 	            "0000", "1000", "0100", "0010", "0001", //Zahlen 0-4
 	            "1100", "0110", "0011", //Zahlen 5-7 
 	            "1001", "1011", //Zahlen 8-9
@@ -144,6 +199,7 @@ public class BarcodeScanner
 	            }
 	        }
 	        return 110; //Fehler - TODO fahre zurück zum Start...
+	        */
 	}   
 	/*
 	 * Wenn voll, dann hier leeren
