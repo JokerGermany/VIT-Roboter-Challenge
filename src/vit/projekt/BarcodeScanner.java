@@ -2,6 +2,7 @@ package vit.projekt;
 
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
+import lejos.hardware.lcd.LCD;
 
 /*
  * 0,0527777777778 cm/°
@@ -223,17 +224,19 @@ public class BarcodeScanner
 		//int strichcodeZahl = dunkeleAuswerten(volldunkele);
 			if( strichcodeZahl < 10 )
 			{
-				strichcode += strichcodeZahl; //hinten?
+				this.strichcode += strichcodeZahl; //hinten?
 				this.notfallPunkt=fort.getNegTachoCount();
 				this.notfallDunkel=gegenTeilString(dunkel);
 				this.notfallDunkele=dunkele;
-				anzeigen.drawString(strichcode);
+				anzeigen.drawString(this.strichcode);
 			}
 			else if (strichcodeZahl == 10)
 			{
+				anzeigen.clearLCD();
 				Sound.beep();
 				anzeigen.drawString("Die Zahl lautet", 3);
-				anzeigen.drawString(strichcode, 4);
+				anzeigen.drawString(this.strichcode, 4);
+				LCD.drawString(this.strichcode,0, 5);
 				this.ziel=true; // TODO herausbekommen, warum es nicht funktioniert
 				Sound.beep();
 				anzeigen.drawString("Fertig",7);
@@ -248,7 +251,7 @@ public class BarcodeScanner
 				fort.fahreZurueck(this.notfallPunkt);
 				this.restart=true;
 			}
-			anzeigen.drawString(strichcode);
+			//anzeigen.drawString(this.strichcode);
 		}	
 	}
 	public void dunkeleLeer(String dunkel, int anzahl)
