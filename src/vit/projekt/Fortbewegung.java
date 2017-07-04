@@ -44,7 +44,6 @@ public class Fortbewegung
 	     	rechterMotor.setSpeed(geschwindigkeit);	
 	     	linkerMotor.setSpeed(geschwindigkeit);	
 	     	linkerMotor.endSynchronization();
-	     	Delay.msDelay(5000);
 	  }
 	  
 	

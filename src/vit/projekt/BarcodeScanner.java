@@ -86,7 +86,7 @@ public class BarcodeScanner
 			block = messen.getBlock();
 			toleranzBlock = block / 4; // 1/4 Toleranz
 			//Fortbewegung fort = new Fortbewegung(500,50);
-			fort.setMaxSpeed(500,100);
+			fort.setMaxSpeed(0,50);
 			while(!this.ziel && !restart && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
 			{	
 //				if(this.anzahlBloeckeRead!=0) //anzahlBloeckeRead sollte nicht mehr gebraucht werden.
@@ -229,7 +229,7 @@ public class BarcodeScanner
 				this.notfallDunkel=gegenTeilString(dunkel);
 				this.notfallDunkele=dunkele;
 				anzeigen.drawString(this.strichcode);
-				klinge.ausgebenZahl(strichcodeZahl); //könnte Performance kosten...
+				//klinge.ausgebenZahl(strichcodeZahl); //könnte Performance kosten...
 			}
 			else if (strichcodeZahl == 10)
 			{
