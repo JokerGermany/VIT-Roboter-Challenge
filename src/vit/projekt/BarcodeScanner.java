@@ -112,6 +112,7 @@ public class BarcodeScanner
 			}
 		}	
 		fort.stoppe();
+		klang.ausgebenErgebnis(strichcode);
 	}
 
 	/**
@@ -229,11 +230,10 @@ public class BarcodeScanner
 				this.notfallDunkel=gegenTeilString(dunkel);
 				this.notfallDunkele=dunkele;
 				anzeigen.drawString(this.strichcode);
-				//klinge.ausgebenZahl(strichcodeZahl); //könnte Performance kosten...
+				//klang.ausgebenZahl(strichcodeZahl); //könnte Performance kosten...
 			}
 			else if (strichcodeZahl == 10)
 			{
-				klang.ausgebenErgebnis(strichcode);
 				anzeigen.clearLCD();
 				Sound.beep();
 				anzeigen.drawString("Die Zahl lautet", 3);
