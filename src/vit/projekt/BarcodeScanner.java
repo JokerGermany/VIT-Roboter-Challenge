@@ -111,7 +111,7 @@ public class BarcodeScanner
 				}
 			}
 		}	
-		fort.stoppe();
+		fort.stoppe(); //Wird warum auch immer nicht ausgeführt...
 		klang.ausgebenErgebnis(strichcode);
 	}
 
@@ -133,7 +133,7 @@ public class BarcodeScanner
 	
 	public int dunkeleAuswerten(String volldunkele)
 	{	
-		/*int r;
+		int r;
 		boolean[] stellen=new boolean[4];
 		char[] nulleins=volldunkele.toCharArray();
 		for (int i = 0; i < nulleins.length; i++) {
@@ -184,10 +184,10 @@ public class BarcodeScanner
 				}
 			}
 		}
-		return r;*/
+		return r;
 		/*
 		 * 
-		 * Alte nicht so effiziente Methode*/
+		 * Alte nicht so effiziente Methode
 	 		final String[] Muster = {
 	            "0000", "1000", "0100", "0010", "0001", //Zahlen 0-4
 	            "1100", "0110", "0011", //Zahlen 5-7 
@@ -202,7 +202,7 @@ public class BarcodeScanner
 	                return i;
 	            }
 	        }
-	        return 110; //Fehler - TODO fahre zurück zum Start...
+	        return 110; //Fehler - TODO fahre zurück zum Start...*/
 	}   
 	/*
 	 * Wenn voll, dann hier leeren
@@ -230,7 +230,7 @@ public class BarcodeScanner
 				this.notfallDunkel=gegenTeilString(dunkel);
 				this.notfallDunkele=dunkele;
 				anzeigen.drawString(this.strichcode);
-				//klang.ausgebenZahl(strichcodeZahl); //könnte Performance kosten...
+				//klang.ausgebenZahl(strichcodeZahl); //kostet scheinbar zu viel Performance...
 			}
 			else if (strichcodeZahl == 10)
 			{
