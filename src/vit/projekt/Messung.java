@@ -200,12 +200,7 @@ public class Messung
 			//LCD.clear();
 			anzeigen.drawString("Hell: " + caliHell);
 			anzeigen.drawString("Dunkel: " + caliDunkel);
-			caliGrenze = caliDunkel + ((caliHell - caliDunkel) / 2); // Achtung,
-																		// beachtet
-																		// nicht
-																		// Punkt vor
-																		// Strich
-																		// Rechnung!
+			caliGrenze = (caliDunkel+caliHell)/2;
 			anzeigen.drawString("Grenze: " + caliGrenze);
 			while (Button.ENTER.isDown()); // verhindert das die Kalibrierung versehentlich zu früh beendet wird.
 			anzeigen.drawString("");
