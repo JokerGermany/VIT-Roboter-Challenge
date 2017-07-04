@@ -5,8 +5,8 @@ import lejos.utility.Delay;
 
 public class Anzeige
 {
-	int zeile=0;
-	Ton klang = Ton.getInstance();
+	private int zeile=0;
+	private Ton klang = Ton.getInstance();
 	
   //Gewünscht ist genau eine Instanz der Klasse Anzeige, damit die Zeile mit übernommen wird. //TODO potenzieller Flaschenhals?
   // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton

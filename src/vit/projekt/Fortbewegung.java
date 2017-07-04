@@ -9,8 +9,8 @@ import lejos.utility.Delay;
  */
 public class Fortbewegung
 {
-	EV3LargeRegulatedMotor linkerMotor; 
-	EV3LargeRegulatedMotor rechterMotor; 
+	private EV3LargeRegulatedMotor linkerMotor; 
+	private EV3LargeRegulatedMotor rechterMotor; 
 	private int geschwindigkeit=50;
 	private int beschleunigung=500;
 	

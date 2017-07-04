@@ -7,17 +7,17 @@ import lejos.utility.Delay;
 
 public class Messung
 {
-	float samples[] = new float[1];
-	EV3ColorSensor light;	
-	Fortbewegung fort = Fortbewegung.getInstance();
-	BarcodeScanner myLineReaderM;
-	Anzeige anzeigen = Anzeige.getInstance();
-	float caliGrenze; // Pauschal: 0 schwarz, 1 weiß
-	boolean debug;
-	boolean zeit;
-	long block=0; //block muss auf jedenfall gesetzt sein!
-	float weissgleich=1; //wird bei erkenneStart kalibriert
-	float schwarzgleich=1; //wird bei erkenneStart kalibriert
+	private float samples[] = new float[1];
+	private EV3ColorSensor light;	
+	private Fortbewegung fort = Fortbewegung.getInstance();
+	//private BarcodeScanner myLineReaderM;
+	private Anzeige anzeigen = Anzeige.getInstance();
+	private float caliGrenze; // Pauschal: 0 schwarz, 1 weiß
+	private boolean debug;
+	private boolean zeit;
+	private long block=0; //block muss auf jedenfall gesetzt sein!
+	private float weissgleich=1; //wird bei erkenneStart kalibriert
+	private float schwarzgleich=1; //wird bei erkenneStart kalibriert
 	
 	//Gewünscht ist genau eine Instanz der Klasse Fortbewegung, da sonst die Fehlermeldung "Port Open" angezeigt wird. //TODO potenzieller Flaschenhals?
 	  // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton
@@ -34,7 +34,7 @@ public class Messung
 	  {
 		  light = new EV3ColorSensor(SensorPort.S4);
 		  light.setCurrentMode("Red"); // hier wird Betriebsmodus gesetzt
-		  myLineReaderM = new BarcodeScanner(zeit,debug); //wahrscheinlich beides false
+		  //myLineReaderM = new BarcodeScanner(zeit,debug); //wahrscheinlich beides false
 		  //this.zeit=myLineReaderM.getZeit(); //funktioniert nicht, da es scheinbar mehrere Instanzen von BarcodeScanner gibt...
 		  //this.debug=myLineReaderM.getDebug();				  
 	  }

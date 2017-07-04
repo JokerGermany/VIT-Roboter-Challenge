@@ -10,25 +10,25 @@ import lejos.hardware.lcd.LCD;
 
 public class BarcodeScanner
 {	
-	long toleranzBlock;
+	private long toleranzBlock;
 	//int degreeBlock; //Wenn wir den Switch zwischen Zeit und degree nicht hätten würde wahrscheinlich long reichen
-	long block;
-	boolean zeit;
-	boolean debug;
-	boolean start;
-	boolean ziel=false;
-	String dunkele=""; 
-	String strichcode=""; 
-	String dunkel;
-	Fortbewegung fort = Fortbewegung.getInstance();
-	Anzeige anzeigen = Anzeige.getInstance();
-	Messung messen = Messung.getInstance();
-	Ton klang = Ton.getInstance();
-	long notfallStartPunkt;
-	long notfallPunkt=110; //sollte nur positiv sein, wenn ungesetzt
-	String notfallDunkel;
-	String notfallDunkele;
-	boolean restart;
+	private long block;
+	private boolean zeit;
+	private boolean debug;
+	private boolean start;
+	private boolean ziel=false;
+	private String dunkele=""; 
+	private String strichcode=""; 
+	private String dunkel;
+	private Fortbewegung fort = Fortbewegung.getInstance();
+	private Anzeige anzeigen = Anzeige.getInstance();
+	private Messung messen = Messung.getInstance();
+	private Ton klang = Ton.getInstance();
+	private long notfallStartPunkt;
+	private long notfallPunkt=110; //sollte nur positiv sein, wenn ungesetzt
+	private String notfallDunkel;
+	private String notfallDunkele;
+	private boolean restart;
 		
 	/**
 	 * Konstruktor 
@@ -241,7 +241,7 @@ public class BarcodeScanner
 				LCD.drawString(this.strichcode,0, 5);
 				this.ziel=true; // TODO herausbekommen, warum es nicht funktioniert
 				Sound.beep();
-				anzeigen.drawString("Fertig",7);				
+				anzeigen.drawString("Fertig",7);		
 			}
 			else
 			{
