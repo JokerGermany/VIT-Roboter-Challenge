@@ -234,8 +234,8 @@ public class BarcodeScanner
 			}
 			else if (strichcodeZahl == 10)
 			{
-				anzeigen.clearLCD();
 				Sound.beep();
+				anzeigen.clearLCD();
 				anzeigen.drawString("Die Zahl lautet", 3);
 				anzeigen.drawString(this.strichcode, 4);
 				LCD.drawString(this.strichcode,0, 5);
