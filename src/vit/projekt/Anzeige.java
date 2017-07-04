@@ -6,6 +6,7 @@ import lejos.utility.Delay;
 public class Anzeige
 {
 	int zeile=0;
+	Ton klang = Ton.getInstance();
 	
   //Gewünscht ist genau eine Instanz der Klasse Anzeige, damit die Zeile mit übernommen wird. //TODO potenzieller Flaschenhals?
   // Quelle: https://de.wikibooks.org/wiki/Muster:_Java:_Singleton
@@ -19,7 +20,10 @@ public class Anzeige
   }
 
   // Verhindere die Erzeugung des Objektes über andere Methoden
-  private Anzeige () {}
+  private Anzeige () 
+  {
+	 
+  }
   // Eine nicht synchronisierte Zugriffsmethode auf Klassenebene.
   public static Anzeige getInstance () 
   {
@@ -34,9 +38,18 @@ public class Anzeige
 	public void warte(int sekunden, String text)
 	{
 		this.clearLCD();
-		this.drawString(text+" in "+sekunden+" Sekunden",3);
-		Delay.msDelay(sekunden*1000); //Damit der Roboter nicht vom (Be)diener beeinflusst wird
-		this.clearLCD();		
+		while(sekunden>0 && sekunden < 10) //funktioniert nur wenn warte unter 10 Sekunden
+		{	
+			this.drawString(text+" in "+sekunden+" Sekunden",3);
+			klang.ausgebenZahl(sekunden);
+			Delay.msDelay(1000); //Durch Klang etwas mehr Wartezeit als 1 Sekunde
+			sekunden--;
+		}	
+		if(sekunden > 9) // unwahrscheinlich, daher nur rudimentär
+		{
+			Delay.msDelay(sekunden*1000);
+		}
+		this.clearLCD();			
 	}	  
 	
 	public void clearLCD()

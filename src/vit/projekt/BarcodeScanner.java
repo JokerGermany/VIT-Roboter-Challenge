@@ -23,7 +23,7 @@ public class BarcodeScanner
 	Fortbewegung fort = Fortbewegung.getInstance();
 	Anzeige anzeigen = Anzeige.getInstance();
 	Messung messen = Messung.getInstance();
-	Ton klinge = Ton.getInstance();
+	Ton klang = Ton.getInstance();
 	long notfallStartPunkt;
 	long notfallPunkt=110; //sollte nur positiv sein, wenn ungesetzt
 	String notfallDunkel;
@@ -233,7 +233,7 @@ public class BarcodeScanner
 			}
 			else if (strichcodeZahl == 10)
 			{
-				klinge.ausgabenErgebnis(strichcode);
+				klang.ausgabenErgebnis(strichcode);
 				anzeigen.clearLCD();
 				Sound.beep();
 				anzeigen.drawString("Die Zahl lautet", 3);
