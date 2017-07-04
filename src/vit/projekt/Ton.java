@@ -38,9 +38,9 @@ public class Ton
 			  }
 		  }
 		  
-		  public void ausgebenZahl(int zahl)
+		  public int ausgebenZahl(int zahl)
 		  {
 			  File sound = new File(zahl+".wav");
-			  Sound.playSample(sound);
+			  return Sound.playSample(sound);
 		  }
 }

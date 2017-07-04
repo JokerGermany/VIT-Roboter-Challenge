@@ -40,8 +40,11 @@ public class Anzeige
 		while(sekunden>0 && sekunden < 10) //funktioniert nur wenn warte unter 10 Sekunden
 		{	
 			this.drawString(text+" in "+sekunden+" Sekunden",3);
-			klang.ausgebenZahl(sekunden);
-			Delay.msDelay(1000); //Durch Klang etwas mehr Wartezeit als 1 Sekunde
+			int spielzeit = klang.ausgebenZahl(sekunden);
+			if (spielzeit < 1000)
+			{
+				Delay.msDelay(1000-spielzeit);
+			}
 			sekunden--;
 		}	
 		if(sekunden > 9) // unwahrscheinlich, daher nur rudimentär
