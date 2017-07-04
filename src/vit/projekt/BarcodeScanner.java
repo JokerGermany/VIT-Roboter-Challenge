@@ -233,7 +233,7 @@ public class BarcodeScanner
 			}
 			else if (strichcodeZahl == 10)
 			{
-				klang.ausgabenErgebnis(strichcode);
+				klang.ausgebenErgebnis(strichcode);
 				anzeigen.clearLCD();
 				Sound.beep();
 				anzeigen.drawString("Die Zahl lautet", 3);
@@ -241,8 +241,7 @@ public class BarcodeScanner
 				LCD.drawString(this.strichcode,0, 5);
 				this.ziel=true; // TODO herausbekommen, warum es nicht funktioniert
 				Sound.beep();
-				anzeigen.drawString("Fertig",7);
-				
+				anzeigen.drawString("Fertig",7);				
 			}
 			else
 			{

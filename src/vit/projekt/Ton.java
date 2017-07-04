@@ -27,7 +27,7 @@ public class Ton
 		    return InstanceHolderT.INSTANCE;
 		  }
 		  
-		  public void ausgabenErgebnis(String strichcode)
+		  public void ausgebenErgebnis(String strichcode)
 		  {
 			  while(strichcode.length()>0)
 			  {

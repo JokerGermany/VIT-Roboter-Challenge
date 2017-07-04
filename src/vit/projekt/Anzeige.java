@@ -21,8 +21,7 @@ public class Anzeige
 
   // Verhindere die Erzeugung des Objektes über andere Methoden
   private Anzeige () 
-  {
-	 
+  {	 
   }
   // Eine nicht synchronisierte Zugriffsmethode auf Klassenebene.
   public static Anzeige getInstance () 
