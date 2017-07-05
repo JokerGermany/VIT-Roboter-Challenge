@@ -96,7 +96,7 @@ public class Messung
 	 * Wenn Blockgröße >2cm ist weiß zu groß. Durch Schwarzgleich wird die Caligrenze verschoben, allerdings nur wenn schwarz  gemessen wird.
 	 * Wenn weiß <2cm ist schwarz zu groß. Durch Weissgleich wird die Caligrenze verschoben, allerdings nur wenn weiß gemessen wird.
 	 * @param dunkel true = schwarz
-	 * @return Strecke gefahren (solange weiss oder schwarz war)
+	 * @return Strecke gefahren (solange weiss oder schwarz)
 	 */
 	public long erkenneFarbe(String dunkel)
 	{
