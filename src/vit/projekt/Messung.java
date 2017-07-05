@@ -286,26 +286,26 @@ public class Messung
 			while (Button.ESCAPE.isUp());
 			System.exit(1);
 		}		
-			if(startString.substring(0, 1).equals("1"))
-			{	
-				fort.fahre();
-				this.erkenneFarbe("0");
-			}
-			else if(startString.substring(0, 1).equals("0"))
-			{
-				fort.fahre();
-				this.erkenneFarbe("1");
-			}	
-			else
-			{
-				anzeigen.drawString("Nur 0 oder 1",3);
-				anzeigen.drawString("ESC zum beenden",4);
-				System.exit(1);
-			}
-			boolean restart=true;
-			while(restart && Button.ESCAPE.isUp())
-			{	
-				restart=false;
+		if(startString.substring(0, 1).equals("1"))
+		{	
+			fort.fahre();
+			this.erkenneFarbe("0");
+		}
+		else if(startString.substring(0, 1).equals("0"))
+		{
+			fort.fahre();
+			this.erkenneFarbe("1");
+		}	
+		else
+		{
+			anzeigen.drawString("Nur 0 oder 1",3);
+			anzeigen.drawString("ESC zum beenden",4);
+			System.exit(1);
+		}
+		boolean restart=true;
+		while(restart && Button.ESCAPE.isUp())  //Notfallschleife
+		{	
+			restart=false;
 			if(this.zeit)
 			{
 				block = -System.currentTimeMillis();
