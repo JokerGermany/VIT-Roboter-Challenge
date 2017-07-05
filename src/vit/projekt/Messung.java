@@ -91,9 +91,12 @@ public class Messung
 	/**
 	 * In der Variablen aktBlock wird die Zeit/Gradzahl gespeichert, die der Roboter hierfür benötgt hat
 	 * Anschließend wird der aktuelle Farbwert gemessen
-	 * was passiert weiter //TODO
+	 * Nun wird nach einem Farbwechsel gesucht. Die CaliGrenze, kann sich je nach Breite der Striche durch schwarzgleich bzw weissgleich verändern.
+	 * Pauschal gesagt:
+	 * Wenn Blockgröße >2cm ist weiß zu groß. Durch Schwarzgleich wird die Caligrenze verschoben, allerdings nur wenn schwarz  gemessen wird.
+	 * Wenn weiß <2cm ist schwarz zu groß. Durch Weissgleich wird die Caligrenze verschoben, allerdings nur wenn weiß gemessen wird.
 	 * @param dunkel true = schwarz
-	 * @return
+	 * @return Strecke gefahren sollen weiss oder schwarz war
 	 */
 	public long erkenneFarbe(String dunkel)
 	{
