@@ -90,9 +90,7 @@ public class BarcodeScanner
 		anzeigen.warte(3,"Starte");
 		restart=true;
 		this.dunkel = messen.erkenneStart("1010");
-		//this.caliGrenze = 0.4f; TODO Sei nicht so Faul du  Penner
-		//restart = false; // TODO rausnehmen! Nützlich wenn man nur erkenneStart testen will
-		while(restart && Button.ESCAPE.isUp()) //TODO 
+		while(restart && Button.ESCAPE.isUp()) //Notfallschleife 
 		{
 			this.notfallStartPunkt = fort.getNegTachoCount();
 			start=true;
@@ -101,21 +99,10 @@ public class BarcodeScanner
 			dunkele="";
 			block = messen.getBlock();
 			toleranzBlock = block / 4; // 1/4 Toleranz
-			//Fortbewegung fort = new Fortbewegung(500,50);
 			fort.setMaxSpeed(0,50);
 			while(!this.ziel && !restart && Button.ESCAPE.isUp())//(i < 10 && Button.ESCAPE.isUp()) 
 			{	
-//				if(this.anzahlBloeckeRead!=0) //anzahlBloeckeRead sollte nicht mehr gebraucht werden.
-//				{
-//					//this.drawString("Blocke "+myLineReader.anzahlBloeckeRead);
-//					this.convertiereStrichcode(this.dunkel, this.anzahlBloeckeRead);
-//				}
-//				else
-//				{
-					this.dunkel=this.berechneBlockgroesse(this.dunkel); //Variante 1, die Zaehler nicht nutzt
-					//anzeigen.drawString(""+this.suche(block, startString.substring(3).equals("1"))); //TODO Variante 2
-					//myLineReader.drawString(myLineReader.dunkel);
-//				}
+				this.dunkel=this.berechneBlockgroesse(this.dunkel);
 				if(restart && notfallPunkt==110) // => Fallback NotfallStartPunkt
 				{
 					dunkele="";
@@ -154,9 +141,7 @@ public class BarcodeScanner
 			restart=true;
 			return this.notfallDunkel;			
 		}	
-		//FIXME Hier ist irgendwo im Fehlerfall ein devided by Zero...
 		int anzahlBloecke = (int) (aktStrecke/block);
-		//float rest = aktStrecke % this.block;
 		if(aktStrecke % block>=toleranzBlock)
 		{
 			if(this.debug)
@@ -290,7 +275,7 @@ public class BarcodeScanner
 				anzeigen.drawString("Die Zahl lautet", 3);
 				anzeigen.drawString(this.strichcode, 4);
 				LCD.drawString(this.strichcode,0, 5);
-				this.ziel=true; // TODO herausbekommen, warum es nicht funktioniert
+				this.ziel=true;
 				Sound.beep();
 				anzeigen.drawString("Fertig",7);		
 			}

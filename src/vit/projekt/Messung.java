@@ -174,7 +174,7 @@ public class Messung
 			/*
 			 * While schleife wird durch die Methode scannen ersetzt
 			 */
-			// while (sample[0]==0 || caliHell==2) //TODO: Nice to have: abfangen
+			// while (sample[0]==0 || caliHell==2)
 			// wenn Hell abgefragt aber auf dunkel gestellt
 			// {
 			// light.fetchSample(sample, 0);
@@ -182,12 +182,8 @@ public class Messung
 			// //Delay.msDelay(5000);
 			// }
 			anzeigen.drawString("HelleFläche: " + caliHell);
-			// Delay.msDelay(5000); //TODO KILLME
 			while (Button.ENTER.isDown()); // verhindert das Hell und Dunkel gleichzeitig gesetzt werden
 			anzeigen.clearLCD();
-			// TODO Wenn nicht zufrieden ESC drücken und Methode neu aufrufen, sonst
-			// ENTER
-			// Delay.msDelay(5000); //TODO KILLME
 			anzeigen.drawString("Dunkle Fleche stellen");
 			anzeigen.drawString("druecken sie ENTER");
 			while (Button.ENTER.isUp());
@@ -196,7 +192,7 @@ public class Messung
 			/*
 			 * While schleife wird durch die Methode scannen ersetzt
 			 */
-			// while (sample[0]==0 || caliDunkel==2) //TODO: Nice to have: abfangen
+			// while (sample[0]==0 || caliDunkel==2)
 			// wenn Dunkel abgefragt aber auf hell gestellt
 			// {
 			// light.fetchSample(sample, 0);
@@ -375,7 +371,7 @@ public class Messung
 		}
 		if(schwarz<weiss && schwarz2 <weiss) //< wegen Messungenauigkeiten
 		{
-			this.schwarzgleich = (float) schwarz / (float) weiss; //TODO herausfinden ob Cast to float Nebenwirkungen hat
+			this.schwarzgleich = (float) schwarz / (float) weiss;
 			//float schwarzgleich2 = (float) schwarz2 / (float) weiss; zu hohe Nebenwirkungen
 			if(debug)
 			{
@@ -386,7 +382,7 @@ public class Messung
 		}
 		else
 		{
-			this.weissgleich = (float) weiss / (float) schwarz; //TODO herausfinden ob Cast to float Nebenwirkungen hat
+			this.weissgleich = (float) weiss / (float) schwarz;
 			if(debug)
 			{
 				anzeigen.drawString("W:"+weiss+" S:"+schwarz);
