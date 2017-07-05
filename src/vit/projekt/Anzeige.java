@@ -54,12 +54,6 @@ public class Anzeige
 		this.clearLCD();			
 	}	  
 	
-	public void clearLCD()
-	{
-		LCD.clear();
-		zeile=0;
-	}
-	
 	public void drawString(String str, int y)
 	{
 		LCD.drawString(str, 0, y);
@@ -77,5 +71,10 @@ public class Anzeige
 			LCD.drawString(str, 0, zeile);
 			this.zeile++;
 		}				
+	}
+	public void clearLCD()
+	{
+		LCD.clear();
+		zeile=0;
 	}
 }

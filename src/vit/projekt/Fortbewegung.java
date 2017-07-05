@@ -54,6 +54,37 @@ public class Fortbewegung
 	}
 	
 	
+	/*
+	 * positve Zahlen...
+	 */
+	public int getTachoCount()
+	{
+		return (linkerMotor.getTachoCount()*-1); 
+		//return (Motor.A.getTachoCount()*-1); 
+	}
+	public int getNegTachoCount() //Wird für den Notfallalgorithmus benutzt
+	{
+		return linkerMotor.getTachoCount(); 
+		//return (Motor.A.getTachoCount()*-1); 
+	}
+	public void fahre()
+	{
+		linkerMotor.startSynchronization();
+		//int geschwindigkeit = 50;	//	Festsetzen der Geschwindigkeit in "Grad/Sekunde"
+		//int beschleunigung = 500;	//	Verzögerung von 500 ms bis Geschwindigkeit
+		 //Sicherstellen, dass die Motoren syncron fahren
+		//linkerMotor.resetTachoCount();					//	Tacho-Reset unnötig, da meines wissen am Anfang des Programms sowieso 0, könnte Probleme ergeben
+		linkerMotor.setSpeed(geschwindigkeit);			//	setzen der Geschwindigkeit
+		linkerMotor.setAcceleration(beschleunigung);	//	setzen der Beschleunigung
+		//rechterMotor.resetTachoCount();				//	Tacho-Reset unnötig, da meines wissen am Anfang des Programms sowieso 0, könnte Probleme ergeben
+		rechterMotor.setSpeed(geschwindigkeit);			//	setzen der Geschwindigkeit
+		rechterMotor.setAcceleration(beschleunigung);	//	setzen der Beschleunigung
+		linkerMotor.backward();
+		rechterMotor.backward();
+		linkerMotor.endSynchronization(); //hier beginnen die Motoren los zu fahren
+		//Motor.A.backward();
+		//Motor.D.backward();
+	}
 	public void fahreZurueck(long zielTacho)
 	{
 		if(zielTacho==110)
@@ -79,25 +110,6 @@ public class Fortbewegung
 
 
 
-	public void fahre()
-	{
-		linkerMotor.startSynchronization();
-		//int geschwindigkeit = 50;	//	Festsetzen der Geschwindigkeit in "Grad/Sekunde"
-		//int beschleunigung = 500;	//	Verzögerung von 500 ms bis Geschwindigkeit
-		 //Sicherstellen, dass die Motoren syncron fahren
-		//linkerMotor.resetTachoCount();					//	Tacho-Reset unnötig, da meines wissen am Anfang des Programms sowieso 0, könnte Probleme ergeben
-		linkerMotor.setSpeed(geschwindigkeit);			//	setzen der Geschwindigkeit
-		linkerMotor.setAcceleration(beschleunigung);	//	setzen der Beschleunigung
-		//rechterMotor.resetTachoCount();				//	Tacho-Reset unnötig, da meines wissen am Anfang des Programms sowieso 0, könnte Probleme ergeben
-		rechterMotor.setSpeed(geschwindigkeit);			//	setzen der Geschwindigkeit
-		rechterMotor.setAcceleration(beschleunigung);	//	setzen der Beschleunigung
-		linkerMotor.backward();
-		rechterMotor.backward();
-		linkerMotor.endSynchronization(); //hier beginnen die Motoren los zu fahren
-		//Motor.A.backward();
-		//Motor.D.backward();
-	}
-
 	public void stoppe()
 	{
 		linkerMotor.startSynchronization(); //Sicherstellen, dass die Motoren gleichzeitig stoppen
@@ -106,19 +118,5 @@ public class Fortbewegung
 		linkerMotor.endSynchronization(); //hier stoppen die Motoren
 		//Motor.A.stop(); //Stoppt zu Ruckartig und könnte dazu führen, dass die Fahrtrichtung (leicht) verändert wird.
 		//Motor.D.stop();
-	}
-	
-	/*
-	 * positve Zahlen...
-	 */
-	public int getTachoCount()
-	{
-		return (linkerMotor.getTachoCount()*-1); 
-		//return (Motor.A.getTachoCount()*-1); 
-	}
-	public int getNegTachoCount() //Wird für den Notfallalgorithmus benutzt
-	{
-		return linkerMotor.getTachoCount(); 
-		//return (Motor.A.getTachoCount()*-1); 
 	}
 }

@@ -29,7 +29,12 @@ public class Messung
 	    static final Messung INSTANCE = new Messung();
 	  }
 
-	  // Verhindere die Erzeugung des Objektes über andere Methoden
+	  // Eine nicht synchronisierte Zugriffsmethode auf Klassenebene.
+	  public static Messung getInstance () 
+	  {
+	    return InstanceHolderM.INSTANCE;
+	  }
+	// Verhindere die Erzeugung des Objektes über andere Methoden
 	  private Messung() 
 	  {
 		  light = new EV3ColorSensor(SensorPort.S4);
@@ -38,13 +43,9 @@ public class Messung
 		  //this.zeit=myLineReaderM.getZeit(); //funktioniert nicht, da es scheinbar mehrere Instanzen von BarcodeScanner gibt...
 		  //this.debug=myLineReaderM.getDebug();				  
 	  }
-	  // Eine nicht synchronisierte Zugriffsmethode auf Klassenebene.
-	  public static Messung getInstance () 
-	  {
-	    return InstanceHolderM.INSTANCE;
-	  }
-		
-	public void setDebugUndZeit(boolean debug, boolean zeit)
+	  
+//Getter und Setter
+	  public void setDebugUndZeit(boolean debug, boolean zeit)
 	{
 		this.debug=debug;
 		this.zeit=zeit;
@@ -65,6 +66,8 @@ public class Messung
 	 * Scannt den ersten Wert
 	 * @return 1 Scannwert (nicht gemittelt!)
 	 */
+	
+//ab hier Messfunktionen	
 	public float ersterScan()
 	{
 		light.fetchSample(samples, 0);

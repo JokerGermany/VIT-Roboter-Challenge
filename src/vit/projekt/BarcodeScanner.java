@@ -55,11 +55,27 @@ public class BarcodeScanner
 //	{
 //		return this.debug;
 //	}
-	public boolean getZeit()
-	{
-		return this.zeit;
-	}
 	
+///	public boolean getZeit()
+///	{
+///		return this.zeit;
+///	}
+	
+	/**
+	 *Erzeugt eine Instanz der BarcodeScanner myLineReader. Ihm muss mitgegebn werden ob Zwischenwerte
+	 *ausgegebn werden sollen und ob mit Zeit oder Grad gemessen werden soll
+	 */
+	public static void main(String[] args)
+	{	
+		boolean debug = true;
+		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
+		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
+		//fort = new Fortbewegung(500,50); //funktioniert nicht mehr, da keine Konstruktoren mehr von Fortbewegung gebaut werden können
+		myLineReader.scanneCode();	
+		
+		while (Button.ESCAPE.isUp()); // Ohne dies wird am Ende der "Gewinncode" nicht angezeigt!
+	}
+
 	/* Es werden die Vairablen Debug und Zeit weitergegeben.
 	 * Anschließend wird schwarz und weiß calibireirt bzw. die Caligrenze berechnet
 	 *Anschließend soll der Start erkannt werden. Der Startcodierung ist dabei variabel einstellbar(Aufgabe swsw)
@@ -115,22 +131,182 @@ public class BarcodeScanner
 		klang.ausgebenErgebnis(strichcode);
 	}
 
-	/**
-	 *Erzeugt eine Instanz der BarcodeScanner myLineReader. Ihm muss mitgegebn werden ob Zwischenwerte
-	 *ausgegebn werden sollen und ob mit Zeit oder Grad gemessen werden soll
-	 */
-	public static void main(String[] args)
-	{	
-		boolean debug = true;
-		boolean zeit = false; //Zeit oder Grad zur Messung verwenden?
-		BarcodeScanner myLineReader = new BarcodeScanner(zeit, debug); 
-		//fort = new Fortbewegung(500,50); //funktioniert nicht mehr, da keine Konstruktoren mehr von Fortbewegung gebaut werden können
-		myLineReader.scanneCode();	
-		
-		while (Button.ESCAPE.isUp()); // Ohne dies wird am Ende der "Gewinncode" nicht angezeigt!
+	public String gegenTeilString(String dunkel)
+	{
+		if(dunkel.equals("1"))
+		{
+			return "0";
+		}
+		else
+		{
+			return "1";
+		}
 	}
+
 	
-	
+//ab hier Rechenlogik	
+	public String berechneBlockgroesse(String dunkel)
+	{	
+		long aktStrecke = messen.erkenneFarbe(dunkel);
+		if(aktStrecke < (block-toleranzBlock)) // Fehler
+		{
+			fort.fahreZurueck(notfallPunkt); 
+			restart=true;
+			return this.notfallDunkel;			
+		}	
+		//FIXME Hier ist irgendwo im Fehlerfall ein devided by Zero...
+		int anzahlBloecke = (int) (aktStrecke/block);
+		//float rest = aktStrecke % this.block;
+		if(aktStrecke % block>=toleranzBlock)
+		{
+			if(this.debug)
+			{
+				anzeigen.drawString(aktStrecke % this.block+"Ueber="+anzahlBloecke+"F"+this.dunkel);
+			}
+			anzahlBloecke++;			
+		}
+		//else if(aktStrecke % this.block<=(anzahlBloecke*toleranzBlock))
+		else
+		{
+			if(this.debug)
+			{
+				anzeigen.drawString(aktStrecke % this.block+"Inner="+anzahlBloecke+"F"+this.dunkel);
+			}
+		}	
+		//anzeigen.drawString(""+block);
+		if(this.start)
+		{
+			if(anzahlBloecke>1)
+			{
+				if(this.debug)
+				{
+					anzeigen.drawString((anzahlBloecke-1)+" mehr als Start");
+				}	
+				anzahlBloecke--;
+				//"Overhead" weitergeben
+				konvertiereStrichcode(dunkel, (anzahlBloecke));
+				this.start=false;
+			}	
+			else if(anzahlBloecke<1)
+			{
+				fort.fahreZurueck(notfallStartPunkt);
+				this.dunkel=this.notfallDunkel;	
+				this.start=true;
+			}
+			else //Block ist 1 lang
+			{
+				this.notfallPunkt=fort.getNegTachoCount();
+				this.notfallDunkel=gegenTeilString(dunkel);
+				if(this.debug)
+				{
+					anzeigen.drawString("Weiss nur Start");
+				}				
+				this.start=false;
+			}
+			
+			//berechneBlockgroesse(gegenTeilString(dunkel));//Stackoverflow-Vermeidung
+		}
+		else
+		{
+			konvertiereStrichcode(dunkel, anzahlBloecke);
+			//berechneBlockgroesse(gegenTeilString(dunkel)); Stackoverflow-Vermeidung
+		}
+		return gegenTeilString(dunkel);
+	}
+
+	public void konvertiereStrichcode(String dunkel, int anzahl)
+		{		
+			//anzeigen.drawString("F:"+dunkel+" A:"+anzahl);
+			if(dunkele.isEmpty()) // Wenn strichcode leer ist
+			{
+				if(debug)
+				{
+					//anzeigen.drawString("Leer");
+				}
+					dunkeleLeer(dunkel, anzahl);		
+			}
+			else
+			{
+				while((anzahl > 0))// && (dunkele.length() < 4))
+				{	
+					//if(dunkele.length() > 3) //nicht mehr nötig, da dunkele jetzt bis zu 8 Zahlen enthalten kann
+					//{
+					//	anzeigen.drawString(dunkele);
+					//	dunkeleUebertragen(dunkele);
+					//	dunkele="";
+					//}
+					dunkele+=dunkel;//1000
+					anzahl--;				
+				}	
+				if(dunkele.length() > 3)
+				{
+					anzeigen.drawString(dunkele);
+					dunkeleUebertragen(dunkele);
+				}
+	//			if(anzahl > 0) //nicht mehr nötig, da dunkele jetzt bis zu 8 Zahlen enthalten kann
+	//			{
+	//				this.dunkel=dunkel;
+	//				this.anzahlBloeckeRead=anzahl;
+	//			}
+	//			else
+	//			{
+					//this.anzahlBloeckeRead=0;
+	//			}
+			}
+		}
+
+	/*
+	 * Wenn voll, dann hier leeren
+	 */
+	public void dunkeleUebertragen(String volldunkele)
+	{
+		while (dunkele.length()>3)
+		{	
+			int strichcodeZahl=110; //Case Error...
+			if (dunkele.length() > 4)
+			{
+				strichcodeZahl=dunkeleAuswerten(dunkele.substring(0,4));
+				dunkele=dunkele.substring(4);
+			}
+			else
+			{
+				strichcodeZahl=dunkeleAuswerten(dunkele);
+				dunkele="";
+			}
+		//int strichcodeZahl = dunkeleAuswerten(volldunkele);
+			if( strichcodeZahl < 10 )
+			{
+				this.strichcode += strichcodeZahl; //hinten?
+				this.notfallPunkt=fort.getNegTachoCount();
+				this.notfallDunkel=gegenTeilString(dunkel);
+				this.notfallDunkele=dunkele;
+				anzeigen.drawString(this.strichcode);
+				//klang.ausgebenZahl(strichcodeZahl); //kostet scheinbar zu viel Performance...
+			}
+			else if (strichcodeZahl == 10)
+			{
+				Sound.beep();
+				anzeigen.clearLCD();
+				anzeigen.drawString("Die Zahl lautet", 3);
+				anzeigen.drawString(this.strichcode, 4);
+				LCD.drawString(this.strichcode,0, 5);
+				this.ziel=true; // TODO herausbekommen, warum es nicht funktioniert
+				Sound.beep();
+				anzeigen.drawString("Fertig",7);		
+			}
+			else
+			{
+				//Fehler - fahre zurück zum Notfallpunkt...
+				anzeigen.drawString("Verzeihe mir Meister"); 
+				notfallDunkel=this.dunkel;
+				this.notfallDunkele=dunkele;
+				fort.fahreZurueck(this.notfallPunkt);
+				this.restart=true;
+			}
+			//anzeigen.drawString(this.strichcode);
+		}	
+	}
+
 	public int dunkeleAuswerten(String volldunkele)
 	{	
 		int r;
@@ -204,57 +380,6 @@ public class BarcodeScanner
 	        }
 	        return 110; //Fehler - TODO fahre zurück zum Start...*/
 	}   
-	/*
-	 * Wenn voll, dann hier leeren
-	 */
-	public void dunkeleUebertragen(String volldunkele)
-	{
-		while (dunkele.length()>3)
-		{	
-			int strichcodeZahl=110; //Case Error...
-			if (dunkele.length() > 4)
-			{
-				strichcodeZahl=dunkeleAuswerten(dunkele.substring(0,4));
-				dunkele=dunkele.substring(4);
-			}
-			else
-			{
-				strichcodeZahl=dunkeleAuswerten(dunkele);
-				dunkele="";
-			}
-		//int strichcodeZahl = dunkeleAuswerten(volldunkele);
-			if( strichcodeZahl < 10 )
-			{
-				this.strichcode += strichcodeZahl; //hinten?
-				this.notfallPunkt=fort.getNegTachoCount();
-				this.notfallDunkel=gegenTeilString(dunkel);
-				this.notfallDunkele=dunkele;
-				anzeigen.drawString(this.strichcode);
-				//klang.ausgebenZahl(strichcodeZahl); //kostet scheinbar zu viel Performance...
-			}
-			else if (strichcodeZahl == 10)
-			{
-				Sound.beep();
-				anzeigen.clearLCD();
-				anzeigen.drawString("Die Zahl lautet", 3);
-				anzeigen.drawString(this.strichcode, 4);
-				LCD.drawString(this.strichcode,0, 5);
-				this.ziel=true; // TODO herausbekommen, warum es nicht funktioniert
-				Sound.beep();
-				anzeigen.drawString("Fertig",7);		
-			}
-			else
-			{
-				//Fehler - fahre zurück zum Notfallpunkt...
-				anzeigen.drawString("Verzeihe mir Meister"); 
-				notfallDunkel=this.dunkel;
-				this.notfallDunkele=dunkele;
-				fort.fahreZurueck(this.notfallPunkt);
-				this.restart=true;
-			}
-			//anzeigen.drawString(this.strichcode);
-		}	
-	}
 	public void dunkeleLeer(String dunkel, int anzahl)
 	{
 		if (anzahl>3) // Mindestens 4 boolean Werte welche nur hell (dunkel=false) sein können
@@ -274,128 +399,5 @@ public class BarcodeScanner
 				anzahl--;
 			}			
 		}
-	}
-	
-	public void konvertiereStrichcode(String dunkel, int anzahl)
-	{		
-		//anzeigen.drawString("F:"+dunkel+" A:"+anzahl);
-		if(dunkele.isEmpty()) // Wenn strichcode leer ist
-		{
-			if(debug)
-			{
-				//anzeigen.drawString("Leer");
-			}
-				dunkeleLeer(dunkel, anzahl);		
-		}
-		else
-		{
-			while((anzahl > 0))// && (dunkele.length() < 4))
-			{	
-				//if(dunkele.length() > 3) //nicht mehr nötig, da dunkele jetzt bis zu 8 Zahlen enthalten kann
-				//{
-				//	anzeigen.drawString(dunkele);
-				//	dunkeleUebertragen(dunkele);
-				//	dunkele="";
-				//}
-				dunkele+=dunkel;//1000
-				anzahl--;				
-			}	
-			if(dunkele.length() > 3)
-			{
-				anzeigen.drawString(dunkele);
-				dunkeleUebertragen(dunkele);
-			}
-//			if(anzahl > 0) //nicht mehr nötig, da dunkele jetzt bis zu 8 Zahlen enthalten kann
-//			{
-//				this.dunkel=dunkel;
-//				this.anzahlBloeckeRead=anzahl;
-//			}
-//			else
-//			{
-				//this.anzahlBloeckeRead=0;
-//			}
-		}
-	}
-	
-	public String gegenTeilString(String dunkel)
-	{
-		if(dunkel.equals("1"))
-		{
-			return "0";
-		}
-		else
-		{
-			return "1";
-		}
-	}
-			
-	
-	public String berechneBlockgroesse(String dunkel)
-	{	
-		long aktStrecke = messen.erkenneFarbe(dunkel);
-		if(aktStrecke < (block-toleranzBlock)) // Fehler
-		{
-			fort.fahreZurueck(notfallPunkt); 
-			restart=true;
-			return this.notfallDunkel;			
-		}	
-		//FIXME Hier ist irgendwo im Fehlerfall ein devided by Zero...
-		int anzahlBloecke = (int) (aktStrecke/block);
-		//float rest = aktStrecke % this.block;
-		if(aktStrecke % block>=toleranzBlock)
-		{
-			if(this.debug)
-			{
-				anzeigen.drawString(aktStrecke % this.block+"Ueber="+anzahlBloecke+"F"+this.dunkel);
-			}
-			anzahlBloecke++;			
-		}
-		//else if(aktStrecke % this.block<=(anzahlBloecke*toleranzBlock))
-		else
-		{
-			if(this.debug)
-			{
-				anzeigen.drawString(aktStrecke % this.block+"Inner="+anzahlBloecke+"F"+this.dunkel);
-			}
-		}	
-		//anzeigen.drawString(""+block);
-		if(this.start)
-		{
-			if(anzahlBloecke>1)
-			{
-				if(this.debug)
-				{
-					anzeigen.drawString((anzahlBloecke-1)+" mehr als Start");
-				}	
-				anzahlBloecke--;
-				//"Overhead" weitergeben
-				konvertiereStrichcode(dunkel, (anzahlBloecke));
-				this.start=false;
-			}	
-			else if(anzahlBloecke<1)
-			{
-				fort.fahreZurueck(notfallStartPunkt);
-				this.dunkel=this.notfallDunkel;	
-				this.start=true;
-			}
-			else //Block ist 1 lang
-			{
-				this.notfallPunkt=fort.getNegTachoCount();
-				this.notfallDunkel=gegenTeilString(dunkel);
-				if(this.debug)
-				{
-					anzeigen.drawString("Weiss nur Start");
-				}				
-				this.start=false;
-			}
-			
-			//berechneBlockgroesse(gegenTeilString(dunkel));//Stackoverflow-Vermeidung
-		}
-		else
-		{
-			konvertiereStrichcode(dunkel, anzahlBloecke);
-			//berechneBlockgroesse(gegenTeilString(dunkel)); Stackoverflow-Vermeidung
-		}
-		return gegenTeilString(dunkel);
 	}	
 }	

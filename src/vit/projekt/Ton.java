@@ -26,6 +26,11 @@ public class Ton
 		  public static Ton getInstance () {
 		    return InstanceHolderT.INSTANCE;
 		  }
+		  public int ausgebenZahl(int zahl)
+		  {
+			  File sound = new File(zahl+".wav");
+			  return Sound.playSample(sound);
+		  }
 		  
 		  public void ausgebenErgebnis(String strichcode)
 		  {
@@ -36,11 +41,5 @@ public class Ton
 				  Sound.playSample(sound);
 				  strichcode=strichcode.substring(1);
 			  }
-		  }
-		  
-		  public int ausgebenZahl(int zahl)
-		  {
-			  File sound = new File(zahl+".wav");
-			  return Sound.playSample(sound);
 		  }
 }
